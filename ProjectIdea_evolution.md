@@ -45,10 +45,6 @@ algorithm? * How did the student overcome challenges and make changes to the enc
 scheme, testing environment and so on to improve the system’s performance?
 
 ## **What would a prototype look like?**
-What would it show?
-What does it need to prove?
-What IS important to make clear?
-What is NOT important at this stage?
 We recommend that at the prototype stage, the student has specified and ideally, implemented the
 encoding scheme. So it should be clear what the problem is (e.g. designing robots, designing
 buildings etc.) and how the system encodes the problem space (e.g. genetic encoding scheme). The
