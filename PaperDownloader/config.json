@@ -1,0 +1,26 @@
+{
+	"Google Scholar": {
+        "url": "https://scholar.google.com/",
+        "search_box_xpath": "//*[@id=\"gs_hdr_tsi\"]",
+        "search_button_xpath": "//*[@id=\"gs_hdr_tsb\"]",
+        "first_result_xpath": "//*[@id=\\\"gs_res_ccl_mid\\\"]/div[1]/div[2]/div[1]/a"
+    },
+    "IEEE Xplore Digital Library": {
+        "url": "https://ieeexplore.ieee.org/Xplore/home.jsp",
+        "search_box_xpath": "//*[@id=\\\"global-nav\\\"]/div[3]/div/div/form/div/div/div/div/input[2]",
+        "search_button_xpath": "//*[@id=\\\"global-nav\\\"]/div[3]/div/div/form/div/div/div/button",
+        "first_result_xpath": "//*[@id=\\\"result_1\\\"]/div[2]/a[1]"
+    },
+    "ACM Digital Library": {
+        "url": "https://dl.acm.org/",
+        "search_box_xpath": "//*[@id=\\\"q1\\\"]",
+        "search_button_xpath": "//*[@id=\\\"search-header\\\"]/div[2]/div/form/div/div[2]/button",
+        "first_result_xpath": "//*[@id=\\\"facetsearch\\\"]/div[1]/div[2]/div[2]/div[1]/div/div[2]/div[1]/h5/a"
+    },
+    "arXiv.org": {
+        "url": "https://arxiv.org/",
+        "search_box_xpath": "//*[@id=\\\"search-box\\\"]",
+        "search_button_xpath": "//*[@id=\\\"search-form\\\"]/button",
+        "first_result_xpath": "//*[@id=\\\"main-container\\\"]/div[2]/div[2]/div[1]/div[2]/ol/li[1]/div/p[1]/a"
+    }
+}
