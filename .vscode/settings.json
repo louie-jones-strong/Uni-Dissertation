@@ -1,0 +1,14 @@
+{
+	"cSpell.words": [
+		"CIFAR",
+		"matplotlib",
+		"MNIST",
+		"regularizers",
+		"relu",
+		"sklearn",
+		"tensorflow"
+	],
+	"cSpell.enableFiletypes": [
+		"!python"
+	]
+}
