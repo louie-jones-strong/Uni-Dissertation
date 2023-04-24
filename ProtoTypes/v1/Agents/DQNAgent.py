@@ -1,5 +1,4 @@
 from . import BaseAgent
-import Utils.Network as Network
 import tensorflow as tf
 import numpy as np
 
@@ -118,8 +117,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 		# update the training network
 		if self.TotalFrameNum % self.Config["FramesPerUpdateRunningNetwork"] == 0:
 			self.RunModel.set_weights(self.TrainingModel.get_weights())
-
-		print(f"Updated, loss: {loss}, Exploration Rate: {self.ExplorationRate}, Buffer: {len(self.ReplayBuffer)}")
 
 		return
 

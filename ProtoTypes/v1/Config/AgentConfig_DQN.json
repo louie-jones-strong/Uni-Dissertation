@@ -1,12 +1,12 @@
 {
 	"MinBufferSize": 1000,
-	"BatchSize": 32,
-	"LearningRate": 0.01,
+	"BatchSize": 1024,
+	"LearningRate": 0.001,
 	"FutureRewardDiscount": 0.99,
 	"ExplorationAgent": "Random",
 	"ExplorationDelta": 0.001,
 	"MinExplorationRate": 0.1,
 	"FramesPerTrain": 4,
-	"FramesPerUpdateRunningNetwork": 500,
+	"FramesPerUpdateRunningNetwork": 10000,
 	"EpisodesBetweenEval": 10
 }
