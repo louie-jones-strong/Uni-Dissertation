@@ -1,9 +1,8 @@
 from . import BaseAgent
+import numpy as np
 
 class RandomAgent(BaseAgent.BaseAgent):
-	def __init__(self, env):
-		super().__init__(env)
-		return
 
-	def GetAction(self, state):
-		return self.Env.action_space.sample()
+	def GetActionValues(self, state):
+		actionValues = np.random.rand(self.Env.action_space.n)
+		return actionValues
