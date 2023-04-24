@@ -1,21 +1,23 @@
 from . import BaseAgent
+import Utils.ReplayBuffer as ReplayBuffer
 import tensorflow as tf
 import numpy as np
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env, replayBuffer, mode=BaseAgent.AgentMode.Train):
-		super().__init__(env, replayBuffer, mode=mode)
+	def __init__(self, env, mode=BaseAgent.AgentMode.Train):
+		super().__init__(env, mode=mode)
+
+		self.ReplayBuffer = ReplayBuffer.ReplayBuffer(self.Config["MaxBufferSize"])
 
 
-		self.LossFunc = tf.keras.losses.Huber()
 		self.RunModel = self.BuildModel()
+		self.ExplorationRate = self.Config["MaxExplorationRate"]
 
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.TrainingModel = self.BuildModel()
 
-			self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env, self.ReplayBuffer)
-			self.ExplorationRate = 1.0
+			self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env)
 			self.IsEval = True
 
 		return
@@ -41,6 +43,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
 
 		# compile the network
+		self.LossFunc = tf.keras.losses.Huber()
 		model.compile(optimizer=optimizer, loss=self.LossFunc)
 
 		return model
@@ -49,7 +52,9 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 	def Reset(self):
+		self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
 		super().Reset()
+
 		self.ExplorationAgent.Reset()
 
 		if self.IsEval:
@@ -148,7 +153,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		# get action values from the network
 		state = np.expand_dims(state, axis=0)
 		actionValues = self.RunModel.predict(state, verbose=0)[0]
-		print(f"Action: {np.argmax(actionValues)} Value: {np.max(actionValues):.2f}")
+		# print(f"Action: {np.argmax(actionValues)} Value: {np.max(actionValues):.2f}")
 
 		# get action values
 		if isExploreAction:
@@ -162,3 +167,14 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 		return actionValues
+
+
+	def Save(self, path):
+		self.RunModel.save(path)
+		self.ReplayBuffer.Save(path)
+		return
+
+	def Load(self, path):
+		self.RunModel = tf.keras.models.load_model(path)
+		self.ReplayBuffer.Load(path)
+		return

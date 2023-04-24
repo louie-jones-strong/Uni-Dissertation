@@ -1,4 +1,5 @@
 {
+	"MaxBufferSize": 1000000,
 	"MinBufferSize": 10,
 	"BatchSize": 64,
 	"EpochsPerTrain": 1,
@@ -6,6 +7,7 @@
 	"FutureRewardDiscount": 0.99,
 	"ExplorationAgent": "Random",
 	"ExplorationDelta": 0.0001,
+	"MaxExplorationRate": 1.0,
 	"MinExplorationRate": 0.01,
 	"FramesPerTrain": 2,
 	"FramesPerUpdateRunningNetwork": 500,

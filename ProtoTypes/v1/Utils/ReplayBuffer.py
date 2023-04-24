@@ -32,6 +32,13 @@ class ReplayBuffer:
 	def __len__(self):
 		return len(self.Store)
 
+	def Save(self, path):
+		np.save(path, self.Store)
+		return
+
+	def Load(self, path):
+		self.Store = np.load(path)
+		return
 
 class TransitionAccumulator:
 	def __init__(self, capacity):
