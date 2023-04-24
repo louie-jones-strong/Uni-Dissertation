@@ -1,5 +1,6 @@
 import collections
 import numpy as np
+import os
 
 #inspired by
 # https://github.com/deepmind/dqn_zoo/blob/master/dqn_zoo/replay.py
@@ -37,6 +38,9 @@ class ReplayBuffer:
 		return
 
 	def Load(self, path):
+		if not os.path.exists(path):
+			return
+
 		self.Store = np.load(path)
 		return
 

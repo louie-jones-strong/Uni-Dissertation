@@ -2,12 +2,14 @@ from . import BaseAgent
 import Utils.ReplayBuffer as ReplayBuffer
 import tensorflow as tf
 import numpy as np
+import os
 
 class DQNAgent(BaseAgent.BaseAgent):
 
 	def __init__(self, env, envConfig, mode=BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
 
+		self.TransitionAcc = ReplayBuffer.TransitionAccumulator(1000)
 		self.ReplayBuffer = ReplayBuffer.ReplayBuffer(self.Config["MaxBufferSize"])
 
 
@@ -16,6 +18,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.TrainingModel = self.BuildModel()
+			self.TrainingModel.set_weights(self.RunModel.get_weights())
 
 			self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env, envConfig)
 			self.IsEval = True
@@ -52,8 +55,9 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 	def Reset(self):
-		self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
 		super().Reset()
+		self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
+		self.TransitionAcc.Clear()
 
 		self.ExplorationAgent.Reset()
 
@@ -63,6 +67,11 @@ class DQNAgent(BaseAgent.BaseAgent):
 			if self.EpisodeNum % self.Config["EpisodesBetweenEval"] == 0:
 				self.IsEval = True
 
+		return
+
+	def Remember(self, state, action, reward, nextState, done):
+		super().Remember(state, action, reward, nextState, done)
+		self.TransitionAcc.Add(state, action, reward, nextState, done)
 		return
 
 	def Train(self):
@@ -133,8 +142,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 		if self.TotalFrameNum % self.Config["FramesPerUpdateRunningNetwork"] == 0:
 			self.RunModel.set_weights(self.TrainingModel.get_weights())
 			print("=================update running network=================")
-
-		# print("loss: ", loss.numpy())
 		return
 
 	def GetActionValues(self, state):
@@ -170,11 +177,19 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 	def Save(self, path):
-		self.RunModel.save(path)
-		self.ReplayBuffer.Save(path)
+		self.RunModel.save( os.path.join(path, "DqnModel.h5") )
+		self.ReplayBuffer.Save( os.path.join(path, "ReplayBuffer") )
 		return
 
 	def Load(self, path):
-		self.RunModel = tf.keras.models.load_model(path)
-		self.ReplayBuffer.Load(path)
+
+		modelPath = os.path.join(path, "DqnModel.h5")
+		if os.path.exists(modelPath):
+			self.RunModel = tf.keras.models.load_model(modelPath)
+
+			if self.Mode == BaseAgent.AgentMode.Train:
+				self.TrainingModel.set_weights(self.RunModel.get_weights())
+
+
+		self.ReplayBuffer.Load( os.path.join(path, "ReplayBuffer") )
 		return

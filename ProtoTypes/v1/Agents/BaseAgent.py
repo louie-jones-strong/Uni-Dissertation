@@ -1,4 +1,3 @@
-import Utils.ReplayBuffer as ReplayBuffer
 import enum
 import os
 import json
@@ -30,9 +29,6 @@ class BaseAgent:
 		self.Mode = mode
 		self.Name = self.__class__.__name__.replace("Agent", "")
 
-
-		self.TransitionAcc = ReplayBuffer.TransitionAccumulator(1000)
-
 		self.LoadConfig(envConfig)
 
 		self.FrameNum = 0
@@ -49,16 +45,20 @@ class BaseAgent:
 				self.Config = json.load(f)
 
 		self.EnvConfig = envConfig.get("AgentConfig", {}).get(self.Name, None)
+
+		print(f"""
+Agent {self.Name}
+Config: {self.Config}
+EnvConfig: {self.EnvConfig}
+""")
 		return
 
 	def Reset(self):
 		self.FrameNum = 0
 		self.EpisodeNum += 1
-		self.TransitionAcc.Clear()
 		return
 
 	def Remember(self, state, action, reward, nextState, done):
-		self.TransitionAcc.Add(state, action, reward, nextState, done)
 		return
 
 
@@ -75,8 +75,8 @@ class BaseAgent:
 	def GetActionValues(self, state):
 		return None
 
-	def Save(self):
+	def Save(self, path):
 		return
 
-	def Load(self):
+	def Load(self, path):
 		return

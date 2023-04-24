@@ -3,6 +3,7 @@ import json
 import gym
 import Utils.UserInputHelper as UI
 from Agents import BaseAgent
+import os
 
 class Runner:
 
@@ -42,7 +43,7 @@ class Runner:
 				self.Agents.append(agent)
 		else:
 			for agent in self.Agents:
-				agent.Config = agent.LoadConfig(self.Config)
+				agent.LoadConfig(self.Config)
 
 		return
 
@@ -77,13 +78,18 @@ class Runner:
 			totalReward += reward
 
 			# check if user wants to stop
-			if keyboard.is_pressed('ctrl+c'):
+			if keyboard.is_pressed('ctrl+q'):
 				raise KeyboardInterrupt
 
 			# check if user wants to reload config
-			if keyboard.is_pressed('ctrl+l'):
+			if keyboard.is_pressed('ctrl+c'):
 				self.LoadConfig()
 
+			if keyboard.is_pressed('ctrl+s'):
+				self.Save()
+
+			if keyboard.is_pressed('ctrl+l'):
+				self.Load()
 
 			state = nextState
 			if done:
@@ -104,4 +110,22 @@ class Runner:
 	def Remember(self, state, action, reward, nextState, done):
 		for agent in self.Agents:
 			agent.Remember(state, action, reward, nextState, done)
+		return
+
+	def Save(self):
+		path = os.path.join("data", self.Config["Name"])
+		if not os.path.exists(path):
+			os.makedirs(path)
+
+		for agent in self.Agents:
+			agent.Save(path)
+		return
+
+	def Load(self):
+		path = os.path.join("data", self.Config["Name"])
+		if not os.path.exists(path):
+			return
+
+		for agent in self.Agents:
+			agent.Save(path)
 		return
