@@ -70,31 +70,38 @@ class DQNAgent(BaseAgent.BaseAgent):
 			return
 
 		# samples from the replay buffer
-		batchSize = self.Config["BatchSize"]
-		states, actions, rewards, nextStates, dones = self.ReplayBuffer.Sample(batchSize)
-		states = np.array(states)
-		nextStates = np.array(nextStates)
-		dones = tf.convert_to_tensor([float(done) for done in dones])
+
+		def GetSamples(bactchSize):
+			states, actions, rewards, nextStates, dones, futureRewards = self.ReplayBuffer.Sample(batchSize)
+			states = np.array(states)
+			nextStates = np.array(nextStates)
+			dones = tf.convert_to_tensor([float(done) for done in dones])
 
 
+			return states, actions, rewards, nextStates, dones, futureRewards
+		def CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards):
 
-		def CalTargetQs(states, actions, rewards, nextStates, dones):
+			nextStatePredictedQ = self.RunModel.predict(nextStates, verbose=0)
+			# get the max Q for the next state
+			futureQ = np.max(nextStatePredictedQ, axis=1)
 
-			# Run network predicted q-values for next states
-			arg_q_max = self.RunModel.predict(nextStates, verbose=0).argmax(axis=1)
 
-			# training network predicted q-values for next states
-			future_q_vals = self.TrainingModel.predict(nextStates, verbose=0)
+			# if the real future reward is not None, then check if it is better than the predicted
+			if futureRewards is not None:
+				futureQ = np.maximum(futureQ, futureRewards)
 
-			double_q = future_q_vals[range(len(states)), arg_q_max]
+			# we should not add future reward if it is the last state
+			futureQ *= (1-dones)
+
+			# discount factor for future rewards
+			gamma = self.Config["FutureRewardDiscount"]
+			futureQ *= gamma
 
 
 			# Calculate targets (bellman equation)
-			gamma = self.Config["FutureRewardDiscount"]
-			targetQs = rewards + (gamma*double_q * (1-dones))
+			targetQs = rewards + futureQ
 
 			return targetQs
-
 		def TrainWeights(targetQs, states, actions):
 			# aplly gradient descent
 			with tf.GradientTape() as tape:
@@ -105,19 +112,24 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 				loss = self.LossFunc(targetQs, currentQ)
 
-			model_gradients = tape.gradient(loss, self.TrainingModel.trainable_variables)
-			self.TrainingModel.optimizer.apply_gradients(zip(model_gradients, self.TrainingModel.trainable_variables))
+			gradients = tape.gradient(loss, self.TrainingModel.trainable_variables)
+			self.TrainingModel.optimizer.apply_gradients(zip(gradients, self.TrainingModel.trainable_variables))
 			return loss
 
 
-		targetQs = CalTargetQs(states, actions, rewards, nextStates, dones)
-		loss = TrainWeights(targetQs, states, actions)
+		batchSize = self.Config["BatchSize"]
+		for e in range(self.Config["EpochsPerTrain"]):
+			states, actions, rewards, nextStates, dones, futureRewards = GetSamples(batchSize)
+			targetQs = CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards)
+			loss = TrainWeights(targetQs, states, actions)
 
 
 		# update the training network
 		if self.TotalFrameNum % self.Config["FramesPerUpdateRunningNetwork"] == 0:
 			self.RunModel.set_weights(self.TrainingModel.get_weights())
+			print("=================update running network=================")
 
+		# print("loss: ", loss.numpy())
 		return
 
 	def GetActionValues(self, state):
@@ -133,15 +145,16 @@ class DQNAgent(BaseAgent.BaseAgent):
 			self.ExplorationRate = max(self.ExplorationRate, self.Config["MinExplorationRate"])
 
 
+		# get action values from the network
+		state = np.expand_dims(state, axis=0)
+		actionValues = self.RunModel.predict(state, verbose=0)[0]
+		print(f"Action: {np.argmax(actionValues)} Value: {np.max(actionValues):.2f}")
 
 		# get action values
 		if isExploreAction:
 			# get action values from the exploration agent
 			actionValues = self.ExplorationAgent.GetActionValues(state)
-		else:
-			# get action values from the network
-			state = np.expand_dims(state, axis=0)
-			actionValues = self.RunModel.predict(state, verbose=0)[0]
+
 
 		framesPerTrain = self.Config["FramesPerTrain"]
 		if self.TotalFrameNum % framesPerTrain == 0:

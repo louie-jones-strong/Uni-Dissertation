@@ -27,7 +27,7 @@ class Runner:
 		return
 
 	def RunEpisode(self, maxSteps=1000):
-		# self.TransitionAcc.Clear()
+		self.TransitionAcc.Clear()
 
 		totalReward = 0
 		state, info = self.Env.reset()
@@ -38,15 +38,16 @@ class Runner:
 			nextState, reward, terminated, truncated, info = self.Env.step(action)
 
 			done = terminated or truncated
-			# self.TransitionAcc.Add(state, action, reward, nextState, done)
-			self.ReplayBuffer.Add(state, action, reward, nextState, done)
+			self.TransitionAcc.Add(state, action, reward, nextState, done)
+			# self.ReplayBuffer.Add(state, action, reward, nextState, done)
 
 			totalReward += reward
 
-			# check if user wants to stop ctrl+c
+			# check if user wants to stop
 			if keyboard.is_pressed('ctrl+c'):
 				raise KeyboardInterrupt
 
+			# check if user wants to reload config
 			if keyboard.is_pressed('ctrl+l'):
 				self.ReloadConfig()
 
@@ -56,7 +57,7 @@ class Runner:
 				break
 
 
-		# self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
+		self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
 
 		# update agents with replay buffer
 		for agent in self.Agents:
