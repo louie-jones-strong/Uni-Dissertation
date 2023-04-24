@@ -14,7 +14,7 @@ def Main():
 	runner = Runner.Runner(envConfigPath)
 
 	try:
-		runner.RunEpisodes(numEpisodes=1000, maxSteps=1000)
+		runner.RunEpisodes(numEpisodes=1000)
 	except KeyboardInterrupt:
 		print('Interrupted')
 		os._exit(0)

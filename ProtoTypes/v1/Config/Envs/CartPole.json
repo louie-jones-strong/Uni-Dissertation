@@ -7,9 +7,6 @@
 	"MaxSteps": 1000,
 	"MaxEpisodes": 1000,
 	"AgentConfig": {
-		"DQN": {
-
-		},
 		"Human": {
 			"FPS": 10,
 			"Controls": {

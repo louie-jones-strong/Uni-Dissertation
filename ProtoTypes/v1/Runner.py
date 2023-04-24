@@ -23,7 +23,10 @@ class Runner:
 
 		# ensure environment loaded
 		if self.Env is None:
-			self.Env = gym.make(self.Config["GymID"], render_mode=self.Config["RenderMode"])
+			kargs = self.Config.get("kwargs", {})
+			self.Env = gym.make(self.Config["GymID"], render_mode=self.Config["RenderMode"], **kargs)
+			print(self.Env.metadata)
+			self.Env.metadata["render_fps"] = 100_000
 
 		# ensure agents loaded
 		if self.Agents is None:
@@ -45,10 +48,10 @@ class Runner:
 
 
 
-	def RunEpisodes(self, numEpisodes=1, maxSteps=1000):
+	def RunEpisodes(self, numEpisodes=1):
 		lastRewards = []
 		for episode in range(numEpisodes):
-			reward = self.RunEpisode(maxSteps=maxSteps)
+			reward = self.RunEpisode()
 			lastRewards.append(reward)
 			if len(lastRewards) > 10:
 				lastRewards.pop(0)
@@ -57,11 +60,11 @@ class Runner:
 
 		return
 
-	def RunEpisode(self, maxSteps=1000):
+	def RunEpisode(self):
 
 		totalReward = 0
 		state, info = self.Env.reset()
-		for step in range(maxSteps):
+		for step in range(self.Config["MaxSteps"]):
 
 			action = self.GetAction(state)
 

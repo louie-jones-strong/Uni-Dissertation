@@ -5,8 +5,8 @@ import numpy as np
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env, mode=BaseAgent.AgentMode.Train):
-		super().__init__(env, mode=mode)
+	def __init__(self, env, envConfig, mode=BaseAgent.AgentMode.Train):
+		super().__init__(env, envConfig, mode=mode)
 
 		self.ReplayBuffer = ReplayBuffer.ReplayBuffer(self.Config["MaxBufferSize"])
 
@@ -17,7 +17,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.TrainingModel = self.BuildModel()
 
-			self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env)
+			self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env, envConfig)
 			self.IsEval = True
 
 		return
