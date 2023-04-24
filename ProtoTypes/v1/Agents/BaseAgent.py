@@ -17,6 +17,8 @@ class BaseAgent:
 
 		self.Config = self.LoadConfig()
 		self.FrameNum = 0
+		self.TotalFrameNum = 0
+		self.EpisodeNum = 0
 		return
 
 	def LoadConfig(self):
@@ -33,11 +35,13 @@ class BaseAgent:
 
 	def Reset(self):
 		self.FrameNum = 0
+		self.EpisodeNum += 1
 		return
 
 
 	def GetAction(self, state):
 		self.FrameNum += 1
+		self.TotalFrameNum += 1
 
 		actionValues = self.GetActionValues(state)
 		if actionValues is not None:

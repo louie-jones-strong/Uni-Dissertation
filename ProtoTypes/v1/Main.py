@@ -2,6 +2,7 @@ import gym
 from Agents import RandomAgent, DQNAgent
 import Utils.ReplayBuffer as ReplayBuffer
 import os
+import keyboard
 
 class Runner:
 
@@ -14,14 +15,21 @@ class Runner:
 		return
 
 	def RunEpisodes(self, numEpisodes=1, maxSteps=1000):
+		lastRewards = []
 		for episode in range(numEpisodes):
-			self.RunEpisode(maxSteps=maxSteps)
+			reward = self.RunEpisode(maxSteps=maxSteps)
+			lastRewards.append(reward)
+			if len(lastRewards) > 10:
+				lastRewards.pop(0)
+			avgReward = sum(lastRewards) / len(lastRewards)
+			print(f"Episode: {episode}, reward: {reward}, avg reward: {avgReward}")
 
 		return
 
 	def RunEpisode(self, maxSteps=1000):
-		self.TransitionAcc.Clear()
+		# self.TransitionAcc.Clear()
 
+		totalReward = 0
 		state, info = self.Env.reset()
 		for step in range(maxSteps):
 
@@ -30,22 +38,38 @@ class Runner:
 			nextState, reward, terminated, truncated, info = self.Env.step(action)
 
 			done = terminated or truncated
-			self.TransitionAcc.Add(state, action, reward, nextState, done)
+			# self.TransitionAcc.Add(state, action, reward, nextState, done)
+			self.ReplayBuffer.Add(state, action, reward, nextState, done)
+
+			totalReward += reward
+
+			# check if user wants to stop ctrl+c
+			if keyboard.is_pressed('ctrl+c'):
+				raise KeyboardInterrupt
+
+			if keyboard.is_pressed('ctrl+l'):
+				self.ReloadConfig()
+
 
 			state = nextState
 			if done:
 				break
 
 
-		self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
+		# self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
 
 		# update agents with replay buffer
 		for agent in self.Agents:
 			agent.Reset()
-		return
+		return totalReward
 
 	def GetAction(self, observation):
 		return self.Agents[0].GetAction(observation)
+
+	def ReloadConfig(self):
+		for agent in self.Agents:
+			agent.Config = agent.LoadConfig()
+		return
 
 	def __del__(self):
 		self.Env.close()

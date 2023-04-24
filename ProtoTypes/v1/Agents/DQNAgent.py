@@ -17,6 +17,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 			self.TrainingModel = self.BuildModel()
 			self.ExplorationAgent = RandomAgent.RandomAgent(self.Env, self.ReplayBuffer)
 			self.ExplorationRate = 1.0
+			self.IsEval = True
 
 		return
 
@@ -41,10 +42,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
 
 		# compile the network
-		model.compile(
-			optimizer=optimizer,
-			loss=self.LossFunc,
-			metrics=['accuracy'])
+		model.compile(optimizer=optimizer, loss=self.LossFunc)
 
 		return model
 
@@ -53,13 +51,23 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 	def Reset(self):
 		super().Reset()
-		self.Train()
+		self.ExplorationAgent.Reset()
+
+		if self.IsEval:
+			self.IsEval = False
+		elif self.Mode == BaseAgent.AgentMode.Train:
+			if self.EpisodeNum % self.Config["EpisodesBetweenEval"] == 0:
+				self.IsEval = True
+
 		return
 
 	def Train(self):
 
 		# check that we are in training mode
 		if self.Mode != BaseAgent.AgentMode.Train:
+			return
+
+		if len(self.ReplayBuffer) < self.Config["MinBufferSize"]:
 			return
 
 		# samples from the replay buffer
@@ -108,8 +116,10 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 		# update the training network
-		self.RunModel.set_weights(self.TrainingModel.get_weights())
-		print(f"Training Network Updated, loss: {loss}, Exploration Rate: {self.ExplorationRate}, Buffer: {len(self.ReplayBuffer)}")
+		if self.TotalFrameNum % self.Config["FramesPerUpdateRunningNetwork"] == 0:
+			self.RunModel.set_weights(self.TrainingModel.get_weights())
+
+		print(f"Updated, loss: {loss}, Exploration Rate: {self.ExplorationRate}, Buffer: {len(self.ReplayBuffer)}")
 
 		return
 
@@ -117,13 +127,14 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		isExploreAction = False
 		# if it is training mode
-		if self.Mode == BaseAgent.AgentMode.Train:
+		if self.Mode == BaseAgent.AgentMode.Train and not self.IsEval:
 			if np.random.random() < self.ExplorationRate:
 				isExploreAction = True
 
 			# decay exploration rate
 			self.ExplorationRate -= self.Config["ExplorationDelta"]
 			self.ExplorationRate = max(self.ExplorationRate, self.Config["MinExplorationRate"])
+
 
 
 		# get action values
@@ -134,6 +145,10 @@ class DQNAgent(BaseAgent.BaseAgent):
 			# get action values from the network
 			state = np.expand_dims(state, axis=0)
 			actionValues = self.RunModel.predict(state, verbose=0)[0]
-			print(f"Action Values: {actionValues}")
+
+		framesPerTrain = self.Config["FramesPerTrain"]
+		if self.TotalFrameNum % framesPerTrain == 0:
+			self.Train()
+
 
 		return actionValues
