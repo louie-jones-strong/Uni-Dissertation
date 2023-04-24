@@ -2,9 +2,24 @@ import enum
 import os
 import json
 
+
 class AgentMode(enum.Enum):
 	Train = 0
 	Play = 1
+
+def GetAgent(agentName):
+	from . import RandomAgent, DQNAgent
+	lookUp = {
+		"Random": RandomAgent.RandomAgent,
+		"DQN": DQNAgent.DQNAgent,
+
+	}
+
+	if agentName not in lookUp:
+		return None
+
+	return lookUp[agentName]
+
 
 
 

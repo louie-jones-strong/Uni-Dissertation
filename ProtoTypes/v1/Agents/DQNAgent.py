@@ -1,5 +1,4 @@
 from . import BaseAgent
-from . import RandomAgent
 import Utils.Network as Network
 import tensorflow as tf
 import numpy as np
@@ -15,7 +14,8 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.TrainingModel = self.BuildModel()
-			self.ExplorationAgent = RandomAgent.RandomAgent(self.Env, self.ReplayBuffer)
+
+			self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env, self.ReplayBuffer)
 			self.ExplorationRate = 1.0
 			self.IsEval = True
 
