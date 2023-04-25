@@ -27,6 +27,7 @@ class ReplayBuffer:
 		self._NextStates	= np.empty((capacity,) + stateShape,  dtype=stateType)
 		self._Dones			= np.empty((capacity),               dtype=np.bool)
 		self._FutureRewards	= np.empty((capacity),               dtype=np.float32)
+		self._Priorities	= np.zeros((capacity),               dtype=np.float32)
 
 		return
 
@@ -38,6 +39,7 @@ class ReplayBuffer:
 		self._NextStates[self.Current]	= nextState
 		self._Dones[self.Current]		= done
 		self._FutureRewards[self.Current]= futureReward
+		self._Priorities[self.Current]	= max(self._Priorities.max(), 1.0)
 
 
 		self.Current += 1
@@ -45,22 +47,33 @@ class ReplayBuffer:
 		self.Current = self.Current % self.Capacity
 		return
 
-	def Sample(self, batchSize):
+	def Sample(self, batchSize, priorityScale=1.0):
 		batchSize = min(batchSize, self.Count)
 
-		indexs = np.random.choice(self.Count, batchSize)
+		scaledPriorities = self._Priorities[:self.Count] ** priorityScale
+		probabilities = scaledPriorities / sum(scaledPriorities)
 
-		states		= self._States[indexs]
-		actions		= self._Actions[indexs]
-		rewards		= self._Rewards[indexs]
-		nextStates	= self._NextStates[indexs]
-		dones		= self._Dones[indexs]
-		futureRewards= self._FutureRewards[indexs]
+		indexs = np.random.choice(self.Count, batchSize, p=probabilities)
+
+		states			= self._States[indexs]
+		actions			= self._Actions[indexs]
+		rewards			= self._Rewards[indexs]
+		nextStates		= self._NextStates[indexs]
+		dones			= self._Dones[indexs]
+		futureRewards	= self._FutureRewards[indexs]
+		priorities		= self._Priorities[indexs]
 
 		if None in futureRewards:
 			futureRewards = None
 
-		return states, actions, rewards, nextStates, dones, futureRewards
+		return indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities
+
+	def UpdatePriorities(self, indexs, priorities, offset=0.1):
+
+		for i in range(len(indexs)):
+			self._Priorities[indexs[i]] = priorities[i] + offset
+		return
+
 
 	def __len__(self):
 		return self.Count
@@ -75,6 +88,7 @@ class ReplayBuffer:
 		np.save(path.join(folderPath, "NextStates.npy"), self._NextStates)
 		np.save(path.join(folderPath, "Dones.npy"), self._Dones)
 		np.save(path.join(folderPath, "FutureRewards.npy"), self._FutureRewards)
+		np.save(path.join(folderPath, "Priorities.npy"), self._Priorities)
 		return
 
 	def Load(self, folderPath):
@@ -87,6 +101,7 @@ class ReplayBuffer:
 		self._NextStates = np.load(path.join(folderPath, "NextStates.npy"))
 		self._Dones = np.load(path.join(folderPath, "Dones.npy"))
 		self._FutureRewards = np.load(path.join(folderPath, "FutureRewards.npy"))
+		self._Priorities = np.load(path.join(folderPath, "Priorities.npy"))
 		return
 
 class TransitionAccumulator:

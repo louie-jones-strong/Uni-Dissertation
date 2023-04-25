@@ -86,11 +86,11 @@ class DQNAgent(BaseAgent.BaseAgent):
 		# samples from the replay buffer
 
 		def GetSamples(bactchSize):
-			states, actions, rewards, nextStates, dones, futureRewards = self.ReplayBuffer.Sample(batchSize)
+			indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities = self.ReplayBuffer.Sample(batchSize)
 			dones = tf.convert_to_tensor([float(done) for done in dones])
 
 
-			return states, actions, rewards, nextStates, dones, futureRewards
+			return indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities
 		def CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards):
 
 			nextStatePredictedQ = self.RunModel.predict(nextStates, verbose=0)
@@ -114,7 +114,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 			targetQs = rewards + futureQ
 
 			return targetQs
-		def TrainWeights(targetQs, states, actions):
+		def TrainWeights(targetQs, states, actions, priorities):
 			# aplly gradient descent
 			with tf.GradientTape() as tape:
 				qValues = self.TrainingModel(states)
@@ -122,18 +122,22 @@ class DQNAgent(BaseAgent.BaseAgent):
 				actionMask = tf.keras.utils.to_categorical(actions, self.Env.action_space.n, dtype=np.float32)
 				currentQ = tf.reduce_sum(tf.multiply(qValues, actionMask), axis=1)
 
+				absError = abs(targetQs - currentQ)
 				loss = self.LossFunc(targetQs, currentQ)
+				# loss = tf.reduce_mean(loss * priorities)
 
 			gradients = tape.gradient(loss, self.TrainingModel.trainable_variables)
 			self.TrainingModel.optimizer.apply_gradients(zip(gradients, self.TrainingModel.trainable_variables))
-			return loss
+			return loss, absError
 
 
 		batchSize = self.Config["BatchSize"]
-		for e in range(self.Config["EpochsPerTrain"]):
-			states, actions, rewards, nextStates, dones, futureRewards = GetSamples(batchSize)
-			targetQs = CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards)
-			loss = TrainWeights(targetQs, states, actions)
+		indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities = GetSamples(batchSize)
+		targetQs = CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards)
+		loss, absError = TrainWeights(targetQs, states, actions, priorities)
+
+		# update the priorities
+		self.ReplayBuffer.UpdatePriorities(indexs, absError)
 
 
 		# update the training network

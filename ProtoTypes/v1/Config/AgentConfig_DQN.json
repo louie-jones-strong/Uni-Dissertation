@@ -2,7 +2,6 @@
 	"MaxBufferSize": 1000000,
 	"MinBufferSize": 10,
 	"BatchSize": 64,
-	"EpochsPerTrain": 1,
 	"LearningRate": 0.01,
 	"FutureRewardDiscount": 0.99,
 	"ExplorationAgent": "Random",
