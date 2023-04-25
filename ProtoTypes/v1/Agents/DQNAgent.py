@@ -87,8 +87,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		def GetSamples(bactchSize):
 			states, actions, rewards, nextStates, dones, futureRewards = self.ReplayBuffer.Sample(batchSize)
-			states = np.array(states)
-			nextStates = np.array(nextStates)
 			dones = tf.convert_to_tensor([float(done) for done in dones])
 
 
