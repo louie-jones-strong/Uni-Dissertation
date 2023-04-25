@@ -40,8 +40,9 @@ class Runner:
 				agentType = UI.OptionPicker(f"Agent_{i+1}", agentOptions)
 				agent = BaseAgent.GetAgent(agentType)(self.Env, self.Config)
 
-				if agentOptions == "DQN" and UI.BoolPicker("Load"):
-					agent.LoadConfig(self.Config)
+				if agentType == "DQN" and UI.BoolPicker("Load"):
+					path = os.path.join("data", self.Config["Name"])
+					agent.Load(path)
 
 				self.Agents.append(agent)
 		else:
@@ -130,7 +131,7 @@ class Runner:
 			return
 
 		for agent in self.Agents:
-			agent.Save(path)
+			agent.Load(path)
 		return
 
 def Main():
