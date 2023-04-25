@@ -10,7 +10,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		super().__init__(env, envConfig, mode=mode)
 
 		self.TransitionAcc = ReplayBuffer.TransitionAccumulator(1000)
-		self.ReplayBuffer = ReplayBuffer.ReplayBuffer(self.Config["MaxBufferSize"])
+		self.ReplayBuffer = ReplayBuffer.ReplayBuffer(self.Config["MaxBufferSize"], self.Env)
 
 
 		self.RunModel = self.BuildModel()

@@ -88,12 +88,15 @@ class Runner:
 			# check if user wants to reload config
 			if keyboard.is_pressed('ctrl+c'):
 				self.LoadConfig()
+				print("+++++++ Loaded Config +++++++")
 
 			if keyboard.is_pressed('ctrl+s'):
 				self.Save()
+				print("+++++++ Saved Agent +++++++")
 
 			if keyboard.is_pressed('ctrl+l'):
 				self.Load()
+				print("+++++++ Loaded Agent +++++++")
 
 			state = nextState
 			if done:
