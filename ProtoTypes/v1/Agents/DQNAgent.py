@@ -159,15 +159,16 @@ class DQNAgent(BaseAgent.BaseAgent):
 			self.ExplorationRate = max(self.ExplorationRate, self.Config["MinExplorationRate"])
 
 
-		# get action values from the network
-		state = np.expand_dims(state, axis=0)
-		actionValues = self.RunModel.predict(state, verbose=0)[0]
-		# print(f"Action: {np.argmax(actionValues)} Value: {np.max(actionValues):.2f}")
+
 
 		# get action values
 		if isExploreAction:
 			# get action values from the exploration agent
 			actionValues = self.ExplorationAgent.GetActionValues(state)
+		else:
+			# get action values from the network
+			state = np.expand_dims(state, axis=0)
+			actionValues = self.RunModel.predict(state, verbose=0)[0]
 
 
 		framesPerTrain = self.Config["FramesPerTrain"]
