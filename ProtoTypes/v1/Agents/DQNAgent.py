@@ -26,8 +26,8 @@ class DQNAgent(BaseAgent.BaseAgent):
 		return
 
 	def BuildModel(self):
-		inputShape = self.Env.observation_space.shape
-		outputNumber = self.Env.action_space.n
+		inputShape = self.Env.ObservationSpace.shape
+		outputNumber = self.Env.ActionSpace.n
 
 
 		model = tf.keras.models.Sequential()
@@ -119,7 +119,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 			with tf.GradientTape() as tape:
 				qValues = self.TrainingModel(states)
 
-				actionMask = tf.keras.utils.to_categorical(actions, self.Env.action_space.n, dtype=np.float32)
+				actionMask = tf.keras.utils.to_categorical(actions, self.Env.ActionSpace.n, dtype=np.float32)
 				currentQ = tf.reduce_sum(tf.multiply(qValues, actionMask), axis=1)
 
 				absError = abs(targetQs - currentQ)

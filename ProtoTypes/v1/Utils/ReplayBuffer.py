@@ -9,10 +9,10 @@ from os import path
 class ReplayBuffer:
 	def __init__(self, capacity, env):
 
-		stateShape = env.observation_space.shape
-		stateType = env.observation_space.dtype
-		actionShape = env.action_space.shape
-		actionType = env.action_space.dtype
+		stateShape = env.ObservationSpace.shape
+		stateType = env.ObservationSpace.dtype
+		actionShape = env.ActionSpace.shape
+		actionType = env.ActionSpace.dtype
 
 
 		self.Capacity = capacity

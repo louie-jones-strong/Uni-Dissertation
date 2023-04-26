@@ -1,7 +1,10 @@
 {
 	"Name": "FrozenLake",
+	"EnvType": "Gym",
+
 	"GymID": "FrozenLake-v1",
 	"RenderMode": "human",
+
 	"IsDeterministic": false,
 	"MaxAgents": 1,
 	"MaxSteps": 100,

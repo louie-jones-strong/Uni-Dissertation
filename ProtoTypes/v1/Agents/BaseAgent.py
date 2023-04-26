@@ -16,6 +16,7 @@ def GetAgent(agentName):
 	}
 
 	if agentName not in lookUp:
+		raise Exception(f"Agent \"{agentName}\" not found in {lookUp}")
 		return None
 
 	return lookUp[agentName]

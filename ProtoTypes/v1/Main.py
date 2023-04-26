@@ -3,6 +3,7 @@ import json
 import gym
 import Utils.UserInputHelper as UI
 from Agents import BaseAgent
+from Environments import BaseEnv
 import os
 
 class Runner:
@@ -24,10 +25,8 @@ class Runner:
 
 		# ensure environment loaded
 		if self.Env is None:
-			kargs = self.Config.get("kwargs", {})
-			self.Env = gym.make(self.Config["GymID"], render_mode=self.Config["RenderMode"], **kargs)
-			print(self.Env.metadata)
-			self.Env.metadata["render_fps"] = 100_000
+			self.Env = BaseEnv.GetEnv(self.Config)
+
 
 		# ensure agents loaded
 		if self.Agents is None:
@@ -68,14 +67,12 @@ class Runner:
 	def RunEpisode(self):
 
 		totalReward = 0
-		state, info = self.Env.reset()
+		state = self.Env.Reset()
 		for step in range(self.Config["MaxSteps"]):
 
 			action = self.GetAction(state)
 
-			nextState, reward, terminated, truncated, info = self.Env.step(action)
-
-			done = terminated or truncated or step >= self.Config["MaxSteps"] - 1
+			nextState, reward, done = self.Env.Step(action)
 
 			self.Remember(state, action, reward, nextState, done)
 
