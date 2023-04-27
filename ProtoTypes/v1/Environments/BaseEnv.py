@@ -16,6 +16,9 @@ def GetEnv(envConfig):
 	env = lookUp[envType](envConfig)
 	return env
 
+
+
+
 class BaseEnv:
 	def __init__(self, envConfig):
 		self.LoadConfig(envConfig)
@@ -33,6 +36,10 @@ class BaseEnv:
 		return
 
 
+	def Clone(self):
+		return None
+
+
 
 
 	def Step(self, action):
@@ -48,11 +55,6 @@ class BaseEnv:
 		done = False
 		return state, reward, done
 
-	def PopAction(self):
-		self._CurrentFrame -= 1
-
-		return None
-
 	def Reset(self):
 		self._CurrentFrame = 0
 		self._Done = False
@@ -63,4 +65,8 @@ class BaseEnv:
 
 
 	def Render(self):
+		return
+
+
+	def __del__(self):
 		return

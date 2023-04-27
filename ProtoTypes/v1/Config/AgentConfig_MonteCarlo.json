@@ -1,0 +1,5 @@
+{
+	"MaxDepth": 5,
+	"SubAgent": "DQN",
+	"TopActionCount": 2
+}

@@ -32,7 +32,7 @@ class Runner:
 		if self.Agents is None:
 
 			numAgents = UI.NumPicker("Number of agents", 1, 1)
-			agentOptions = ["Random", "DQN", "Human"]
+			agentOptions = ["Random", "DQN", "Human", "MonteCarlo"]
 
 			self.Agents = []
 			for i in range(numAgents):

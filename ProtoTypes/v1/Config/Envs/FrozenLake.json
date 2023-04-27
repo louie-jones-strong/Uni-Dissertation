@@ -7,7 +7,7 @@
 
 	"IsDeterministic": false,
 	"MaxAgents": 1,
-	"MaxSteps": 100,
+	"MaxSteps": 15,
 	"MaxEpisodes": 1000,
 	"kwargs": {
 		"is_slippery": false

@@ -7,12 +7,15 @@ class AgentMode(enum.Enum):
 	Train = 0
 	Play = 1
 
+
+
 def GetAgent(agentName):
-	from . import RandomAgent, DQNAgent, HumanAgent
+	from . import RandomAgent, DQNAgent, HumanAgent, MonteCarloAgent
 	lookUp = {
 		"Random": RandomAgent.RandomAgent,
 		"DQN": DQNAgent.DQNAgent,
 		"Human": HumanAgent.HumanAgent,
+		"MonteCarlo": MonteCarloAgent.MonteCarloAgent,
 	}
 
 	if agentName not in lookUp:
@@ -34,6 +37,7 @@ class BaseAgent:
 
 		self.FrameNum = 0
 		self.TotalFrameNum = 0
+		self.TotalRememberedFrame = 0
 		self.EpisodeNum = 0
 		return
 
@@ -60,6 +64,7 @@ EnvConfig: {self.EnvConfig}
 		return
 
 	def Remember(self, state, action, reward, nextState, done):
+		self.TotalRememberedFrame += 1
 		return
 
 

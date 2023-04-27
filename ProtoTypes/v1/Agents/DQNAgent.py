@@ -16,6 +16,8 @@ class DQNAgent(BaseAgent.BaseAgent):
 		self.RunModel = self.BuildModel()
 		self.ExplorationRate = self.Config["MaxExplorationRate"]
 
+		self.IsEval = False
+
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.TrainingModel = self.BuildModel()
 			self.TrainingModel.set_weights(self.RunModel.get_weights())
@@ -59,12 +61,12 @@ class DQNAgent(BaseAgent.BaseAgent):
 		self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
 		self.TransitionAcc.Clear()
 
-		self.ExplorationAgent.Reset()
+		if self.Mode == BaseAgent.AgentMode.Train:
+			self.ExplorationAgent.Reset()
 
-		if self.IsEval:
-			self.IsEval = False
-		elif self.Mode == BaseAgent.AgentMode.Train:
-			if self.EpisodeNum % self.Config["EpisodesBetweenEval"] == 0:
+			if self.IsEval:
+				self.IsEval = False
+			elif self.EpisodeNum % self.Config["EpisodesBetweenEval"] == 0:
 				self.IsEval = True
 
 		return
@@ -72,6 +74,10 @@ class DQNAgent(BaseAgent.BaseAgent):
 	def Remember(self, state, action, reward, nextState, done):
 		super().Remember(state, action, reward, nextState, done)
 		self.TransitionAcc.Add(state, action, reward, nextState, done)
+
+		framesPerTrain = self.Config["FramesPerTrain"]
+		if self.TotalRememberedFrame % framesPerTrain == 0:
+			self.Train()
 		return
 
 	def Train(self):
@@ -141,7 +147,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 		# update the training network
-		if self.TotalFrameNum % self.Config["FramesPerUpdateRunningNetwork"] == 0:
+		if self.TotalRememberedFrame % self.Config["FramesPerUpdateRunningNetwork"] == 0:
 			self.RunModel.set_weights(self.TrainingModel.get_weights())
 			print("=================update running network=================")
 		return
@@ -169,12 +175,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 			# get action values from the network
 			state = np.expand_dims(state, axis=0)
 			actionValues = self.RunModel.predict(state, verbose=0)[0]
-
-
-		framesPerTrain = self.Config["FramesPerTrain"]
-		if self.TotalFrameNum % framesPerTrain == 0:
-			self.Train()
-
 
 		return actionValues
 
