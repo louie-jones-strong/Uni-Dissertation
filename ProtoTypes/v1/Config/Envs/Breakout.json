@@ -1,0 +1,14 @@
+{
+	"Name": "Breakout",
+	"EnvType": "Gym",
+
+	"GymID": "BreakoutNoFrameskip-v4",
+	"RenderMode": "human",
+
+	"IsDeterministic": true,
+	"MaxAgents": 1,
+	"MaxSteps": 1000,
+	"MaxEpisodes": 1000,
+	"AgentConfig": {
+	}
+}

@@ -8,6 +8,9 @@ class GymEnv(BaseEnv.BaseEnv):
 	def __init__(self, envConfig, gymEnv=None):
 		super().__init__(envConfig)
 
+		self._GymEnv = None
+		self._RenderCopy = None
+
 		if gymEnv is None:
 			seed = 1234
 
@@ -28,6 +31,7 @@ class GymEnv(BaseEnv.BaseEnv):
 
 		self.ObservationSpace = self._GymEnv.observation_space
 		self.ActionSpace = self._GymEnv.action_space
+		self.RewardRange = self._GymEnv.reward_range
 
 		return
 
@@ -80,5 +84,10 @@ class GymEnv(BaseEnv.BaseEnv):
 
 	def __del__(self):
 		super().__del__()
-		self._GymEnv.close()
+
+		if self._GymEnv is not None:
+			self._GymEnv.close()
+
+		if self._RenderCopy is not None:
+			self._RenderCopy.close()
 		return

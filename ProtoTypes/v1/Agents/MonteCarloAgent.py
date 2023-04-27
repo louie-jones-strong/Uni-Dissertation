@@ -7,24 +7,19 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def __init__(self, env, envConfig, mode=BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
 
-		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"])(self.Env, envConfig)#, mode=BaseAgent.AgentMode.Play)
-		self._EnvSim = None
+		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"])(self.Env, envConfig, mode=mode)
+
 		return
 
 	def GetActionValues(self, state):
 
+		return self._SearchActions(self.Env, state)
 
-		actionValues = self._SearchActions(self.Env, state)
-
-
-
-		return actionValues
-
-	def _SearchActions(self, env, state, currentDepth=0):
+	def _SearchActions(self, env, state, depth=0):
 
 		actionValues = self._SubAgent.GetActionValues(state)
 
-		if currentDepth >= self.Config["MaxDepth"]:
+		if depth >= self.Config["MaxDepth"]:
 			return actionValues
 
 		actionPrioList = np.argsort(actionValues)[::-1]
@@ -35,12 +30,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			envCopy = env.Clone()
 			nextState, reward, done = envCopy.Step(action)
 
-			if done:
-				actionValues[action] = reward
+			actionValues[action] = reward
 
-			newActionValues = self._SearchActions(envCopy, nextState, currentDepth=currentDepth + 1)
+			if not done:
+				actionValues[action] += np.max(self._SearchActions(envCopy, nextState, depth=depth + 1))
 
-			actionValues[action] += np.max(newActionValues)
 
 			del envCopy
 
@@ -64,11 +58,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def Save(self, path):
 		super().Save(path)
 		self._SubAgent.Save(path)
-		self._EnvSim.Save(path)
 		return
 
 	def Load(self, path):
 		super().Load(path)
 		self._SubAgent.Load(path)
-		self._EnvSim.Load(path)
 		return

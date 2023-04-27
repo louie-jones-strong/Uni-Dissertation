@@ -25,6 +25,7 @@ class BaseEnv:
 
 		self.ObservationSpace = None
 		self.ActionSpace = None
+		self.RewardRange = (0,0)
 
 		self._CurrentFrame = 0
 		self._Done = False
