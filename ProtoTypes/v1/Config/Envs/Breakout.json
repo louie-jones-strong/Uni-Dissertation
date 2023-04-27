@@ -1,9 +1,11 @@
 {
 	"Name": "Breakout",
 	"EnvType": "Gym",
-
-	"GymID": "BreakoutNoFrameskip-v4",
-	"RenderMode": "human",
+	"GymConfig": {
+		"GymID": "BreakoutNoFrameskip-v4",
+		"RenderMode": "human",
+		"Wrapper": "AtariWrapper"
+	},
 
 	"IsDeterministic": true,
 	"MaxAgents": 1,

@@ -1,9 +1,11 @@
 {
 	"Name": "CartPole",
 	"EnvType": "Gym",
+	"GymConfig": {
+		"GymID": "CartPole-v1",
+		"RenderMode": "human"
+	},
 
-	"GymID": "CartPole-v1",
-	"RenderMode": "human",
 
 	"IsDeterministic": true,
 	"MaxAgents": 1,

@@ -1,17 +1,19 @@
 {
 	"Name": "FrozenLake",
 	"EnvType": "Gym",
+	"GymConfig": {
+		"GymID": "FrozenLake-v1",
+		"RenderMode": "human",
+		"kwargs": {
+			"is_slippery": false
+		}
+	},
 
-	"GymID": "FrozenLake-v1",
-	"RenderMode": "human",
 
 	"IsDeterministic": false,
 	"MaxAgents": 1,
 	"MaxSteps": 15,
 	"MaxEpisodes": 1000,
-	"kwargs": {
-		"is_slippery": false
-	},
 
 	"AgentConfig": {
 		"Human": {
