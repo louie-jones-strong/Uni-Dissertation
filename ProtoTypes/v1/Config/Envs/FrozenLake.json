@@ -12,7 +12,7 @@
 
 	"IsDeterministic": false,
 	"MaxAgents": 1,
-	"MaxSteps": 15,
+	"MaxSteps": 50,
 	"MaxEpisodes": 1000,
 
 	"AgentConfig": {
