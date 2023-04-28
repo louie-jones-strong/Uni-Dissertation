@@ -137,7 +137,7 @@ class Runner:
 def Main():
 
 	# find all environments in the configs folder
-	configPath = os.path.join(os.path.abspath(os.curdir), "Config", "Envs")
+	configPath = os.path.join(os.path.dirname(os.path.abspath(os.curdir)), "Config", "Envs")
 
 	envConfigPath = UI.FilePicker("Environments", configPath)
 
