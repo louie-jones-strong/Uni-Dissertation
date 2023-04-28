@@ -19,7 +19,7 @@ class ExplorationAgent(BaseAgent.BaseAgent):
 		super().Remember(state, action, reward, nextState, terminated, truncated)
 
 		stateItem = self._GetState(state)
-		stateItem.Remember(action, self._GetStateId(nextState), terminated, truncated)
+		stateItem.Remember(action, self._GetStateId(nextState), terminated, reward)
 		return
 
 
@@ -46,17 +46,17 @@ class State:
 	def __init__(self, stateId, actionNum):
 		self.StateId = stateId
 
-		self.ActionCounts       = np.zeros(actionNum)
-		self.NextStates         = np.empty(actionNum)
-		self.ActionTerminateds  = np.zeros(actionNum)
-		self.ActionTruncateds  = np.zeros(actionNum)
+		self.ActionCounts      = np.zeros(actionNum)
+		self.NextStates        = np.empty(actionNum)
+		self.ActionTerminateds = np.zeros(actionNum)
+		self.ActionRewards     = np.zeros(actionNum)
 		return
 
-	def Remember(self, action, nextStateId, terminated, truncated):
-		self.ActionCounts[action] += 1
-		self.NextStates[action]    = nextStateId
-		self.ActionTerminateds[action]   = int(terminated == True)
-		self.ActionTruncateds[action]   = int(truncated == True)
+	def Remember(self, action, nextStateId, terminated, reward):
+		self.ActionCounts[action]     += 1
+		self.NextStates[action]        = nextStateId
+		self.ActionTerminateds[action] = int(terminated == True)
+		self.ActionRewards[action]     = reward
 		return
 
 	def GetActionNovelties(self):
@@ -72,6 +72,7 @@ class State:
 
 
 		# set all actions that end the episode to non novel
-		novelty *= 1 - self.ActionTerminateds
+		endActions = self.ActionTerminateds * (self.ActionRewards <= 0.0)
+		novelty *= 1 - endActions
 		return novelty
 

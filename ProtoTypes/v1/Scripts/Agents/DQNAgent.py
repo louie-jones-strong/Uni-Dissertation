@@ -18,6 +18,8 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		self.IsEval = False
 
+		self.ExplorationAgent = None
+
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.TrainingModel = self.BuildModel()
 			self.TrainingModel.set_weights(self.RunModel.get_weights())
@@ -75,6 +77,9 @@ class DQNAgent(BaseAgent.BaseAgent):
 		super().Remember(state, action, reward, nextState, terminated, truncated)
 		done = terminated or truncated
 		self.TransitionAcc.Add(state, action, reward, nextState, done)
+
+		if self.ExplorationAgent is not None:
+			self.ExplorationAgent.Remember(state, action, reward, nextState, terminated, truncated)
 
 		framesPerTrain = self.Config["FramesPerTrain"]
 		if self.TotalRememberedFrame % framesPerTrain == 0:
