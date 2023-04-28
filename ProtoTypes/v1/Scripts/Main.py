@@ -1,6 +1,7 @@
 import keyboard
 import json
 import Utils.UserInputHelper as UI
+from Utils.PathHelper import GetRootPath
 from Agents import BaseAgent
 from Environments import BaseEnv
 import os
@@ -78,19 +79,19 @@ class Runner:
 			totalReward += reward
 
 			# check if user wants to stop
-			if keyboard.is_pressed('ctrl+q'):
+			if keyboard.is_pressed('alt+q'):
 				raise KeyboardInterrupt
 
 			# check if user wants to reload config
-			if keyboard.is_pressed('ctrl+c'):
+			if keyboard.is_pressed('alt+c'):
 				self.LoadConfig()
 				print("+++++++ Loaded Config +++++++")
 
-			if keyboard.is_pressed('ctrl+s'):
+			if keyboard.is_pressed('alt+s'):
 				self.Save()
 				print("+++++++ Saved Agent +++++++")
 
-			if keyboard.is_pressed('ctrl+l'):
+			if keyboard.is_pressed('alt+l'):
 				self.Load()
 				print("+++++++ Loaded Agent +++++++")
 
@@ -116,7 +117,7 @@ class Runner:
 		return
 
 	def Save(self):
-		path = os.path.join(RootPath, "data", self.Config["Name"])
+		path = os.path.join(GetRootPath(), "data", self.Config["Name"])
 		if not os.path.exists(path):
 			os.makedirs(path)
 
@@ -136,7 +137,7 @@ class Runner:
 def Main():
 
 	# find all environments in the configs folder
-	configPath = os.path.join(RootPath, "Config", "Envs")
+	configPath = os.path.join(GetRootPath(), "Config", "Envs")
 
 	envConfigPath = UI.FilePicker("Environments", configPath)
 
@@ -152,5 +153,6 @@ def Main():
 
 
 if __name__ == "__main__":
-	RootPath = os.path.dirname(os.path.abspath(os.curdir))
+	# GetRootPath() = os.path.dirname(os.path.abspath(os.curdir))
+	# GetRootPath() = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	Main()
