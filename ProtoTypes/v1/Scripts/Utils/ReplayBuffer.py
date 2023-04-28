@@ -1,7 +1,6 @@
 import collections
 import numpy as np
-import os
-from os import path
+from os import path, makedirs
 
 #inspired by
 # https://github.com/deepmind/dqn_zoo/blob/master/dqn_zoo/replay.py
@@ -19,27 +18,28 @@ class ReplayBuffer:
 		self.Count = 0
 		self.Current = 0
 
-		print("stateShape", stateShape)
+		print("Replay state Size", (capacity,) + stateShape)
+		print("Replay action Size", (capacity,) + actionShape)
 
-		self._States		= np.empty((capacity,) + stateShape,  dtype=stateType)
-		self._Actions		= np.empty((capacity,) + actionShape, dtype=actionType)
-		self._Rewards		= np.empty((capacity),               dtype=np.float32)
-		self._NextStates	= np.empty((capacity,) + stateShape,  dtype=stateType)
-		self._Dones			= np.empty((capacity),               dtype=np.bool)
-		self._FutureRewards	= np.empty((capacity),               dtype=np.float32)
-		self._Priorities	= np.zeros((capacity),               dtype=np.float32)
+		self._States        = np.empty((capacity,) + stateShape,  dtype=stateType)
+		self._Actions       = np.empty((capacity,) + actionShape, dtype=actionType)
+		self._Rewards       = np.empty((capacity),               dtype=np.float32)
+		self._NextStates    = np.empty((capacity,) + stateShape,  dtype=stateType)
+		self._Dones         = np.empty((capacity),               dtype=np.bool)
+		self._FutureRewards = np.empty((capacity),               dtype=np.float32)
+		self._Priorities    = np.zeros((capacity),               dtype=np.float32)
 
 		return
 
 	def Add(self, state, action, reward, nextState, done, futureReward=None):
 
-		self._States[self.Current]		= state
-		self._Actions[self.Current]		= action
-		self._Rewards[self.Current]		= reward
-		self._NextStates[self.Current]	= nextState
-		self._Dones[self.Current]		= done
-		self._FutureRewards[self.Current]= futureReward
-		self._Priorities[self.Current]	= max(self._Priorities.max(), 1.0)
+		self._States[self.Current]        = state
+		self._Actions[self.Current]       = action
+		self._Rewards[self.Current]       = reward
+		self._NextStates[self.Current]    = nextState
+		self._Dones[self.Current]         = done
+		self._FutureRewards[self.Current] = futureReward
+		self._Priorities[self.Current]    = max(self._Priorities.max(), 1.0)
 
 
 		self.Current += 1
@@ -55,13 +55,13 @@ class ReplayBuffer:
 
 		indexs = np.random.choice(self.Count, batchSize, p=probabilities)
 
-		states			= self._States[indexs]
-		actions			= self._Actions[indexs]
-		rewards			= self._Rewards[indexs]
-		nextStates		= self._NextStates[indexs]
-		dones			= self._Dones[indexs]
-		futureRewards	= self._FutureRewards[indexs]
-		priorities		= self._Priorities[indexs]
+		states        = self._States[indexs]
+		actions       = self._Actions[indexs]
+		rewards       = self._Rewards[indexs]
+		nextStates    = self._NextStates[indexs]
+		dones         = self._Dones[indexs]
+		futureRewards = self._FutureRewards[indexs]
+		priorities    = self._Priorities[indexs]
 
 		if None in futureRewards:
 			futureRewards = None
@@ -80,7 +80,7 @@ class ReplayBuffer:
 
 	def Save(self, folderPath):
 		if not path.exists(folderPath):
-			os.makedirs(folderPath)
+			makedirs(folderPath)
 
 		np.save(path.join(folderPath, "States.npy"), self._States)
 		np.save(path.join(folderPath, "Actions.npy"), self._Actions)

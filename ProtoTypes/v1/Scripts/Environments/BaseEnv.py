@@ -53,8 +53,11 @@ class BaseEnv:
 
 		state = None
 		reward = 0
-		done = False
-		return state, reward, done
+		terminated = False
+		truncated = False
+		self._Done = terminated or truncated
+
+		return state, reward, terminated, truncated
 
 	def Reset(self):
 		self._CurrentFrame = 0

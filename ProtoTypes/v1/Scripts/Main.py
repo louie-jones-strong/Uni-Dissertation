@@ -32,7 +32,7 @@ class Runner:
 		if self.Agents is None:
 
 			numAgents = UI.NumPicker("Number of agents", 1, 1)
-			agentOptions = ["Random", "DQN", "Human", "MonteCarlo"]
+			agentOptions = BaseAgent.AgentList
 
 			self.Agents = []
 			for i in range(numAgents):
@@ -72,15 +72,15 @@ class Runner:
 
 			action = self.GetAction(state)
 
-			nextState, reward, done = self.Env.Step(action)
+			# print(f"state: {state}, action: {action}")
 
-			self.Remember(state, action, reward, nextState, done)
+			nextState, reward, terminated, truncated = self.Env.Step(action)
+			truncated = truncated or step >= self.Config["MaxSteps"] - 1
+
+			self.Remember(state, action, reward, nextState, terminated, truncated)
 
 			totalReward += reward
 
-			# check if user wants to stop
-			if keyboard.is_pressed('alt+q'):
-				raise KeyboardInterrupt
 
 			# check if user wants to reload config
 			if keyboard.is_pressed('alt+c'):
@@ -96,7 +96,7 @@ class Runner:
 				print("+++++++ Loaded Agent +++++++")
 
 			state = nextState
-			if done:
+			if terminated or truncated:
 				break
 
 
@@ -111,9 +111,9 @@ class Runner:
 	def GetAction(self, observation):
 		return self.Agents[0].GetAction(observation)
 
-	def Remember(self, state, action, reward, nextState, done):
+	def Remember(self, state, action, reward, nextState, terminated, truncated):
 		for agent in self.Agents:
-			agent.Remember(state, action, reward, nextState, done)
+			agent.Remember(state, action, reward, nextState, terminated, truncated)
 		return
 
 	def Save(self):
@@ -134,8 +134,10 @@ class Runner:
 			agent.Load(path)
 		return
 
-def Main():
 
+
+
+def Main():
 	# find all environments in the configs folder
 	configPath = os.path.join(GetRootPath(), "Config", "Envs")
 
@@ -143,16 +145,18 @@ def Main():
 
 	runner = Runner(envConfigPath)
 
-	try:
-		runner.RunEpisodes(numEpisodes=1000)
-	except KeyboardInterrupt:
-		print('Interrupted')
-		os._exit(0)
+	runner.RunEpisodes(numEpisodes=1000)
 
 	return
 
 
 if __name__ == "__main__":
-	# GetRootPath() = os.path.dirname(os.path.abspath(os.curdir))
-	# GetRootPath() = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-	Main()
+
+	try:
+
+		Main()
+
+	except KeyboardInterrupt:
+		print("")
+		print("Interrupted")
+		os._exit(0)

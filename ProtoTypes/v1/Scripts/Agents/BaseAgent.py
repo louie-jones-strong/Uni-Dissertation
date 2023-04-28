@@ -9,21 +9,29 @@ class AgentMode(enum.Enum):
 	Play = 1
 
 
-
+AgentList = ["Random", "DQN", "Human", "MonteCarlo", "Exploration"]
 def GetAgent(agentName):
-	from . import RandomAgent, DQNAgent, HumanAgent, MonteCarloAgent
-	lookUp = {
-		"Random": RandomAgent.RandomAgent,
-		"DQN": DQNAgent.DQNAgent,
-		"Human": HumanAgent.HumanAgent,
-		"MonteCarlo": MonteCarloAgent.MonteCarloAgent,
-	}
 
-	if agentName not in lookUp:
-		raise Exception(f"Agent \"{agentName}\" not found in {lookUp}")
-		return None
 
-	return lookUp[agentName]
+	if agentName == "Random":
+		from . import RandomAgent
+		return RandomAgent.RandomAgent
+	elif agentName == "DQN":
+		from . import DQNAgent
+		return DQNAgent.DQNAgent
+	elif agentName == "Human":
+		from . import HumanAgent
+		return HumanAgent.HumanAgent
+	elif agentName == "MonteCarlo":
+		from . import MonteCarloAgent
+		return MonteCarloAgent.MonteCarloAgent
+	elif agentName == "Exploration":
+		from . import ExplorationAgent
+		return ExplorationAgent.ExplorationAgent
+
+	raise Exception(f"Agent \"{agentName}\" not found")
+	return
+
 
 
 
@@ -64,7 +72,7 @@ EnvConfig: {self.EnvConfig}
 		self.EpisodeNum += 1
 		return
 
-	def Remember(self, state, action, reward, nextState, done):
+	def Remember(self, state, action, reward, nextState, terminated, truncated):
 		self.TotalRememberedFrame += 1
 		return
 

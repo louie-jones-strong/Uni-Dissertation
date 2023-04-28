@@ -85,10 +85,9 @@ class GymEnv(BaseEnv.BaseEnv):
 		if self._RenderCopy is not None:
 			self._RenderCopy.step(action)
 
+		self._Done = terminated or truncated
 
-		self._Done = terminated or truncated or self._CurrentFrame >= self._Config["MaxSteps"] - 1
-
-		return nextState, reward, self._Done
+		return nextState, reward, terminated, truncated
 
 	def Clone(self):
 		super().Clone()

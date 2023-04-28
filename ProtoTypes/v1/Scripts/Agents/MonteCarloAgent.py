@@ -28,11 +28,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			action = actionPrioList[i]
 
 			envCopy = env.Clone()
-			nextState, reward, done = envCopy.Step(action)
+			nextState, reward, terminated, truncated = envCopy.Step(action)
 
 			actionValues[action] = reward
 
-			if not done:
+			if not (terminated or truncated):
 				actionValues[action] += np.max(self._SearchActions(envCopy, nextState, depth=depth + 1))
 
 
@@ -50,9 +50,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		self._SubAgent.Reset()
 		return
 
-	def Remember(self, state, action, reward, nextState, done):
-		super().Remember(state, action, reward, nextState, done)
-		self._SubAgent.Remember(state, action, reward, nextState, done)
+	def Remember(self, state, action, reward, nextState, terminated, truncated):
+		super().Remember(state, action, reward, nextState, terminated, truncated)
+		self._SubAgent.Remember(state, action, reward, nextState, terminated, truncated)
 		return
 
 	def Save(self, path):

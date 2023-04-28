@@ -71,8 +71,9 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		return
 
-	def Remember(self, state, action, reward, nextState, done):
-		super().Remember(state, action, reward, nextState, done)
+	def Remember(self, state, action, reward, nextState, terminated, truncated):
+		super().Remember(state, action, reward, nextState, terminated, truncated)
+		done = terminated or truncated
 		self.TransitionAcc.Add(state, action, reward, nextState, done)
 
 		framesPerTrain = self.Config["FramesPerTrain"]
