@@ -1,6 +1,5 @@
 import keyboard
 import json
-import gym
 import Utils.UserInputHelper as UI
 from Agents import BaseAgent
 from Environments import BaseEnv
@@ -117,7 +116,7 @@ class Runner:
 		return
 
 	def Save(self):
-		path = os.path.join("data", self.Config["Name"])
+		path = os.path.join(RootPath, "data", self.Config["Name"])
 		if not os.path.exists(path):
 			os.makedirs(path)
 
@@ -137,7 +136,7 @@ class Runner:
 def Main():
 
 	# find all environments in the configs folder
-	configPath = os.path.join(os.path.dirname(os.path.abspath(os.curdir)), "Config", "Envs")
+	configPath = os.path.join(RootPath, "Config", "Envs")
 
 	envConfigPath = UI.FilePicker("Environments", configPath)
 
@@ -153,4 +152,5 @@ def Main():
 
 
 if __name__ == "__main__":
+	RootPath = os.path.dirname(os.path.abspath(os.curdir))
 	Main()

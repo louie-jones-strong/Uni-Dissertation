@@ -1,13 +1,24 @@
 from . import BaseEnv
-import gym
+import gymnasium as gym
 from copy import deepcopy
+import random
 
 
 def WrapGym(wrapperName, gymEnv):
 
 	if wrapperName == "AtariWrapper":
-		from baselines.common.atari_wrappers import wrap_deepmind
-		return wrap_deepmind(gymEnv, clip_rewards=False, frame_stack=True, scale=True)
+
+		gymEnv = gym.wrappers.AtariPreprocessing(gymEnv,
+			noop_max=0,
+			frame_skip=1,
+			screen_size=84,
+			terminal_on_life_loss=True,
+			grayscale_obs=True,
+			grayscale_newaxis=False,
+			scale_obs=True)
+
+	if wrapperName == "FrameStack":
+		gymEnv = gym.wrappers.FrameStack(gymEnv, num_stack=4)
 
 	return gymEnv
 
@@ -40,7 +51,7 @@ class GymEnv(BaseEnv.BaseEnv):
 
 
 			# make sure both environments are seeded the same
-			seed = 1234
+			seed = random.randint(0, 100000)
 			self._GymEnv.reset(seed=seed)
 			self._RenderCopy.reset(seed=seed)
 

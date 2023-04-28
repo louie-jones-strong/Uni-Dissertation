@@ -44,7 +44,7 @@ class BaseAgent:
 	def LoadConfig(self, envConfig):
 		self.Config = {}
 
-		path = os.path.join(path.dirname(os.path.abspath(os.curdir)), "Config", f"AgentConfig_{self.Name}.json")
+		path = os.path.join(os.path.dirname(os.path.abspath(os.curdir)), "Config", f"AgentConfig_{self.Name}.json")
 		if os.path.exists(path):
 			with open(path, "r") as f:
 				self.Config = json.load(f)
