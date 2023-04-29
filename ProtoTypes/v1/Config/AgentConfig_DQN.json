@@ -1,5 +1,5 @@
 {
-	"MaxBufferSize": 1000000,
+	"MaxBufferSize": 100000,
 	"MinBufferSize": 10,
 	"BatchSize": 64,
 	"LearningRate": 0.01,

@@ -14,6 +14,8 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 		self.RunModel = self.BuildModel()
+		self.RunModel.summary()
+
 		self.ExplorationRate = self.Config["MaxExplorationRate"]
 
 		self.IsEval = False
@@ -38,9 +40,15 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		# input layer
 		model.add(tf.keras.layers.Input(shape=inputShape))
-		model.add(tf.keras.layers.Flatten())
 
 		# hidden layers
+		if len(inputShape) > 1:
+			model.add(tf.keras.layers.Conv2D(32, 8, strides=4, activation="relu"))
+			model.add(tf.keras.layers.Conv2D(64, 4, strides=2, activation="relu"))
+			model.add(tf.keras.layers.Conv2D(64, 3, strides=1, activation="relu"))
+
+		model.add(tf.keras.layers.Flatten())
+		model.add(tf.keras.layers.Dense(512, activation="relu"))
 
 
 		# output layer
@@ -52,7 +60,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 		# compile the network
 		self.LossFunc = tf.keras.losses.Huber()
 		model.compile(optimizer=optimizer, loss=self.LossFunc)
-
 		return model
 
 

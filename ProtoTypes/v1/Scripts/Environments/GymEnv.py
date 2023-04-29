@@ -1,12 +1,19 @@
 from . import BaseEnv
 import gymnasium as gym
+from .Wrappers import FrameStack, FireResetEnv
 from copy import deepcopy
 import random
 
 
-def WrapGym(wrapperName, gymEnv):
+def WrapGym(wrappers, gymEnv, renderEnv):
+	if wrappers is None:
+		return gymEnv, renderEnv
 
-	if wrapperName == "AtariWrapper":
+	if "FireResetEnv" in wrappers:
+		gymEnv = FireResetEnv.FireResetEnv(gymEnv)
+		renderEnv = FireResetEnv.FireResetEnv(renderEnv)
+
+	if "Atari" in wrappers:
 
 		gymEnv = gym.wrappers.AtariPreprocessing(gymEnv,
 			noop_max=0,
@@ -17,10 +24,12 @@ def WrapGym(wrapperName, gymEnv):
 			grayscale_newaxis=False,
 			scale_obs=True)
 
-	if wrapperName == "FrameStack":
-		gymEnv = gym.wrappers.FrameStack(gymEnv, num_stack=4)
+	if "FrameStack" in wrappers:
+		gymEnv = FrameStack.FrameStack(gymEnv, 4)
 
-	return gymEnv
+	return gymEnv, renderEnv
+
+
 
 
 class GymEnv(BaseEnv.BaseEnv):
@@ -36,18 +45,20 @@ class GymEnv(BaseEnv.BaseEnv):
 
 			gymId = gymConfig["GymID"]
 			kargs = gymConfig.get("kwargs", {})
-			wrapper = gymConfig.get("Wrapper", None)
+			wrappers = gymConfig.get("Wrappers", None)
 
 
 
 			self._GymEnv = gym.make(gymId, **kargs)
-			self._GymEnv = WrapGym(wrapper, self._GymEnv)
 
 
 
 			# create a copy of the environment for rendering
 			# this is because you cannot copy the env if it has been rendered
 			self._RenderCopy = gym.make(gymId, render_mode=gymConfig["RenderMode"], **kargs)
+
+			# wrap the environments
+			self._GymEnv, self._RenderCopy = WrapGym(wrappers, self._GymEnv, self._RenderCopy)
 
 
 			# make sure both environments are seeded the same

@@ -4,12 +4,12 @@
 	"GymConfig": {
 		"GymID": "BreakoutNoFrameskip-v4",
 		"RenderMode": "human",
-		"Wrapper": "AtariWrapper"
+		"Wrappers": ["FireResetEnv", "Atari", "FrameStack"]
 	},
 
 	"IsDeterministic": true,
 	"MaxAgents": 1,
-	"MaxSteps": 1000,
+	"MaxSteps": 1000000,
 	"MaxEpisodes": 1000,
 	"AgentConfig": {
 	}

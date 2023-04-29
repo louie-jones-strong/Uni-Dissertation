@@ -55,12 +55,12 @@ class Runner:
 	def RunEpisodes(self, numEpisodes=1):
 		lastRewards = []
 		for episode in range(numEpisodes):
-			reward = self.RunEpisode()
+			step, reward = self.RunEpisode()
 			lastRewards.append(reward)
 			if len(lastRewards) > 10:
 				lastRewards.pop(0)
 			avgReward = sum(lastRewards) / len(lastRewards)
-			print(f"Episode: {episode}, reward: {reward}, avg reward: {avgReward}")
+			print(f"Episode:{episode} steps:{step} reward:{reward} avg:{avgReward}")
 
 		return
 
@@ -104,7 +104,7 @@ class Runner:
 		# update agents
 		for agent in self.Agents:
 			agent.Reset()
-		return totalReward
+		return step, totalReward
 
 
 
