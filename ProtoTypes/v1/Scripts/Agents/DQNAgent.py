@@ -136,7 +136,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 				absError = abs(targetQs - currentQ)
 				loss = self.LossFunc(targetQs, currentQ)
-				# loss = tf.reduce_mean(loss * priorities)
+				loss = tf.reduce_mean(loss * priorities)
 
 			gradients = tape.gradient(loss, self.TrainingModel.trainable_variables)
 			self.TrainingModel.optimizer.apply_gradients(zip(gradients, self.TrainingModel.trainable_variables))
