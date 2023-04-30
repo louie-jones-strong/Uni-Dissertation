@@ -18,7 +18,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		self.ExplorationRate = self.Config["MaxExplorationRate"]
 
-		self.IsEval = False
 
 		self.ExplorationAgent = None
 
@@ -27,7 +26,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 			self.TrainingModel.set_weights(self.RunModel.get_weights())
 
 			self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env, envConfig)
-			self.IsEval = True
 
 		return
 
@@ -72,11 +70,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.ExplorationAgent.Reset()
-
-			if self.IsEval:
-				self.IsEval = False
-			elif self.EpisodeNum % self.Config["EpisodesBetweenEval"] == 0:
-				self.IsEval = True
 
 		return
 
@@ -175,7 +168,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		isExploreAction = False
 		# if it is training mode
-		if self.Mode == BaseAgent.AgentMode.Train and not self.IsEval:
+		if self.Mode == BaseAgent.AgentMode.Train:
 			if np.random.random() < self.ExplorationRate:
 				isExploreAction = True
 

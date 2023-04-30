@@ -7,8 +7,9 @@ import random
 
 
 class AgentMode(enum.Enum):
-	Train = 0
-	Play = 1
+	Play = 0
+	Train = 1
+	Eval = 2
 
 
 AgentList = ["Random", "DQN", "Human", "MonteCarlo", "Exploration"]
@@ -72,6 +73,15 @@ EnvConfig: {self.EnvConfig}
 	def Reset(self):
 		self.FrameNum = 0
 		self.EpisodeNum += 1
+
+
+		if self.Mode == AgentMode.Eval:
+			self.Mode = AgentMode.Train
+		elif self.Mode == AgentMode.Train:
+
+			episodesBetweenEval = self.Config.get("EpisodesBetweenEval", -1)
+			if episodesBetweenEval > 0 and self.EpisodeNum % episodesBetweenEval == 0:
+				self.Mode = AgentMode.Eval
 		return
 
 	def Remember(self, state, action, reward, nextState, terminated, truncated):
