@@ -1,7 +1,7 @@
 {
 	"MaxBufferSize": 100000,
 	"MinBufferSize": 10,
-	"BatchSize": 64,
+	"BatchSize": 256,
 	"LearningRate": 0.01,
 	"FutureRewardDiscount": 0.99,
 	"ExplorationAgent": "Exploration",
@@ -9,6 +9,6 @@
 	"MaxExplorationRate": 1.0,
 	"MinExplorationRate": 0.01,
 	"FramesPerTrain": 2,
-	"FramesPerUpdateRunningNetwork": 500,
+	"FramesPerUpdateRunningNetwork": 1000,
 	"EpisodesBetweenEval": 10
 }
