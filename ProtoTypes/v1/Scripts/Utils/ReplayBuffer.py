@@ -132,6 +132,20 @@ class TransitionAccumulator:
 		self.Clear()
 		return
 
+	def EmptyList(self):
+		output = []
+		totalRewards = 0
+		while len(self.Store) > 0:
+			state, action, reward, newState, done = self.Store.pop()
+
+			transition = (state, action, reward, newState, done, totalRewards)
+			output.append(transition)
+			totalRewards += reward
+
+		self.Clear()
+		return output
+
+
 	def Clear(self):
 		self.Store.clear()
 		return

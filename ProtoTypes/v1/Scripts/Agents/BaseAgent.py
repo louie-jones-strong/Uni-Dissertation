@@ -2,6 +2,8 @@ import enum
 import os
 import json
 from Utils.PathHelper import GetRootPath
+import numpy as np
+import random
 
 
 class AgentMode(enum.Enum):
@@ -81,14 +83,16 @@ EnvConfig: {self.EnvConfig}
 		self.FrameNum += 1
 		self.TotalFrameNum += 1
 
-		actionValues = self.GetActionValues(state)
-		if actionValues is not None:
-			return actionValues.argmax()
-
 		return None
 
 	def GetActionValues(self, state):
 		return None
+
+	def _GetMaxValues(self, values):
+		maxValue = np.max(values)
+		maxValues = np.where(values == maxValue)[0]
+		return random.choice(maxValues)
+
 
 	def Save(self, path):
 		return

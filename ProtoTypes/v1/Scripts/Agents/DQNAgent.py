@@ -165,6 +165,12 @@ class DQNAgent(BaseAgent.BaseAgent):
 			print("=================update running network=================")
 		return
 
+
+	def GetAction(self, state):
+		super().GetAction(state)
+		actionValues = self.GetActionValues(state)
+		return self._GetMaxValues(actionValues)
+
 	def GetActionValues(self, state):
 
 		isExploreAction = False
@@ -193,11 +199,13 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 	def Save(self, path):
+		super().Save(path)
 		self.RunModel.save( os.path.join(path, "DqnModel.h5") )
 		self.ReplayBuffer.Save( os.path.join(path, "ReplayBuffer") )
 		return
 
 	def Load(self, path):
+		super().Load(path)
 
 		modelPath = os.path.join(path, "DqnModel.h5")
 		if os.path.exists(modelPath):

@@ -39,11 +39,10 @@ class Runner:
 				agentType = UI.OptionPicker(f"Agent_{i+1}", agentOptions)
 				agent = BaseAgent.GetAgent(agentType)(self.Env, self.Config)
 
-				if agentType == "DQN" and UI.BoolPicker("Load"):
-					path = os.path.join("data", self.Config["Name"])
-					agent.Load(path)
-
 				self.Agents.append(agent)
+
+			if UI.BoolPicker("Load"):
+				self.Load()
 		else:
 			for agent in self.Agents:
 				agent.LoadConfig(self.Config)
@@ -60,8 +59,9 @@ class Runner:
 			if len(lastRewards) > 10:
 				lastRewards.pop(0)
 			avgReward = sum(lastRewards) / len(lastRewards)
-			print(f"Episode:{episode} steps:{step} reward:{reward} avg:{avgReward}")
+			print(f"Episode:{episode} steps:{step+1} reward:{reward} avg:{avgReward}")
 
+		self.Save()
 		return
 
 	def RunEpisode(self):

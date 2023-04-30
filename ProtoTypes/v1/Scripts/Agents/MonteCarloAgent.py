@@ -11,7 +11,13 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		return
 
+	def GetAction(self, state):
+		super().GetAction(state)
+		actionValues = self.GetActionValues(state)
+		return self._GetMaxValues(actionValues)
+
 	def GetActionValues(self, state):
+		super().GetActionValues(state)
 
 		return self._SearchActions(self.Env, state)
 
