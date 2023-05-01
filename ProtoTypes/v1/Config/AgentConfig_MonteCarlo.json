@@ -1,5 +1,5 @@
 {
-	"MaxDepth": 10,
-	"SubAgent": "Random",
-	"TopActionCount": 2
+	"MaxDepth": 50,
+	"SubAgent": "Exploration",
+	"TopActionCount": 10
 }

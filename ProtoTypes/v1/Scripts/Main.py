@@ -4,17 +4,45 @@ import Utils.UserInputHelper as UI
 from Utils.PathHelper import GetRootPath
 from Agents import BaseAgent
 from Environments import BaseEnv
+import DataManager.DataManager as DataManager
 import os
 
 class Runner:
 
 	def __init__(self, configPath):
-		self.ConfigPath = configPath
-		self.Config = None
 		self.Env = None
 		self.Agents = None
+		self.Config = None
+		self._DataManager = None
 
+		self.ConfigPath = configPath
 		self.LoadConfig()
+
+		# setup Env
+		self.Env = BaseEnv.GetEnv(self.Config)
+
+		# setup data manager
+		self._DataManager = DataManager.DataManager()
+		self._DataManager.Setup(self.Config, self.Env)
+
+		# setup the agents
+		numAgents = UI.NumPicker("Number of agents", 1, 1)
+		agentOptions = BaseAgent.AgentList
+
+		mode = BaseAgent.AgentMode.Train
+		if UI.BoolPicker("Play"):
+			mode = BaseAgent.AgentMode.Play
+
+		self.Agents = []
+		for i in range(numAgents):
+			agentType = UI.OptionPicker(f"Agent_{i+1}", agentOptions)
+			agent = BaseAgent.GetAgent(agentType)(self.Env, self.Config, mode=mode)
+
+			self.Agents.append(agent)
+
+		if UI.BoolPicker("Load"):
+			self.Load()
+
 		return
 
 	def LoadConfig(self):
@@ -23,29 +51,16 @@ class Runner:
 		with open(self.ConfigPath) as f:
 			self.Config = json.load(f)
 
-		# ensure environment loaded
-		if self.Env is None:
-			self.Env = BaseEnv.GetEnv(self.Config)
-
+		if self.Env is not None:
+			self.Env.LoadConfig(self.Config)
 
 		# ensure agents loaded
-		if self.Agents is None:
-
-			numAgents = UI.NumPicker("Number of agents", 1, 1)
-			agentOptions = BaseAgent.AgentList
-
-			self.Agents = []
-			for i in range(numAgents):
-				agentType = UI.OptionPicker(f"Agent_{i+1}", agentOptions)
-				agent = BaseAgent.GetAgent(agentType)(self.Env, self.Config)
-
-				self.Agents.append(agent)
-
-			if UI.BoolPicker("Load"):
-				self.Load()
-		else:
+		if self.Agents is not None:
 			for agent in self.Agents:
 				agent.LoadConfig(self.Config)
+
+		if self._DataManager is not None:
+			self._DataManager.LoadConfig(self.Config)
 
 		return
 
@@ -72,8 +87,6 @@ class Runner:
 
 			action = self.GetAction(state)
 
-			# print(f"state: {state}, action: {action}")
-
 			nextState, reward, terminated, truncated = self.Env.Step(action)
 			truncated = truncated or step >= self.Config["MaxSteps"] - 1
 
@@ -99,11 +112,7 @@ class Runner:
 			if terminated or truncated:
 				break
 
-
-
-		# update agents
-		for agent in self.Agents:
-			agent.Reset()
+		self.Reset()
 		return step, totalReward
 
 
@@ -112,8 +121,21 @@ class Runner:
 		return self.Agents[0].GetAction(observation)
 
 	def Remember(self, state, action, reward, nextState, terminated, truncated):
+		# update data manager
+		self._DataManager.EnvRemember(state, action, reward, nextState, terminated, truncated)
+
+		# update agents
 		for agent in self.Agents:
 			agent.Remember(state, action, reward, nextState, terminated, truncated)
+		return
+
+	def Reset(self):
+		# update data manager
+		self._DataManager.EnvReset()
+
+		# update agents
+		for agent in self.Agents:
+			agent.Reset()
 		return
 
 	def Save(self):

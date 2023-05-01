@@ -26,27 +26,37 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		actionValues = self._SubAgent.GetActionValues(state)
 
 		if depth >= self.Config["MaxDepth"]:
-			return actionValues
+			return actionValues * self.Config["DiscountFactor"]
 
 		actionPrioList = np.argsort(actionValues)[::-1]
 
 		for i in range(self.Config["TopActionCount"]):
 			action = actionPrioList[i]
 
-			envCopy = env.Clone()
-			nextState, reward, terminated, truncated = envCopy.Step(action)
+			# predict with markov model
+			nextState, reward, terminated = self.DataManager._MDM.Predict(state, action)
 
-			actionValues[action] = reward
+			# if not in markov model, simulate
+			if terminated is None:
 
-			if not (terminated or truncated):
-				actionValues[action] += np.max(self._SearchActions(envCopy, nextState, depth=depth + 1))
+				envCopy = env.Clone()
+				nextState, reward, terminated, truncated = envCopy.Step(action)
+
+				actionValues[action] = reward
+
+				if not (terminated or truncated):
+					actionValues[action] += np.max(self._SearchActions(envCopy, nextState, depth=depth + 1))
+
+				del envCopy
+
+			else:
+				actionValues[action] = reward
+
+				if not terminated:
+					actionValues[action] += np.max(self._SearchActions(env, nextState, depth=depth + 1))
 
 
-			del envCopy
-
-
-		return actionValues
-
+		return actionValues * self.Config["DiscountFactor"]
 
 
 

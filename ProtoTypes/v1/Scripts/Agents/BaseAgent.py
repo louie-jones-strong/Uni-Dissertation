@@ -4,6 +4,7 @@ import json
 from Utils.PathHelper import GetRootPath
 import numpy as np
 import random
+import DataManager.DataManager as DataManager
 
 
 class AgentMode(enum.Enum):
@@ -46,6 +47,8 @@ class BaseAgent:
 		self.Name = self.__class__.__name__.replace("Agent", "")
 
 		self.LoadConfig(envConfig)
+
+		self.DataManager = DataManager.DataManager()
 
 		self.FrameNum = 0
 		self.TotalFrameNum = 0

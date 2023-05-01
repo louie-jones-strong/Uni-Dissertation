@@ -1,12 +1,11 @@
-import Utils.ReplayBuffer as ReplayBuffer
 import numpy as np
 
-class MarkovDecisionProcess:
+class MarkovDecisionModel:
 
 	def __init__(self, numActions):
 		self.NumActions = numActions
-		self.TransitionAcc = ReplayBuffer.TransitionAccumulator(10000)
 		self.States = {}
+		self.StateLookup = {}
 		return
 
 
@@ -19,21 +18,33 @@ class MarkovDecisionProcess:
 
 		return novelties, values
 
+	def Predict(self, state, action):
+		stateInfo = self._GetState(state)
+
+		if stateInfo is None:
+			return None, None, None, None
+
+		if stateInfo.ActionCounts[action] == 0:
+			return None, None, None, None
+
+		nextState = self.StateLookup[stateInfo.NextStates[action]]
+		reward = stateInfo.ActionRewards[action]
+		terminated = stateInfo.ActionTerminateds[action]
+		truncated = False
+		return nextState, reward, terminated, truncated
+
 
 	def Remember(self, state, action, reward, nextState, terminated, truncated):
 
 		stateItem = self._GetState(state)
 		stateItem.Remember(action, self._GetStateId(nextState), terminated, reward)
-		self.TransitionAcc.Add(state, action, reward, nextState, terminated)
 		return
 
-	def Reset(self):
-		transitions = self.TransitionAcc.EmptyList()
-		for transition in transitions:
-			state, action, reward, nextState, terminated, totalRewards = transition
-			stateItem = self._GetState(state)
-			stateItem.Update(action, totalRewards)
+	def OnEmptyTransAcc(self, state, action, reward, nextState, terminated, truncated, qValue):
+		stateItem = self._GetState(state)
+		stateItem.Update(action, qValue)
 		return
+
 
 	def _GetState(self, state):
 		stateId = self._GetStateId(state)
@@ -41,6 +52,7 @@ class MarkovDecisionProcess:
 		if stateId not in self.States:
 			stateItem = State(stateId, self.NumActions)
 			self.States[stateId] = stateItem
+			self.StateLookup[stateId] = state
 			return stateItem
 
 		return self.States[stateId]
@@ -104,7 +116,7 @@ class State:
 		if countMax == 0:
 			return np.ones_like(self.ActionCounts)
 
-		novelty = 1 - (self.ActionCounts / countMax)
+		novelty = 1.1-(self.ActionCounts / countMax)
 
 		# set all actions that transition to the same state to non novel
 		novelty *= 1 - (self.NextStates == self.StateId)
@@ -112,5 +124,5 @@ class State:
 
 		# set all actions that end the episode to non novel
 		endActions = self.ActionTerminateds * (self.ActionRewards <= 0.0)
-		novelty *= 1 - endActions
+		novelty *= (1 - endActions)
 		return novelty

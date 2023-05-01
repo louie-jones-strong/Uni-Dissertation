@@ -1,5 +1,5 @@
 from . import BaseAgent
-import Utils.ReplayBuffer as ReplayBuffer
+import DataManager.ReplayBuffer as ReplayBuffer
 import tensorflow as tf
 import numpy as np
 import os
