@@ -1,5 +1,4 @@
 from . import BaseAgent
-import DataManager.ReplayBuffer as ReplayBuffer
 import tensorflow as tf
 import numpy as np
 import os
@@ -8,9 +7,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 	def __init__(self, env, envConfig, mode=BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
-
-		self.TransitionAcc = ReplayBuffer.TransitionAccumulator(1000)
-		self.ReplayBuffer = ReplayBuffer.ReplayBuffer(self.Config["MaxBufferSize"], self.Env)
 
 
 		self.RunModel = self.BuildModel()
@@ -65,8 +61,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 	def Reset(self):
 		super().Reset()
-		self.TransitionAcc.TransferToReplayBuffer(self.ReplayBuffer)
-		self.TransitionAcc.Clear()
 
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.ExplorationAgent.Reset()
@@ -75,8 +69,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 	def Remember(self, state, action, reward, nextState, terminated, truncated):
 		super().Remember(state, action, reward, nextState, terminated, truncated)
-		done = terminated or truncated
-		self.TransitionAcc.Add(state, action, reward, nextState, done)
 
 		if self.ExplorationAgent is not None:
 			self.ExplorationAgent.Remember(state, action, reward, nextState, terminated, truncated)
@@ -92,13 +84,17 @@ class DQNAgent(BaseAgent.BaseAgent):
 		if self.Mode != BaseAgent.AgentMode.Train:
 			return
 
-		if len(self.ReplayBuffer) < self.Config["MinBufferSize"]:
+
+		replayBuffer = self.DataManager._ReplayBuffer
+
+		if len(replayBuffer) < self.Config["MinBufferSize"]:
 			return
 
 		# samples from the replay buffer
 
 		def GetSamples(bactchSize):
-			indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities = self.ReplayBuffer.Sample(batchSize)
+			replayBuffer = self.DataManager._ReplayBuffer
+			indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities = replayBuffer.Sample(batchSize)
 			dones = tf.convert_to_tensor([float(done) for done in dones])
 
 
@@ -149,7 +145,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		loss, absError = TrainWeights(targetQs, states, actions, priorities)
 
 		# update the priorities
-		self.ReplayBuffer.UpdatePriorities(indexs, absError)
+		replayBuffer.UpdatePriorities(indexs, absError)
 
 
 		# update the training network
@@ -194,7 +190,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 	def Save(self, path):
 		super().Save(path)
 		self.RunModel.save( os.path.join(path, "DqnModel.h5") )
-		self.ReplayBuffer.Save( os.path.join(path, "ReplayBuffer") )
 		return
 
 	def Load(self, path):
@@ -207,6 +202,4 @@ class DQNAgent(BaseAgent.BaseAgent):
 			if self.Mode == BaseAgent.AgentMode.Train:
 				self.TrainingModel.set_weights(self.RunModel.get_weights())
 
-
-		self.ReplayBuffer.Load( os.path.join(path, "ReplayBuffer") )
 		return

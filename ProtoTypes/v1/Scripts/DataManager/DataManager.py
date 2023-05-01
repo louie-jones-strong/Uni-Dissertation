@@ -34,10 +34,12 @@ class DataManager(Singleton.Singleton):
 	def Save(self, path):
 		self._EmptyAccumulator()
 		self._ReplayBuffer.Save(path)
+		self._MDM.Save(path)
 		return
 
 	def Load(self, path):
 		self._ReplayBuffer.Load(path)
+		self._MDM.Load(path)
 		return
 
 
