@@ -8,7 +8,7 @@
 			"name": "Run",
 			"type": "python",
 			"request": "launch",
-			"program": "ProtoTypes//v1//Scripts//Main.py",
+			"program": "Project//Scripts//Main.py",
 			"console": "integratedTerminal",
 			"justMyCode": true
 		}

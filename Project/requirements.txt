@@ -6,7 +6,7 @@ gymnasium[atari,accept-rom-license]
 
 keyboard==0.13.5
 pygame==2.3.0
-opencv-python==1.23.2
+opencv-python
 tensorflow==2.12.0
 wandb==0.15.0
 events==0.4
