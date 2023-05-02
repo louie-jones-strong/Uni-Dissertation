@@ -66,15 +66,22 @@ class Runner:
 
 
 
-	def RunEpisodes(self, numEpisodes=1):
+	def RunEpisodes(self):
 		lastRewards = []
-		for episode in range(numEpisodes):
+
+		episode = 0
+		while episode < self.Config["MaxEpisodes"]:
 			step, reward = self.RunEpisode()
+
 			lastRewards.append(reward)
 			if len(lastRewards) > 10:
 				lastRewards.pop(0)
+
 			avgReward = sum(lastRewards) / len(lastRewards)
-			print(f"Episode:{episode} steps:{step+1} reward:{reward} avg:{avgReward}")
+
+			print(f"Episode:{episode+1} steps:{step+1} reward:{reward} avg:{avgReward}")
+
+			episode += 1
 
 		self.Save()
 		return
@@ -167,7 +174,7 @@ def Main():
 
 	runner = Runner(envConfigPath)
 
-	runner.RunEpisodes(numEpisodes=1000)
+	runner.RunEpisodes()
 
 	return
 

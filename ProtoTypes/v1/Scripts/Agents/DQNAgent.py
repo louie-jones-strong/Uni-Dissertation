@@ -1,6 +1,7 @@
 from . import BaseAgent
 import tensorflow as tf
 import numpy as np
+import DataManager.DataColumnTypes as DCT
 import os
 
 class DQNAgent(BaseAgent.BaseAgent):
@@ -8,6 +9,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 	def __init__(self, env, envConfig, mode=BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
 
+		self.PriorityKey = "DQNAgent"
 
 		self.RunModel = self.BuildModel()
 		self.RunModel.summary()
@@ -85,17 +87,27 @@ class DQNAgent(BaseAgent.BaseAgent):
 			return
 
 
-		replayBuffer = self.DataManager._ReplayBuffer
-
-		if len(replayBuffer) < self.Config["MinBufferSize"]:
+		if len(self.DataManager._ReplayBuffer) < self.Config["MinBufferSize"]:
 			return
 
 		# samples from the replay buffer
 
 		def GetSamples(bactchSize):
-			replayBuffer = self.DataManager._ReplayBuffer
-			indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities = replayBuffer.Sample(batchSize)
-			dones = tf.convert_to_tensor([float(done) for done in dones])
+			columns = [
+				DCT.DataColumnTypes.CurrentState,
+				DCT.DataColumnTypes.NextState,
+				DCT.DataColumnTypes.Action,
+				DCT.DataColumnTypes.Reward,
+				DCT.DataColumnTypes.MaxFutureRewards,
+				DCT.DataColumnTypes.Terminated,
+				DCT.DataColumnTypes.Truncated,
+			]
+
+			indexs, priorities, columns = self.DataManager.Sample(columns, batchSize, self.PriorityKey)
+			states, nextStates, actions, rewards, futureRewards, terminateds, truncateds = columns
+
+			dones = np.logical_or(terminateds, truncateds)
+			dones = tf.convert_to_tensor([float(x) for x in dones])
 
 
 			return indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities
@@ -141,11 +153,17 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		batchSize = self.Config["BatchSize"]
 		indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities = GetSamples(batchSize)
+
+		assert np.all(priorities >= 0), f"priorities should be positive, but got {priorities}"
+
 		targetQs = CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards)
 		loss, absError = TrainWeights(targetQs, states, actions, priorities)
 
+
+		assert np.all(absError > 0), f"absError should be positive, but got {absError}"
+
 		# update the priorities
-		replayBuffer.UpdatePriorities(indexs, absError)
+		self.DataManager._ReplayBuffer.UpdatePriorities(self.PriorityKey, indexs, absError)
 
 
 		# update the training network

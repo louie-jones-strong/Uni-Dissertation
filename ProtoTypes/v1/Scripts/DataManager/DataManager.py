@@ -1,6 +1,7 @@
 import Utils.Singleton as Singleton
 from . import ReplayBuffer as ReplayBuffer
-from . import MarkovDecisionModel as MDM
+from . import MarkovModel as MarkovModel
+from . import DataColumnTypes as DataColumnTypes
 from events import Events
 from collections import deque
 
@@ -18,7 +19,7 @@ class DataManager(Singleton.Singleton):
 		self._QValueAccumulator = 0
 
 		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(self._Config["ReplayBufferMaxSize"], self._Env)
-		self._MDM = MDM.MarkovDecisionModel(self._Env.ActionSpace.n)
+		self._MarkovModel = MarkovModel.MarkovModel(self._Env.ActionSpace.n)
 
 		return
 
@@ -34,13 +35,26 @@ class DataManager(Singleton.Singleton):
 	def Save(self, path):
 		self._EmptyAccumulator()
 		self._ReplayBuffer.Save(path)
-		self._MDM.Save(path)
+		self._MarkovModel.Save(path)
 		return
 
 	def Load(self, path):
 		self._ReplayBuffer.Load(path)
-		self._MDM.Load(path)
+		self._MarkovModel.Load(path)
 		return
+
+
+	def Sample(self, columns, batchSize=-1, priorityKey=None, priorityScale=1.0):
+
+
+		samples = self._ReplayBuffer.Sample(batchSize, priorityKey=priorityKey, priorityScale=priorityScale)
+		indexs, states, actions, rewards, nextStates, terminateds, truncateds, futureRewards, priorities = samples
+
+		rowsOrder = (states, nextStates, actions, rewards, futureRewards, terminateds, truncateds)
+		columns = DataColumnTypes.GetColumn(columns, rowsOrder)
+
+		return indexs, priorities, columns
+
 
 
 	def SubToOnEmptyTransAcc(self, callback):
@@ -50,7 +64,7 @@ class DataManager(Singleton.Singleton):
 
 	def EnvRemember(self, state, action, reward, nextState, terminated, truncated):
 
-		self._MDM.Remember(state, action, reward, nextState, terminated, truncated)
+		# self._MarkovModel.Remember(state, action, reward, nextState, terminated, truncated)
 
 		# add transition to the transition accumulator
 		transition = (state, action, reward, nextState, terminated, truncated)
@@ -94,10 +108,10 @@ class DataManager(Singleton.Singleton):
 
 		# invoke the event
 		self._OnEmptyTransAcc.Invoke(state, action, reward, nextState, terminated, truncated, qValue)
-		self._MDM.OnEmptyTransAcc(state, action, reward, nextState, terminated, truncated, qValue)
+		# self._MarkovModel.OnEmptyTransAcc(state, action, reward, nextState, terminated, truncated, qValue)
 
 		# add to the replay buffer
-		self._ReplayBuffer.Add(state, action, reward, nextState, terminated or truncated, qValue)
+		self._ReplayBuffer.Add(state, action, reward, nextState, terminated, truncated, futureReward=qValue)
 
 		# update the q value accumulator
 		self._QValueAccumulator -= reward

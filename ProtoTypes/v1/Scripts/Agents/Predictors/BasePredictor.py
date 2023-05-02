@@ -1,8 +1,9 @@
+import DataManager.DataManager as DataManager
 
 class BasePredictor:
 
-	def __init__(self, dataManager, xLabel, yLabel):
-		self.DataManager = dataManager
+	def __init__(self, xLabel, yLabel):
+		self.DataManager = DataManager.DataManager()
 		self.XLabel = xLabel
 		self.YLabel = yLabel
 
@@ -19,6 +20,12 @@ class BasePredictor:
 
 	def Train(self):
 		return
+
+	def _GetSamples(self):
+		indexs, priorities, columns = self.DataManager.GetColumns([self.XLabel, self.YLabel])
+
+		return
+
 
 	def PredictValue(self, x):
 		y = None

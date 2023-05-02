@@ -34,7 +34,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			action = actionPrioList[i]
 
 			# predict with markov model
-			nextState, reward, terminated = self.DataManager._MDM.Predict(state, action)
+			nextState, reward, terminated = self.DataManager._MarkovModel.Predict(state, action)
 
 			# if not in markov model, simulate
 			if terminated is None:

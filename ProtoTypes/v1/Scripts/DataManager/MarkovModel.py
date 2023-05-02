@@ -1,11 +1,10 @@
 import numpy as np
 
-class MarkovDecisionModel:
+class MarkovModel:
 
 	def __init__(self, numActions):
 		self.NumActions = numActions
 		self.States = {}
-		self.StateLookup = {}
 		return
 
 
@@ -27,7 +26,7 @@ class MarkovDecisionModel:
 		if stateInfo.ActionCounts[action] == 0:
 			return None, None, None, None
 
-		nextState = self.StateLookup[stateInfo.NextStates[action]]
+		nextState = self.States[stateInfo.NextStates[action]].RawState
 		reward = stateInfo.ActionRewards[action]
 		terminated = stateInfo.ActionTerminateds[action]
 		truncated = False
@@ -37,12 +36,12 @@ class MarkovDecisionModel:
 	def Remember(self, state, action, reward, nextState, terminated, truncated):
 
 		stateItem = self._GetState(state)
-		stateItem.Remember(action, self._GetStateId(nextState), terminated, reward)
+		stateItem.Remember(action, self._GetStateId(nextState), terminated, reward, self)
 		return
 
 	def OnEmptyTransAcc(self, state, action, reward, nextState, terminated, truncated, qValue):
 		stateItem = self._GetState(state)
-		stateItem.Update(action, qValue)
+		stateItem.Update(action, qValue, self)
 		return
 
 
@@ -50,9 +49,8 @@ class MarkovDecisionModel:
 		stateId = self._GetStateId(state)
 
 		if stateId not in self.States:
-			stateItem = State(stateId, self.NumActions)
+			stateItem = State(stateId, state, self.NumActions)
 			self.States[stateId] = stateItem
-			self.StateLookup[stateId] = state
 			return stateItem
 
 		return self.States[stateId]
@@ -75,8 +73,11 @@ class MarkovDecisionModel:
 
 
 class State:
-	def __init__(self, stateId, actionNum):
+	def __init__(self, stateId, rawState, actionNum):
 		self.StateId = stateId
+		self.RawState = rawState
+
+		self.FullyExplored      = np.zeros(actionNum)
 
 		self.ActionCounts       = np.zeros(actionNum)
 		self.NextStates         = np.empty(actionNum)
@@ -85,16 +86,40 @@ class State:
 		self.ActionTotalRewards = np.zeros(actionNum)
 		return
 
-	def Remember(self, action, nextStateId, terminated, reward):
+	def Remember(self, action, nextStateId, terminated, reward, markovModel):
 		self.ActionCounts[action]       += 1
 		self.NextStates[action]          = nextStateId
 		self.ActionTerminateds[action]   = int(terminated == True)
 		self.ActionRewards[action]       = reward
-		self.ActionTotalRewards[action]  = reward
+
+		self._CheckExplored(action, markovModel)
 		return
 
-	def Update(self, action, totalReward):
+	def Update(self, action, totalReward, markovModel):
 		self.ActionTotalRewards[action] += totalReward
+		self._CheckExplored(action, markovModel)
+		return
+
+	def _CheckExplored(self, action, markovModel):
+
+		if self.FullyExplored[action] == 1:
+			return
+
+		if self.ActionTerminateds[action] >= 1:
+			self.FullyExplored[action] = 1
+			return
+
+
+		nextStateId = self.NextStates[action]
+		if nextStateId not in markovModel.States:
+			return
+
+
+		nextState = markovModel.States[nextStateId]
+
+		# check all actions are fully explored
+		fullyExplored = (nextState.ActionCounts > 0).all()
+		self.FullyExplored[action] = fullyExplored
 		return
 
 
@@ -108,6 +133,7 @@ class State:
 		counts = np.where(counts == 0, 1, counts)
 
 		avgRewards = self.ActionTotalRewards / counts
+		avgRewards += self.ActionRewards
 		return avgRewards
 
 	def GetActionNovelties(self):
@@ -125,4 +151,8 @@ class State:
 		# set all actions that end the episode to non novel
 		endActions = self.ActionTerminateds * (self.ActionRewards <= 0.0)
 		novelty *= (1 - endActions)
+
+		# all actions that have been fully explored are not novel
+		novelty *= (1 - self.FullyExplored)
+
 		return novelty

@@ -4,7 +4,7 @@
 	"BatchSize": 256,
 	"LearningRate": 0.01,
 	"FutureRewardDiscount": 0.99,
-	"ExplorationAgent": "Exploration",
+	"ExplorationAgent": "Random",
 	"ExplorationDelta": 0.0001,
 	"MaxExplorationRate": 1.0,
 	"MinExplorationRate": 0.01,

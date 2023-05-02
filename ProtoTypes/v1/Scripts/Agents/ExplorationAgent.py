@@ -13,7 +13,7 @@ class ExplorationAgent(BaseAgent.BaseAgent):
 		super().GetActionValues(state)
 
 
-		novelties, values = self.DataManager._MDM.GetStateInfo(state)
+		novelties, values = self.DataManager._MarkovModel.GetStateInfo(state)
 
 		if self.Mode == BaseAgent.AgentMode.Train:
 			return novelties

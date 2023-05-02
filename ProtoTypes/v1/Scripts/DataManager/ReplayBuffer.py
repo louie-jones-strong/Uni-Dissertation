@@ -1,6 +1,8 @@
+from . import PrioritiesHolder
 import collections
 import numpy as np
 from os import path, makedirs
+import json
 
 #inspired by
 # https://github.com/deepmind/dqn_zoo/blob/master/dqn_zoo/replay.py
@@ -18,28 +20,35 @@ class ReplayBuffer:
 		self.Count = 0
 		self.Current = 0
 
-		print("Replay state Size", (capacity,) + stateShape)
-		print("Replay action Size", (capacity,) + actionShape)
-
 		self._States        = np.empty((capacity,) + stateShape,  dtype=stateType)
 		self._Actions       = np.empty((capacity,) + actionShape, dtype=actionType)
 		self._Rewards       = np.empty((capacity),               dtype=np.float32)
 		self._NextStates    = np.empty((capacity,) + stateShape,  dtype=stateType)
-		self._Dones         = np.empty((capacity),               dtype=np.bool)
+		self._Terminateds   = np.empty((capacity),               dtype=np.bool)
+		self._Truncateds    = np.empty((capacity),               dtype=np.bool)
 		self._FutureRewards = np.empty((capacity),               dtype=np.float32)
-		self._Priorities    = np.zeros((capacity),               dtype=np.float32)
+
+		self._PriorityHolders = {}
 
 		return
 
-	def Add(self, state, action, reward, nextState, done, futureReward=None):
+	def EnsurePriorityHolder(self, key):
+		if key not in self._PriorityHolders:
+			self._PriorityHolders[key] = PrioritiesHolder.PrioritiesHolder(self.Capacity)
+		return
+
+	def Add(self, state, action, reward, nextState, terminateds, truncateds, futureReward=None):
 
 		self._States[self.Current]        = state
 		self._Actions[self.Current]       = action
 		self._Rewards[self.Current]       = reward
 		self._NextStates[self.Current]    = nextState
-		self._Dones[self.Current]         = done
+		self._Terminateds[self.Current]   = terminateds
+		self._Truncateds[self.Current]    = truncateds
 		self._FutureRewards[self.Current] = futureReward
-		self._Priorities[self.Current]    = max(self._Priorities.max(), 1.0)
+
+		for key in self._PriorityHolders:
+			self._PriorityHolders[key].SetStartPriority(self.Current)
 
 
 		self.Current += 1
@@ -47,31 +56,43 @@ class ReplayBuffer:
 		self.Current = self.Current % self.Capacity
 		return
 
-	def Sample(self, batchSize, priorityScale=1.0):
+	def Sample(self, batchSize, priorityKey=None, priorityScale=1.0):
 		batchSize = min(batchSize, self.Count)
 
-		scaledPriorities = self._Priorities[:self.Count] ** priorityScale
-		probabilities = scaledPriorities / sum(scaledPriorities)
 
-		indexs = np.random.choice(self.Count, batchSize, p=probabilities)
+		if priorityKey is None:
+			indexs = np.random.choice(self.Count, batchSize)
+			priorities = np.ones((self.Count))
+
+		else:
+
+			self.EnsurePriorityHolder(priorityKey)
+			rawPriorities = self._PriorityHolders[priorityKey].GetPriorities()
+
+
+			scaledPriorities = rawPriorities[:self.Count] ** priorityScale
+
+			probabilities = scaledPriorities / sum(scaledPriorities)
+			indexs = np.random.choice(self.Count, batchSize, p=probabilities)
+
+			priorities = rawPriorities[indexs]
 
 		states        = self._States[indexs]
 		actions       = self._Actions[indexs]
 		rewards       = self._Rewards[indexs]
 		nextStates    = self._NextStates[indexs]
-		dones         = self._Dones[indexs]
+		terminateds   = self._Terminateds[indexs]
+		truncateds    = self._Truncateds[indexs]
 		futureRewards = self._FutureRewards[indexs]
-		priorities    = self._Priorities[indexs]
 
 		if None in futureRewards:
 			futureRewards = None
 
-		return indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities
+		return indexs, states, actions, rewards, nextStates, terminateds, truncateds, futureRewards, priorities
 
-	def UpdatePriorities(self, indexs, priorities, offset=0.1):
+	def UpdatePriorities(self, priorityKey, indexs, priorities, offset=0.1):
 
-		for i in range(len(indexs)):
-			self._Priorities[indexs[i]] = priorities[i] + offset
+		self._PriorityHolders[priorityKey].UpdatePriorities(indexs, priorities, offset=offset)
 		return
 
 
@@ -82,73 +103,70 @@ class ReplayBuffer:
 		if not path.exists(folderPath):
 			makedirs(folderPath)
 
+		metaData = {
+			"Capacity": self.Capacity,
+			"Count": self.Count,
+			"Current": self.Current,
+			"PriorityHolders": {}
+		}
+		for key in self._PriorityHolders:
+			metaData["PriorityHolders"][key] = self._PriorityHolders[key].GetMetaData()
+
+		# save meta data as json
+		with open(path.join(folderPath, "MetaData.json"), "w") as file:
+			json.dump(metaData, file)
+
+
+		# save core replay data as npy
 		np.save(path.join(folderPath, "States.npy"), self._States)
 		np.save(path.join(folderPath, "Actions.npy"), self._Actions)
 		np.save(path.join(folderPath, "Rewards.npy"), self._Rewards)
 		np.save(path.join(folderPath, "NextStates.npy"), self._NextStates)
-		np.save(path.join(folderPath, "Dones.npy"), self._Dones)
+		np.save(path.join(folderPath, "Terminateds.npy"), self._Terminateds)
+		np.save(path.join(folderPath, "Truncateds.npy"), self._Truncateds)
 		np.save(path.join(folderPath, "FutureRewards.npy"), self._FutureRewards)
-		np.save(path.join(folderPath, "Priorities.npy"), self._Priorities)
+
+		# save priority holders
+		priorityHolderFolder = path.join(folderPath, "PriorityHolders")
+		if not path.exists(priorityHolderFolder):
+			makedirs(priorityHolderFolder)
+
+		for key in self._PriorityHolders:
+			path = path.join(priorityHolderFolder, f"{key}.npy")
+			self._PriorityHolders[key].Save(path)
 		return
 
 	def Load(self, folderPath):
 		if not path.exists(folderPath):
 			return
 
+		# load meta data from json
+		with open(path.join(folderPath, "MetaData.json"), "r") as file:
+			metaData = json.load(file)
+
+		self.Capacity = metaData["Capacity"]
+		self.Count = metaData["Count"]
+		self.Current = metaData["Current"]
+		for key in metaData["PriorityHolders"]:
+			self._PriorityHolders[key] = PrioritiesHolder.PrioritiesHolder(self.Capacity, **metaData["PriorityHolders"][key])
+
+
+		# load core replay data from npy
 		self._States = np.load(path.join(folderPath, "States.npy"))
 		self._Actions = np.load(path.join(folderPath, "Actions.npy"))
 		self._Rewards = np.load(path.join(folderPath, "Rewards.npy"))
 		self._NextStates = np.load(path.join(folderPath, "NextStates.npy"))
-		self._Dones = np.load(path.join(folderPath, "Dones.npy"))
+		self._Terminateds = np.load(path.join(folderPath, "Terminateds.npy"))
+		self._Truncateds = np.load(path.join(folderPath, "Truncateds.npy"))
 		self._FutureRewards = np.load(path.join(folderPath, "FutureRewards.npy"))
-		self._Priorities = np.load(path.join(folderPath, "Priorities.npy"))
+
+
+		# load priority holders
+		priorityHolderFolder = path.join(folderPath, "PriorityHolders")
+		if path.exists(priorityHolderFolder):
+
+			for key in self._PriorityHolders:
+				path = path.join(priorityHolderFolder, f"{key}.npy")
+				self._PriorityHolders[key].Load(path)
+
 		return
-
-class TransitionAccumulator:
-	def __init__(self, capacity):
-		self.Capacity = capacity
-		self.Store = collections.deque(maxlen=capacity)
-		return
-
-	def Add(self, state, action, reward, newState, done):
-		self.Store.append((state, action, reward, newState, done))
-
-		if len(self.Store) > self.Capacity:
-			self.Store.popleft(0)
-		return
-
-	def TransferToReplayBuffer(self, replayBuffer):
-		totalReward = 0
-
-		while len(self.Store) > 0:
-			transition = self.Store.pop()
-
-			# unpack transition
-			state, action, reward, newState, done = transition
-
-			replayBuffer.Add(state, action, reward, newState, done, futureReward=totalReward)
-			totalReward += reward
-
-		self.Clear()
-		return
-
-	def EmptyList(self):
-		output = []
-		totalRewards = 0
-		while len(self.Store) > 0:
-			state, action, reward, newState, done = self.Store.pop()
-
-			transition = (state, action, reward, newState, done, totalRewards)
-			output.append(transition)
-			totalRewards += reward
-
-		self.Clear()
-		return output
-
-
-	def Clear(self):
-		self.Store.clear()
-		return
-
-	def __len__(self):
-		return len(self.Store)
