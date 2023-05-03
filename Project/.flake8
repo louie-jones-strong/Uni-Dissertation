@@ -1,0 +1,13 @@
+[flake8]
+extend-ignore =
+; ignore tabs instead of spaces error
+	W191,
+; ignore white space after : error
+	E231,
+; ignore to many blank lines error
+	E303
+
+
+exclude = .git,__pycache__,docs
+
+max-line-length = 120

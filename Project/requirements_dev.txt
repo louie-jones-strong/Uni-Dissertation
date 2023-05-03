@@ -1,2 +1,4 @@
 types-keyboard==0.13.2.7
 mypy==1.2.0
+unittest-parallel==1.5.3
+flake8==3.0.1
