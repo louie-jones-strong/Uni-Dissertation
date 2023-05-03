@@ -59,7 +59,11 @@ class DataManager(Singleton.Singleton):
 		return
 
 
-	def Sample(self, columns:list[DataColumnTypes.DataColumnTypes], batchSize:int=-1, priorityKey:Optional[str]=None, priorityScale:float=1.0) -> tuple[NDArray, NDArray, list[Any]]:
+	def Sample(self,
+			columns:list[DataColumnTypes.DataColumnTypes],
+			batchSize:int=-1,
+			priorityKey:Optional[str]=None,
+			priorityScale:float=1.0) -> tuple[NDArray, NDArray, list[Any]]:
 
 
 		samples = self._ReplayBuffer.Sample(batchSize, priorityKey=priorityKey, priorityScale=priorityScale)

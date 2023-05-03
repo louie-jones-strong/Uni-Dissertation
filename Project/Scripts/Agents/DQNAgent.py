@@ -20,7 +20,7 @@ import tensorflow as tf
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env:Type[BaseEnv], envConfig:SCT.Config, mode:BaseAgent.AgentMode=BaseAgent.AgentMode.Train):
+	def __init__(self, env:BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode=BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
 
 		self.PriorityKey = "DQNAgent"
@@ -78,7 +78,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 	def Reset(self) -> None:
 		super().Reset()
 
-		if self.Mode == BaseAgent.AgentMode.Train:
+		if self.ExplorationAgent is not None and self.Mode == BaseAgent.AgentMode.Train:
 			self.ExplorationAgent.Reset()
 
 		return
@@ -122,7 +122,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 			dones = np.logical_or(terminateds, truncateds)
 			dones = tf.convert_to_tensor([float(x) for x in dones])
-
 
 			return indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities
 		def CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards):

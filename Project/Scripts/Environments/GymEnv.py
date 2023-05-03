@@ -52,6 +52,7 @@ class GymEnv(BaseEnv):
 
 		self._RenderCopy = None
 
+
 		if gymEnv is None:
 
 			gymConfig = self._Config.get("GymConfig", {})
@@ -62,7 +63,7 @@ class GymEnv(BaseEnv):
 
 
 
-			self._GymEnv:gym.Env = gym.make(gymId, **kargs)
+			self._GymEnv = gym.make(gymId, **kargs)
 
 
 
@@ -84,10 +85,9 @@ class GymEnv(BaseEnv):
 			self._RenderCopy.metadata["render_fps"] = 100_000
 
 		else:
-			self._GymEnv:gym.Env = gymEnv
+			self._GymEnv = gymEnv
 			self._RenderCopy = None
 
-		assert isinstance(self._GymEnv.observation_space, type(SCT.StateSpace)), "GymEnv: observation space is not a valid state space"
 
 		self.ObservationSpace = self._GymEnv.observation_space
 		self.ActionSpace = self._GymEnv.action_space
