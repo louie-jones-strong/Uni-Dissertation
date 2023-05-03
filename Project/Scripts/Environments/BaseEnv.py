@@ -1,49 +1,58 @@
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+
+from numpy.typing import NDArray
+if TYPE_CHECKING:
+	pass
+# endregion
+
+# other imports
+import gymnasium as gym
+import numpy as np
+from copy import deepcopy
 
 
-def GetEnv(envConfig):
-	from . import GymEnv
-
-	lookUp = {
-		"Gym": GymEnv.GymEnv,
-	}
-
+def GetEnv(envConfig:SCT.Config)->'BaseEnv':
 	envType = envConfig["EnvType"]
 
-	if envType not in lookUp:
-		raise Exception(f"EnvType \"{envType}\" not found in {lookUp}")
-		return None
+	if envType == "Gym":
 
-	env = lookUp[envType](envConfig)
-	return env
+		from Environments.GymEnv import GymEnv
+		return GymEnv(envConfig)
+
+	raise Exception(f"EnvType \"{envType}\" not found")
+	return
 
 
 
 
 class BaseEnv:
-	def __init__(self, envConfig):
+	def __init__(self, envConfig:SCT.Config):
 		self.LoadConfig(envConfig)
 
-		self.ObservationSpace = None
-		self.ActionSpace = None
-		self.RewardRange = (0,0)
+		self.ObservationSpace:SCT.StateSpace = gym.spaces.Box(low=0, high=1, shape=(1, 2), dtype=np.uint8)
+		self.ActionSpace:SCT.ActionSpace = gym.spaces.Discrete(1)
+		self.RewardRange:tuple[float, float] = (0,0)
 
 		self._CurrentFrame = 0
 		self._Done = False
 		return
 
-	def LoadConfig(self, envConfig):
+	def LoadConfig(self, envConfig:SCT.Config) ->None:
 		self._Config = envConfig
 
 		return
 
 
-	def Clone(self):
-		return None
+	def Clone(self)->'BaseEnv':
+		return deepcopy(self)
 
 
 
 
-	def Step(self, action):
+	def Step(self, action:SCT.Action) ->tuple[SCT.State, SCT.Reward, bool, bool]:
 		"""
 		:param action:
 		:return: nextState, reward, done
@@ -51,26 +60,26 @@ class BaseEnv:
 		self._CurrentFrame += 1
 
 
-		state = None
-		reward = 0
+		state = 1
+		reward = 0.0
 		terminated = False
 		truncated = False
 		self._Done = terminated or truncated
 
 		return state, reward, terminated, truncated
 
-	def Reset(self):
+	def Reset(self) ->SCT.State:
 		self._CurrentFrame = 0
 		self._Done = False
 
-		state = None
+		state = 1
 		return state
 
 
 
-	def Render(self):
+	def Render(self) ->None:
 		return
 
 
-	def __del__(self):
+	def __del__(self) ->None:
 		return

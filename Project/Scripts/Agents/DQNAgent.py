@@ -1,12 +1,26 @@
-from . import BaseAgent
-import tensorflow as tf
-import numpy as np
-import DataManager.DataColumnTypes as DCT
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+
+from numpy.typing import NDArray
+from Environments.BaseEnv import BaseEnv
+if TYPE_CHECKING:
+	pass
+# endregion
+
+# other file dependencies
 import os
+
+import Agents.BaseAgent as BaseAgent
+import DataManager.DataColumnTypes as DCT
+import numpy as np
+import tensorflow as tf
+
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env, envConfig, mode=BaseAgent.AgentMode.Train):
+	def __init__(self, env:Type[BaseEnv], envConfig:SCT.Config, mode:BaseAgent.AgentMode=BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
 
 		self.PriorityKey = "DQNAgent"
@@ -27,7 +41,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		return
 
-	def BuildModel(self):
+	def BuildModel(self) -> tf.keras.Model:
 		inputShape = self.Env.ObservationSpace.shape
 		outputNumber = self.Env.ActionSpace.n
 
@@ -61,7 +75,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 
-	def Reset(self):
+	def Reset(self) -> None:
 		super().Reset()
 
 		if self.Mode == BaseAgent.AgentMode.Train:
@@ -69,7 +83,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		return
 
-	def Remember(self, state, action, reward, nextState, terminated, truncated):
+	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) -> None:
 		super().Remember(state, action, reward, nextState, terminated, truncated)
 
 		if self.ExplorationAgent is not None:
@@ -80,7 +94,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 			self.Train()
 		return
 
-	def Train(self):
+	def Train(self) -> None:
 
 		# check that we are in training mode
 		if self.Mode != BaseAgent.AgentMode.Train:
@@ -92,7 +106,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		# samples from the replay buffer
 
-		def GetSamples(bactchSize):
+		def GetSamples(bactchSize:int):
 			columns = [
 				DCT.DataColumnTypes.CurrentState,
 				DCT.DataColumnTypes.NextState,
@@ -173,12 +187,12 @@ class DQNAgent(BaseAgent.BaseAgent):
 		return
 
 
-	def GetAction(self, state):
+	def GetAction(self, state:SCT.State) -> SCT.Action:
 		super().GetAction(state)
 		actionValues = self.GetActionValues(state)
 		return self._GetMaxValues(actionValues)
 
-	def GetActionValues(self, state):
+	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
 
 		isExploreAction = False
 		# if it is training mode
@@ -205,12 +219,12 @@ class DQNAgent(BaseAgent.BaseAgent):
 		return actionValues
 
 
-	def Save(self, path):
+	def Save(self, path:str) -> None:
 		super().Save(path)
 		self.RunModel.save( os.path.join(path, "DqnModel.h5") )
 		return
 
-	def Load(self, path):
+	def Load(self, path:str) -> None:
 		super().Load(path)
 
 		modelPath = os.path.join(path, "DqnModel.h5")

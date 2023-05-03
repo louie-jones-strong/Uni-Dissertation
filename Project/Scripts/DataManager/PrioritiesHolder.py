@@ -1,23 +1,24 @@
 import numpy as np
 from os import path
+from numpy.typing import NDArray
 
 class PrioritiesHolder:
-	def __init__(self, capacity):
+	def __init__(self, capacity:int):
 		self._Priorities = np.ones((capacity), dtype=np.float32)
 
 		return
 
-	def Save(self, path):
-		np.save(path, self._Priorities)
+	def Save(self, npyPath:str) ->None:
+		np.save(npyPath, self._Priorities)
 		return
 
-	def Load(self, path):
-		if not path.exists(path):
+	def Load(self, npyPath:str) ->None:
+		if not path.exists(npyPath):
 			return
-		self._Priorities = np.load(path)
+		self._Priorities = np.load(npyPath)
 		return
 
-	def GetMetaData(self):
+	def GetMetaData(self) ->dict:
 		return {
 		}
 
@@ -25,10 +26,10 @@ class PrioritiesHolder:
 
 
 
-	def GetPriorities(self):
+	def GetPriorities(self) ->NDArray[np.float32]:
 		return self._Priorities
 
-	def UpdatePriorities(self, indexs, priorities, offset=0.1):
+	def UpdatePriorities(self, indexs:NDArray[np.int_], priorities:NDArray[np.float32], offset:float=0.1) ->None:
 
 		for i in range(len(indexs)):
 			idx = indexs[i]
@@ -43,7 +44,7 @@ class PrioritiesHolder:
 		assert np.all(self._Priorities >= 0.0), f"Priorities are negative: {self._Priorities}"
 		return
 
-	def SetStartPriority(self, index):
+	def SetStartPriority(self, index:int) ->None:
 
 		priority = max(self._Priorities.max(), 1.0)
 		assert priority is not np.nan, "priority is nan"

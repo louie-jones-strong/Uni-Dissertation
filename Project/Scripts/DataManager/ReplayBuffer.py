@@ -1,19 +1,38 @@
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+
+from numpy.typing import NDArray
+if TYPE_CHECKING:
+	pass
+# endregion
+
+# other imports
 from . import PrioritiesHolder
 import collections
 import numpy as np
 from os import path, makedirs
 import json
 
+from typing import Any, TypeVar, Optional
+from numpy.typing import NDArray
+import sys
+
+
+from Environments.BaseEnv import BaseEnv
+
 #inspired by
 # https://github.com/deepmind/dqn_zoo/blob/master/dqn_zoo/replay.py
 
 class ReplayBuffer:
-	def __init__(self, capacity, env):
+	def __init__(self, capacity:int, env:BaseEnv):
 
-		stateShape = env.ObservationSpace.shape
-		stateType = env.ObservationSpace.dtype
-		actionShape = env.ActionSpace.shape
-		actionType = env.ActionSpace.dtype
+		stateShape:tuple[int, ...]  = env.ObservationSpace.shape
+		actionShape:tuple[int, ...] = env.ActionSpace.shape
+
+		stateType   = env.ObservationSpace.dtype
+		actionType  = env.ActionSpace.dtype
 
 
 		self.Capacity = capacity
@@ -24,20 +43,20 @@ class ReplayBuffer:
 		self._Actions       = np.empty((capacity,) + actionShape, dtype=actionType)
 		self._Rewards       = np.empty((capacity),               dtype=np.float32)
 		self._NextStates    = np.empty((capacity,) + stateShape,  dtype=stateType)
-		self._Terminateds   = np.empty((capacity),               dtype=np.bool)
-		self._Truncateds    = np.empty((capacity),               dtype=np.bool)
+		self._Terminateds   = np.empty((capacity),               dtype=np.bool_)
+		self._Truncateds    = np.empty((capacity),               dtype=np.bool_)
 		self._FutureRewards = np.empty((capacity),               dtype=np.float32)
 
-		self._PriorityHolders = {}
+		self._PriorityHolders:dict[str, PrioritiesHolder.PrioritiesHolder] = {}
 
 		return
 
-	def EnsurePriorityHolder(self, key):
+	def EnsurePriorityHolder(self, key:str) ->None:
 		if key not in self._PriorityHolders:
 			self._PriorityHolders[key] = PrioritiesHolder.PrioritiesHolder(self.Capacity)
 		return
 
-	def Add(self, state, action, reward, nextState, terminateds, truncateds, futureReward=None):
+	def Add(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminateds:bool, truncateds:bool, futureReward:SCT.Reward=-sys.maxsize-1) ->None:
 
 		self._States[self.Current]        = state
 		self._Actions[self.Current]       = action
@@ -56,7 +75,7 @@ class ReplayBuffer:
 		self.Current = self.Current % self.Capacity
 		return
 
-	def Sample(self, batchSize, priorityKey=None, priorityScale=1.0):
+	def Sample(self, batchSize:int, priorityKey:Optional[str]=None, priorityScale:float=1.0) -> tuple[NDArray[np.int_], NDArray[Any], NDArray[np.int_], NDArray[np.float32], NDArray[Any], NDArray[np.bool_], NDArray[np.bool_], NDArray[np.float32], NDArray[np.float32]]:
 		batchSize = min(batchSize, self.Count)
 
 
@@ -90,16 +109,16 @@ class ReplayBuffer:
 
 		return indexs, states, actions, rewards, nextStates, terminateds, truncateds, futureRewards, priorities
 
-	def UpdatePriorities(self, priorityKey, indexs, priorities, offset=0.1):
+	def UpdatePriorities(self, priorityKey:str, indexs:NDArray[np.int_], priorities:NDArray[np.float32], offset:float=0.1) ->None:
 
 		self._PriorityHolders[priorityKey].UpdatePriorities(indexs, priorities, offset=offset)
 		return
 
 
-	def __len__(self):
+	def __len__(self) ->int:
 		return self.Count
 
-	def Save(self, folderPath):
+	def Save(self, folderPath:str) ->None:
 		if not path.exists(folderPath):
 			makedirs(folderPath)
 
@@ -136,7 +155,7 @@ class ReplayBuffer:
 			self._PriorityHolders[key].Save(path)
 		return
 
-	def Load(self, folderPath):
+	def Load(self, folderPath:str) ->None:
 		if not path.exists(folderPath):
 			return
 

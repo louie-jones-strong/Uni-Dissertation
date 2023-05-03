@@ -1,23 +1,36 @@
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+
+from numpy.typing import NDArray
+if TYPE_CHECKING:
+	pass
+# endregion
+
+# other file dependencies
+from . import State
 import numpy as np
+
 
 class MarkovModel:
 
-	def __init__(self, numActions):
+	def __init__(self, numActions:int):
 		self.NumActions = numActions
-		self.States = {}
+		self.States:dict[int, State.State] = {}
 		return
 
 
-	def GetStateInfo(self, state):
+	def GetStateInfo(self, state:SCT.State) -> tuple[NDArray[np.float32], NDArray[np.float32]]:
 
-		state = self._GetState(state)
+		stateItem = self._GetState(state)
 
-		novelties = state.GetActionNovelties()
-		values = state.GetActionValues()
+		novelties = stateItem.GetActionNovelties()
+		values = stateItem.GetActionValues()
 
 		return novelties, values
 
-	def Predict(self, state, action):
+	def Predict(self, state:SCT.State, action:SCT.Action) -> tuple[Optional[SCT.State], Optional[float], Optional[bool], Optional[bool]]:
 		stateInfo = self._GetState(state)
 
 		if stateInfo is None:
@@ -33,126 +46,42 @@ class MarkovModel:
 		return nextState, reward, terminated, truncated
 
 
-	def Remember(self, state, action, reward, nextState, terminated, truncated):
+	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) ->None:
 
 		stateItem = self._GetState(state)
 		stateItem.Remember(action, self._GetStateId(nextState), terminated, reward, self)
 		return
 
-	def OnEmptyTransAcc(self, state, action, reward, nextState, terminated, truncated, qValue):
+	def OnEmptyTransAcc(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool, qValue:float) ->None:
 		stateItem = self._GetState(state)
 		stateItem.Update(action, qValue, self)
 		return
 
 
-	def _GetState(self, state):
+	def _GetState(self, state:SCT.State) ->State.State:
 		stateId = self._GetStateId(state)
 
 		if stateId not in self.States:
-			stateItem = State(stateId, state, self.NumActions)
+			stateItem = State.State(stateId, state, self.NumActions)
 			self.States[stateId] = stateItem
 			return stateItem
 
 		return self.States[stateId]
 
-	def _GetStateId(self, state):
+	def _GetStateId(self, state:SCT.State) ->int:
 
 		if isinstance(state, int):
 			return state
+		elif isinstance(state, np.ndarray):
+			return hash(tuple(state.flatten()))
 
-		return hash(tuple(state.flat))
+		return state.__hash__()
 
 
-	def Save(self, path):
-
-		return
-
-	def Load(self, path):
+	def Save(self, path:str) ->None:
 
 		return
 
+	def Load(self, path:str) ->None:
 
-class State:
-	def __init__(self, stateId, rawState, actionNum):
-		self.StateId = stateId
-		self.RawState = rawState
-
-		self.FullyExplored      = np.zeros(actionNum)
-
-		self.ActionCounts       = np.zeros(actionNum)
-		self.NextStates         = np.empty(actionNum)
-		self.ActionTerminateds  = np.zeros(actionNum)
-		self.ActionRewards      = np.zeros(actionNum)
-		self.ActionTotalRewards = np.zeros(actionNum)
 		return
-
-	def Remember(self, action, nextStateId, terminated, reward, markovModel):
-		self.ActionCounts[action]       += 1
-		self.NextStates[action]          = nextStateId
-		self.ActionTerminateds[action]   = int(terminated == True)
-		self.ActionRewards[action]       = reward
-
-		self._CheckExplored(action, markovModel)
-		return
-
-	def Update(self, action, totalReward, markovModel):
-		self.ActionTotalRewards[action] += totalReward
-		self._CheckExplored(action, markovModel)
-		return
-
-	def _CheckExplored(self, action, markovModel):
-
-		if self.FullyExplored[action] == 1:
-			return
-
-		if self.ActionTerminateds[action] >= 1:
-			self.FullyExplored[action] = 1
-			return
-
-
-		nextStateId = self.NextStates[action]
-		if nextStateId not in markovModel.States:
-			return
-
-
-		nextState = markovModel.States[nextStateId]
-
-		# check all actions are fully explored
-		fullyExplored = (nextState.ActionCounts > 0).all()
-		self.FullyExplored[action] = fullyExplored
-		return
-
-
-
-	def GetActionValues(self):
-		counts = self.ActionCounts
-
-		if sum(counts) == 0:
-			return self.GetActionNovelties()
-
-		counts = np.where(counts == 0, 1, counts)
-
-		avgRewards = self.ActionTotalRewards / counts
-		avgRewards += self.ActionRewards
-		return avgRewards
-
-	def GetActionNovelties(self):
-
-		countMax = self.ActionCounts.max()
-		if countMax == 0:
-			return np.ones_like(self.ActionCounts)
-
-		novelty = 1.1-(self.ActionCounts / countMax)
-
-		# set all actions that transition to the same state to non novel
-		novelty *= 1 - (self.NextStates == self.StateId)
-
-
-		# set all actions that end the episode to non novel
-		endActions = self.ActionTerminateds * (self.ActionRewards <= 0.0)
-		novelty *= (1 - endActions)
-
-		# all actions that have been fully explored are not novel
-		novelty *= (1 - self.FullyExplored)
-
-		return novelty

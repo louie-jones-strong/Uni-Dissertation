@@ -1,10 +1,23 @@
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+
+from numpy.typing import NDArray
+from Environments.BaseEnv import BaseEnv
+if TYPE_CHECKING:
+	pass
+# endregion
+
+# other imports
 import enum
-import os
 import json
-from Utils.PathHelper import GetRootPath
-import numpy as np
+import os
 import random
+
 import DataManager.DataManager as DataManager
+import numpy as np
+from Utils.PathHelper import GetRootPath
 
 
 class AgentMode(enum.Enum):
@@ -14,7 +27,7 @@ class AgentMode(enum.Enum):
 
 
 AgentList = ["Random", "DQN", "Human", "MonteCarlo", "Exploration"]
-def GetAgent(agentName):
+def GetAgent(agentName:str) -> type['BaseAgent']:
 
 
 	if agentName == "Random":
@@ -34,14 +47,13 @@ def GetAgent(agentName):
 		return ExplorationAgent.ExplorationAgent
 
 	raise Exception(f"Agent \"{agentName}\" not found")
-	return
 
 
 
 
 
 class BaseAgent:
-	def __init__(self, env, envConfig, mode=AgentMode.Train):
+	def __init__(self, env:'BaseEnv', envConfig:SCT.Config, mode:AgentMode=AgentMode.Train):
 		self.Env = env
 		self.Mode = mode
 		self.Name = self.__class__.__name__.replace("Agent", "")
@@ -56,7 +68,7 @@ class BaseAgent:
 		self.EpisodeNum = 0
 		return
 
-	def LoadConfig(self, envConfig):
+	def LoadConfig(self, envConfig:SCT.Config) -> None:
 		self.Config = {}
 
 		path = os.path.join(GetRootPath(), "Config", f"AgentConfig_{self.Name}.json")
@@ -73,7 +85,7 @@ EnvConfig: {self.EnvConfig}
 """)
 		return
 
-	def Reset(self):
+	def Reset(self) -> None:
 		self.FrameNum = 0
 		self.EpisodeNum += 1
 
@@ -87,28 +99,28 @@ EnvConfig: {self.EnvConfig}
 				self.Mode = AgentMode.Eval
 		return
 
-	def Remember(self, state, action, reward, nextState, terminated, truncated):
+	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) -> None:
 		self.TotalRememberedFrame += 1
 		return
 
 
-	def GetAction(self, state):
+	def GetAction(self, state:SCT.State) ->SCT.Action:
 		self.FrameNum += 1
 		self.TotalFrameNum += 1
 
-		return None
+		return 0
 
-	def GetActionValues(self, state):
-		return None
+	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
+		return np.ones(self.Env.ActionSpace.shape, dtype=np.float32)
 
-	def _GetMaxValues(self, values):
+	def _GetMaxValues(self, values:NDArray[np.float32]) -> int:
 		maxValue = np.max(values)
 		maxValues = np.where(values == maxValue)[0]
 		return random.choice(maxValues)
 
 
-	def Save(self, path):
+	def Save(self, path:str) -> None:
 		return
 
-	def Load(self, path):
+	def Load(self, path:str) -> None:
 		return

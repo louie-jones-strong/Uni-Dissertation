@@ -1,11 +1,25 @@
-from . import BaseEnv
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+
+from numpy.typing import NDArray
+if TYPE_CHECKING:
+	pass
+# endregion
+
+# other imports
+
+from Environments.BaseEnv import BaseEnv
 import gymnasium as gym
 from .Wrappers import FrameStack, FireResetEnv
 from copy import deepcopy
 import random
 
+from typing import Any, TypeVar, Optional
 
-def WrapGym(wrappers, gymEnv, renderEnv):
+
+def WrapGym(wrappers:list[str], gymEnv:gym.Env, renderEnv:gym.Env)->tuple[gym.Env, gym.Env]:
 	if wrappers is None:
 		return gymEnv, renderEnv
 
@@ -32,11 +46,10 @@ def WrapGym(wrappers, gymEnv, renderEnv):
 
 
 
-class GymEnv(BaseEnv.BaseEnv):
-	def __init__(self, envConfig, gymEnv=None):
+class GymEnv(BaseEnv):
+	def __init__(self, envConfig:SCT.Config, gymEnv:Optional[gym.Env]=None):
 		super().__init__(envConfig)
 
-		self._GymEnv = None
 		self._RenderCopy = None
 
 		if gymEnv is None:
@@ -49,7 +62,7 @@ class GymEnv(BaseEnv.BaseEnv):
 
 
 
-			self._GymEnv = gym.make(gymId, **kargs)
+			self._GymEnv:gym.Env = gym.make(gymId, **kargs)
 
 
 
@@ -71,8 +84,10 @@ class GymEnv(BaseEnv.BaseEnv):
 			self._RenderCopy.metadata["render_fps"] = 100_000
 
 		else:
-			self._GymEnv = gymEnv
+			self._GymEnv:gym.Env = gymEnv
 			self._RenderCopy = None
+
+		assert isinstance(self._GymEnv.observation_space, type(SCT.StateSpace)), "GymEnv: observation space is not a valid state space"
 
 		self.ObservationSpace = self._GymEnv.observation_space
 		self.ActionSpace = self._GymEnv.action_space
@@ -81,7 +96,7 @@ class GymEnv(BaseEnv.BaseEnv):
 		return
 
 
-	def Step(self, action):
+	def Step(self, action:SCT.Action) ->tuple[SCT.State, SCT.Reward, bool, bool]:
 		"""
 		:param action:
 		:return: nextState, reward, done
@@ -93,6 +108,7 @@ class GymEnv(BaseEnv.BaseEnv):
 
 
 		nextState, reward, terminated, truncated, _ = self._GymEnv.step(action)
+
 		if self._RenderCopy is not None:
 			self._RenderCopy.step(action)
 
@@ -100,7 +116,7 @@ class GymEnv(BaseEnv.BaseEnv):
 
 		return nextState, reward, terminated, truncated
 
-	def Clone(self):
+	def Clone(self) ->BaseEnv:
 		super().Clone()
 
 		newGym = deepcopy(self._GymEnv)
@@ -108,7 +124,7 @@ class GymEnv(BaseEnv.BaseEnv):
 
 		return newEnv
 
-	def Reset(self):
+	def Reset(self) ->Any:
 		super().Reset()
 
 		state, _ = self._GymEnv.reset()
@@ -119,11 +135,11 @@ class GymEnv(BaseEnv.BaseEnv):
 
 
 
-	def Render(self):
+	def Render(self) ->None:
 		super().Render()
 		return
 
-	def __del__(self):
+	def __del__(self) ->None:
 		super().__del__()
 
 		if self._GymEnv is not None:

@@ -1,72 +1,52 @@
-import keyboard
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+# endregion
+
 import json
-import Utils.UserInputHelper as UI
-from Utils.PathHelper import GetRootPath
-from Agents import BaseAgent
-from Environments import BaseEnv
-import DataManager.DataManager as DataManager
 import os
+
+import Agents.BaseAgent as BaseAgent
+import Environments.BaseEnv as BaseEnv
+import keyboard
+import Utils.UserInputHelper as UI
+from DataManager.DataManager import DataManager
+from Utils.PathHelper import GetRootPath
+
 
 class Runner:
 
-	def __init__(self, configPath):
-		self.Env = None
-		self.Agents = None
-		self.Config = None
-		self._DataManager = None
-
+	def __init__(self, configPath:str, env:BaseEnv.BaseEnv, agents:list[BaseAgent.BaseAgent], load:bool):
 		self.ConfigPath = configPath
+		self.Env = env
+		self._DataManager = DataManager()
+		self.Agents = agents
+
 		self.LoadConfig()
 
-		# setup Env
-		self.Env = BaseEnv.GetEnv(self.Config)
-
-		# setup data manager
-		self._DataManager = DataManager.DataManager()
-		self._DataManager.Setup(self.Config, self.Env)
-
-		# setup the agents
-		numAgents = UI.NumPicker("Number of agents", 1, 1)
-		agentOptions = BaseAgent.AgentList
-
-		mode = BaseAgent.AgentMode.Train
-		if UI.BoolPicker("Play"):
-			mode = BaseAgent.AgentMode.Play
-
-		self.Agents = []
-		for i in range(numAgents):
-			agentType = UI.OptionPicker(f"Agent_{i+1}", agentOptions)
-			agent = BaseAgent.GetAgent(agentType)(self.Env, self.Config, mode=mode)
-
-			self.Agents.append(agent)
-
-		if UI.BoolPicker("Load"):
+		if load:
 			self.Load()
-
 		return
 
-	def LoadConfig(self):
+	def LoadConfig(self) -> None:
 
 		# load environment config
 		with open(self.ConfigPath) as f:
 			self.Config = json.load(f)
 
-		if self.Env is not None:
-			self.Env.LoadConfig(self.Config)
+		self._DataManager.LoadConfig(self.Config)
 
-		# ensure agents loaded
-		if self.Agents is not None:
-			for agent in self.Agents:
-				agent.LoadConfig(self.Config)
+		self.Env.LoadConfig(self.Config)
 
-		if self._DataManager is not None:
-			self._DataManager.LoadConfig(self.Config)
+		for agent in self.Agents:
+			agent.LoadConfig(self.Config)
 
 		return
 
 
 
-	def RunEpisodes(self):
+	def RunEpisodes(self) -> None:
 		lastRewards = []
 
 		episode = 0
@@ -86,9 +66,9 @@ class Runner:
 		self.Save()
 		return
 
-	def RunEpisode(self):
+	def RunEpisode(self) -> tuple[int, float]:
 
-		totalReward = 0
+		totalReward:float = 0.0
 		state = self.Env.Reset()
 		for step in range(self.Config["MaxSteps"]):
 
@@ -124,10 +104,10 @@ class Runner:
 
 
 
-	def GetAction(self, observation):
-		return self.Agents[0].GetAction(observation)
+	def GetAction(self, state:SCT.State) -> SCT.Action:
+		return self.Agents[0].GetAction(state)
 
-	def Remember(self, state, action, reward, nextState, terminated, truncated):
+	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) -> None:
 		# update data manager
 		self._DataManager.EnvRemember(state, action, reward, nextState, terminated, truncated)
 
@@ -136,7 +116,7 @@ class Runner:
 			agent.Remember(state, action, reward, nextState, terminated, truncated)
 		return
 
-	def Reset(self):
+	def Reset(self) -> None:
 		# update data manager
 		self._DataManager.EnvReset()
 
@@ -145,7 +125,7 @@ class Runner:
 			agent.Reset()
 		return
 
-	def Save(self):
+	def Save(self) -> None:
 		path = os.path.join(GetRootPath(), "data", self.Config["Name"])
 		if not os.path.exists(path):
 			os.makedirs(path)
@@ -154,7 +134,7 @@ class Runner:
 			agent.Save(path)
 		return
 
-	def Load(self):
+	def Load(self) -> None:
 		path = os.path.join("data", self.Config["Name"])
 		if not os.path.exists(path):
 			return
@@ -166,14 +146,39 @@ class Runner:
 
 
 
-def Main():
+def Main() -> None:
 	# find all environments in the configs folder
 	configPath = os.path.join(GetRootPath(), "Config", "Envs")
-
 	envConfigPath = UI.FilePicker("Environments", configPath)
 
-	runner = Runner(envConfigPath)
+	# load config
+	with open(envConfigPath) as f:
+		config = json.load(f)
 
+	# load env
+	env = BaseEnv.GetEnv(config)
+
+	# load data manager
+	dataManager = DataManager()
+	dataManager.Setup(config, env)
+
+	# load agents
+	numAgents = UI.NumPicker("Number of agents", 1, 1)
+
+	mode = BaseAgent.AgentMode.Train
+	if UI.BoolPicker("Play"):
+		mode = BaseAgent.AgentMode.Play
+
+	load = UI.BoolPicker("Load")
+
+	agents = []
+	for i in range(numAgents):
+		agentType = UI.OptionPicker(f"Agent_{i+1}", BaseAgent.AgentList)
+		agent = BaseAgent.GetAgent(agentType)(env, config, mode=mode)
+		agents.append(agent)
+
+	# run
+	runner = Runner(envConfigPath, env, agents, load)
 	runner.RunEpisodes()
 
 	return

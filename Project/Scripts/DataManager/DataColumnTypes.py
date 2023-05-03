@@ -1,3 +1,13 @@
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+
+if TYPE_CHECKING:
+	pass
+# endregion
+
+# other file dependencies
 import enum
 
 class DataColumnTypes(enum.Enum):
@@ -16,7 +26,7 @@ class DataColumnTypes(enum.Enum):
 
 
 
-def GetColumn(columnFilter, rows):
+def GetColumn(columnFilter:list[DataColumnTypes], rows:list[Any]) -> list[Any]:
 	columns = []
 	for col in columnFilter:
 

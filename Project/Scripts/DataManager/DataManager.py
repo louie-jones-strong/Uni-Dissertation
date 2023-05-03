@@ -1,21 +1,36 @@
-import Utils.Singleton as Singleton
-from . import ReplayBuffer as ReplayBuffer
-from . import MarkovModel as MarkovModel
-from . import DataColumnTypes as DataColumnTypes
-from events import Events
+#region typing dependencies
+from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+
+import Utils.SharedCoreTypes as SCT
+
+from numpy.typing import NDArray
+if TYPE_CHECKING:
+	pass
+# endregion
+
+# other file dependencies
 from collections import deque
+from typing import Any, Optional, TypeVar
+
+from Environments.BaseEnv import BaseEnv
+import numpy as np
+import Utils.Singleton as Singleton
+from events import Events
+
+from . import DataColumnTypes as DataColumnTypes
+from . import MarkovModel as MarkovModel
+from . import ReplayBuffer as ReplayBuffer
+
 
 class DataManager(Singleton.Singleton):
-	def __init__(self):
-		return
 
-	def Setup(self, config, env):
+	def Setup(self, config:SCT.Config, env:BaseEnv) -> None:
 		self.LoadConfig(config)
 		self._Env = env
 
 		# transition accumulator
 		self._OnEmptyTransAcc = Events()
-		self._TransitionAccumulator = deque()
+		self._TransitionAccumulator: deque[tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool ]] = deque()
 		self._QValueAccumulator = 0
 
 		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(self._Config["ReplayBufferMaxSize"], self._Env)
@@ -23,7 +38,7 @@ class DataManager(Singleton.Singleton):
 
 		return
 
-	def LoadConfig(self, config):
+	def LoadConfig(self, config:SCT.Config) -> None:
 		self._Config = config
 
 		self._Config["ReplayBufferMaxSize"] = 100000
@@ -32,19 +47,19 @@ class DataManager(Singleton.Singleton):
 
 		return
 
-	def Save(self, path):
+	def Save(self, path:str) -> None:
 		self._EmptyAccumulator()
 		self._ReplayBuffer.Save(path)
 		self._MarkovModel.Save(path)
 		return
 
-	def Load(self, path):
+	def Load(self, path:str) -> None:
 		self._ReplayBuffer.Load(path)
 		self._MarkovModel.Load(path)
 		return
 
 
-	def Sample(self, columns, batchSize=-1, priorityKey=None, priorityScale=1.0):
+	def Sample(self, columns:list[DataColumnTypes.DataColumnTypes], batchSize:int=-1, priorityKey:Optional[str]=None, priorityScale:float=1.0) -> tuple[NDArray, NDArray, list[Any]]:
 
 
 		samples = self._ReplayBuffer.Sample(batchSize, priorityKey=priorityKey, priorityScale=priorityScale)
@@ -57,12 +72,11 @@ class DataManager(Singleton.Singleton):
 
 
 
-	def SubToOnEmptyTransAcc(self, callback):
+	def SubToOnEmptyTransAcc(self, callback) -> None:
 		self._OnEmptyTransAcc += callback
 		return
 
-
-	def EnvRemember(self, state, action, reward, nextState, terminated, truncated):
+	def EnvRemember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) -> None:
 
 		# self._MarkovModel.Remember(state, action, reward, nextState, terminated, truncated)
 
@@ -80,14 +94,14 @@ class DataManager(Singleton.Singleton):
 		assert len(self._TransitionAccumulator) <= self._Config["TransitionAccumulatorSize"], f"Transition accumulator has size of: {len(self._TransitionAccumulator)}"
 		return
 
-	def EnvReset(self):
+	def EnvReset(self) -> None:
 
 		# empty transition accumulator into the replay buffer
 		self._EmptyAccumulator()
 		return
 
 
-	def _EmptyAccumulator(self):
+	def _EmptyAccumulator(self) -> None:
 		while len(self._TransitionAccumulator) > 0:
 			self._PopAccumulator()
 
@@ -99,7 +113,7 @@ class DataManager(Singleton.Singleton):
 		self._QValueAccumulator = 0
 		return
 
-	def _PopAccumulator(self):
+	def _PopAccumulator(self) -> None:
 		oldest = self._TransitionAccumulator.popleft()
 
 		# unpack transition
