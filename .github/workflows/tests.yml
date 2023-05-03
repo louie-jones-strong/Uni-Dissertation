@@ -6,7 +6,7 @@ on:
 
 defaults:
   run:
-    working-directory: dart_project
+    working-directory: Project
 
 jobs:
   test:
