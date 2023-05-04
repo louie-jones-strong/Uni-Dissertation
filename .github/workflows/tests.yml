@@ -5,27 +5,18 @@ on:
   # - pull_request
 
 defaults:
-  job:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        # os: [ubuntu-latest, windows-latest]
-        os: [ubuntu-latest]
-        python-version: ['3.10']
   run:
     working-directory: Project
 
-
-env:
-
 jobs:
   Setup:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.10
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -33,6 +24,7 @@ jobs:
           pip install -r requirements_dev.txt
 
   TypeChecks:
+    runs-on: ubuntu-latest
     needs: Setup
     steps:
       - name: Check Type Hints
@@ -40,6 +32,7 @@ jobs:
           python -m mypy Scripts/Main.py --config-file Tests/mypy.ini --install-types
 
   UnitTests:
+    runs-on: ubuntu-latest
     needs: Setup
     steps:
       - name: UnitTest
@@ -47,6 +40,7 @@ jobs:
           unittest-parallel -q
 
   LintChecks:
+    runs-on: ubuntu-latest
     needs: Setup
     steps:
       - name: LintChecks
