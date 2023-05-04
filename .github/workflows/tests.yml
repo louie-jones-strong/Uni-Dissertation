@@ -31,18 +31,18 @@ jobs:
   CheckTypeHints:
     Needs: Setup
     steps:
-      - Check type hints
+      - name: Check type hints
         run: |
           python -m mypy Scripts/Main.py --config-file Tests/mypy.ini --install-types
   UnitTests:
     Needs: Setup
     steps:
-      - Run Unit Tests
+      - name: Run Unit Tests
         run: |
           unittest-parallel -q
   Lint:
     Needs: Setup
     steps:
-      - Run Lint Checks
+      - name: Run Lint Checks
         run: |
           flake8
