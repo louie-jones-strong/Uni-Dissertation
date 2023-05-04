@@ -2,21 +2,20 @@ name: Tests
 
 on:
   - push
-  - pull_request
+  # - pull_request
 
 defaults:
   run:
     working-directory: Project
 
 jobs:
-  test:
+  Setup:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         # os: [ubuntu-latest, windows-latest]
         os: [ubuntu-latest]
         python-version: ['3.10']
-
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -28,12 +27,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements_dev.txt
-      - name: Check Type Hints
-        run: |
-          python -m mypy Scripts/Main.py --config-file Tests/mypy.ini --install-types
-      - name: Test
-        run: |
-          unittest-parallel -q
-      - name: Lint
-        run: |
-          flake8
+
+  CheckTypeHints:
+    Needs: Setup
+    run: |
+      python -m mypy Scripts/Main.py --config-file Tests/mypy.ini --install-types
+  UnitTests:
+    Needs: Setup
+    run: |
+      unittest-parallel -q
+  Lint:
+    Needs: Setup
+    run: |
+      flake8
