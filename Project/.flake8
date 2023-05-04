@@ -11,7 +11,8 @@ extend-ignore =
 ; blank line at end of file
 	W391,
 	E302,
-	E128
+	E128,
+	E124
 
 
 exclude = .git,__pycache__,docs

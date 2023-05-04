@@ -1,16 +1,9 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+from typing import Any
 
-import Utils.SharedCoreTypes as SCT
-
-from numpy.typing import NDArray
-if TYPE_CHECKING:
-	pass
-# endregion
-
-# other imports
 import numpy as np
+import Utils.SharedCoreTypes as SCT
 from Agents.BaseAgent import BaseAgent
+from numpy.typing import NDArray
 
 
 class RandomAgent(BaseAgent):

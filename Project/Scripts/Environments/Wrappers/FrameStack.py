@@ -1,14 +1,10 @@
 # code was modified from
 # https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
 
+
+from typing import Any
 import Utils.SharedCoreTypes as SCT
-
 from numpy.typing import NDArray
-if TYPE_CHECKING:
-	pass
-# endregion
 
 # other file dependencies
 import gymnasium as gym

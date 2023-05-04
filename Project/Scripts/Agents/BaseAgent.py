@@ -1,15 +1,3 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
-
-import Utils.SharedCoreTypes as SCT
-
-from numpy.typing import NDArray
-from Environments.BaseEnv import BaseEnv
-if TYPE_CHECKING:
-	pass
-# endregion
-
-# other imports
 import enum
 import json
 import os
@@ -17,6 +5,9 @@ import random
 
 import DataManager.DataManager as DataManager
 import numpy as np
+import Utils.SharedCoreTypes as SCT
+from Environments.BaseEnv import BaseEnv
+from numpy.typing import NDArray
 from Utils.PathHelper import GetRootPath
 
 

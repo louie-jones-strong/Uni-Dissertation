@@ -3,7 +3,7 @@
 ### Imports
 Imports for typing should be done as follows:
 ```python
-#region typing dependencies
+# region typing dependencies
 from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
 
 import Utils.SharedCoreTypes as SCT

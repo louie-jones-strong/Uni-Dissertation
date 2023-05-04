@@ -1,14 +1,5 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
-
 import Utils.SharedCoreTypes as SCT
 
-from numpy.typing import NDArray
-if TYPE_CHECKING:
-	pass
-# endregion
-
-# other imports
 import gymnasium as gym
 import numpy as np
 from copy import deepcopy
@@ -46,7 +37,7 @@ class BaseEnv:
 		return
 
 
-	def Clone(self)->'BaseEnv':
+	def Clone(self) -> 'BaseEnv':
 		return deepcopy(self)
 
 

@@ -1,25 +1,15 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
-
-import Utils.SharedCoreTypes as SCT
-
-from numpy.typing import NDArray
-if TYPE_CHECKING:
-	pass
-# endregion
-
-# other imports
-
-from Environments.BaseEnv import BaseEnv
-import gymnasium as gym
-from .Wrappers import FrameStack, FireResetEnv
-from copy import deepcopy
 import random
+from copy import deepcopy
+from typing import Any, Optional
 
-from typing import Any, TypeVar, Optional
+import gymnasium as gym
+import Utils.SharedCoreTypes as SCT
+from Environments.BaseEnv import BaseEnv
+
+from .Wrappers import FireResetEnv, FrameStack
 
 
-def WrapGym(wrappers:list[str], gymEnv:gym.Env, renderEnv:gym.Env)->tuple[gym.Env, gym.Env]:
+def WrapGym(wrappers:list[str], gymEnv:gym.Env, renderEnv:gym.Env) -> tuple[gym.Env, gym.Env]:
 	if wrappers is None:
 		return gymEnv, renderEnv
 

@@ -1,6 +1,5 @@
-from typing import Any, TypeVar, Optional
+from typing import TypeVar, Optional
 import os
-
 
 def FilePicker(label:str, folderPath:str) -> str:
 	files = os.listdir(folderPath)
@@ -66,10 +65,7 @@ def OptionPicker(label:str, options:list[T]) -> T:
 	for i in range(len(options)):
 		print(f"  {i+1}:{options[i]}")
 
-	valid = False
-
 	choice = NumPicker(label, 1, len(options))
-
 	choice -= 1
 
 	return options[choice]

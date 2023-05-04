@@ -1,21 +1,12 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
-
-import Utils.SharedCoreTypes as SCT
-
-from numpy.typing import NDArray
-from Environments.BaseEnv import BaseEnv
-if TYPE_CHECKING:
-	pass
-# endregion
-
-# other file dependencies
 import os
 
 import Agents.BaseAgent as BaseAgent
 import DataManager.DataColumnTypes as DCT
 import numpy as np
 import tensorflow as tf
+import Utils.SharedCoreTypes as SCT
+from Environments.BaseEnv import BaseEnv
+from numpy.typing import NDArray
 
 
 class DQNAgent(BaseAgent.BaseAgent):
@@ -83,7 +74,14 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		return
 
-	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) -> None:
+	def Remember(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool) -> None:
+
 		super().Remember(state, action, reward, nextState, terminated, truncated)
 
 		if self.ExplorationAgent is not None:
@@ -124,6 +122,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 			dones = tf.convert_to_tensor([float(x) for x in dones])
 
 			return indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities
+
 		def CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards):
 
 			nextStatePredictedQ = self.RunModel.predict(nextStates, verbose=0)
@@ -147,6 +146,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 			targetQs = rewards + futureQ
 
 			return targetQs
+
 		def TrainWeights(targetQs, states, actions, priorities):
 			# aplly gradient descent
 			with tf.GradientTape() as tape:

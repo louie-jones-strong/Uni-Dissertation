@@ -1,16 +1,12 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
+from typing import TYPE_CHECKING
 
-import Utils.SharedCoreTypes as SCT
-
-from numpy.typing import NDArray
 if TYPE_CHECKING:
 	from DataManager.MarkovModel import MarkovModel
-	pass
-# endregion
 
-# other file dependencies
 import numpy as np
+import Utils.SharedCoreTypes as SCT
+from numpy.typing import NDArray
+
 
 class State:
 	def __init__(self, stateId:int, rawState:SCT.State, actionNum:int):
@@ -31,22 +27,22 @@ class State:
 			nextStateId:int,
 			terminated:bool,
 			reward:SCT.Reward,
-			markovModel:"MarkovModel") -> None:
+			markovModel:'MarkovModel') -> None:
 
 		self.ActionCounts[action] += 1
 		self.NextStates[action] = nextStateId
-		self.ActionTerminateds[action] = int(terminated == True)
+		self.ActionTerminateds[action] = int(terminated is True)
 		self.ActionRewards[action] = reward
 
 		self._CheckExplored(action, markovModel)
 		return
 
-	def Update(self, action:SCT.Action, totalReward:SCT.Reward, markovModel:"MarkovModel") -> None:
+	def Update(self, action:SCT.Action, totalReward:SCT.Reward, markovModel:'MarkovModel') -> None:
 		self.ActionTotalRewards[action] += totalReward
 		self._CheckExplored(action, markovModel)
 		return
 
-	def _CheckExplored(self, action:SCT.Action, markovModel:"MarkovModel") -> None:
+	def _CheckExplored(self, action:SCT.Action, markovModel:'MarkovModel') -> None:
 
 		if self.FullyExplored[action] == 1:
 			return

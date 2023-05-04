@@ -1,22 +1,13 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
-
-import Utils.SharedCoreTypes as SCT
-
-from numpy.typing import NDArray
-from Environments.BaseEnv import BaseEnv
-if TYPE_CHECKING:
-	pass
-# endregion
-
-# other file dependencies
 import Agents.BaseAgent as BaseAgent
 import numpy as np
+import Utils.SharedCoreTypes as SCT
+from Environments.BaseEnv import BaseEnv
+from numpy.typing import NDArray
 
 
 class MonteCarloAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env:BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode=BaseAgent.AgentMode.Train):
+	def __init__(self, env:BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
 
 		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"])(self.Env, envConfig, mode=mode)
@@ -33,7 +24,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		return self._SearchActions(self.Env, state)
 
-	def _SearchActions(self, env:BaseEnv, state:SCT.State, depth:int=0) -> NDArray[np.float32]:
+	def _SearchActions(self, env:BaseEnv, state:SCT.State, depth:int = 0) -> NDArray[np.float32]:
 
 		actionValues = self._SubAgent.GetActionValues(state)
 		dicountFactor:float = self.Config["DiscountFactor"]
@@ -70,9 +61,6 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 
 		return actionValues * dicountFactor
-
-
-
 
 	def Reset(self) -> None:
 		super().Reset()

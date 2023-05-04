@@ -1,14 +1,7 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
-
+from typing import Optional
 import Utils.SharedCoreTypes as SCT
-
 from numpy.typing import NDArray
-if TYPE_CHECKING:
-	pass
-# endregion
 
-# other file dependencies
 from . import State
 import numpy as np
 
@@ -30,7 +23,11 @@ class MarkovModel:
 
 		return novelties, values
 
-	def Predict(self, state:SCT.State, action:SCT.Action) -> tuple[Optional[SCT.State], Optional[float], Optional[bool], Optional[bool]]:
+	def Predict(self,
+			state:SCT.State,
+			action:SCT.Action
+			) -> tuple[Optional[SCT.State], Optional[float], Optional[bool], Optional[bool]]:
+
 		stateInfo = self._GetState(state)
 
 		if stateInfo is None:
@@ -46,19 +43,33 @@ class MarkovModel:
 		return nextState, reward, terminated, truncated
 
 
-	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) ->None:
+	def Remember(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool) -> None:
 
 		stateItem = self._GetState(state)
 		stateItem.Remember(action, self._GetStateId(nextState), terminated, reward, self)
 		return
 
-	def OnEmptyTransAcc(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool, qValue:float) ->None:
+	def OnEmptyTransAcc(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool,
+			qValue:float) -> None:
+
 		stateItem = self._GetState(state)
 		stateItem.Update(action, qValue, self)
 		return
 
 
-	def _GetState(self, state:SCT.State) ->State.State:
+	def _GetState(self, state:SCT.State) -> State.State:
 		stateId = self._GetStateId(state)
 
 		if stateId not in self.States:
@@ -68,7 +79,7 @@ class MarkovModel:
 
 		return self.States[stateId]
 
-	def _GetStateId(self, state:SCT.State) ->int:
+	def _GetStateId(self, state:SCT.State) -> int:
 
 		if isinstance(state, int):
 			return state
@@ -78,10 +89,10 @@ class MarkovModel:
 		return state.__hash__()
 
 
-	def Save(self, path:str) ->None:
+	def Save(self, path:str) -> None:
 
 		return
 
-	def Load(self, path:str) ->None:
+	def Load(self, path:str) -> None:
 
 		return

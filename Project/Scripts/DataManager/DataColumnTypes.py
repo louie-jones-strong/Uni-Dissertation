@@ -1,13 +1,4 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
-
-import Utils.SharedCoreTypes as SCT
-
-if TYPE_CHECKING:
-	pass
-# endregion
-
-# other file dependencies
+from typing import Any
 import enum
 
 class DataColumnTypes(enum.Enum):

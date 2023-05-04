@@ -1,8 +1,4 @@
-#region typing dependencies
-from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
-
 import Utils.SharedCoreTypes as SCT
-# endregion
 
 import json
 import os
@@ -107,7 +103,14 @@ class Runner:
 	def GetAction(self, state:SCT.State) -> SCT.Action:
 		return self.Agents[0].GetAction(state)
 
-	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) -> None:
+	def Remember(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool) -> None:
+
 		# update data manager
 		self._DataManager.EnvRemember(state, action, reward, nextState, terminated, truncated)
 
