@@ -20,7 +20,7 @@ import tensorflow as tf
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env:BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode=BaseAgent.AgentMode.Train):
+	def __init__(self, env:BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
 
 		self.PriorityKey = "DQNAgent"
@@ -220,7 +220,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 	def Save(self, path:str) -> None:
 		super().Save(path)
-		self.RunModel.save( os.path.join(path, "DqnModel.h5") )
+		self.RunModel.save(os.path.join(path, "DqnModel.h5"))
 		return
 
 	def Load(self, path:str) -> None:

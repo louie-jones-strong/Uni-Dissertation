@@ -47,7 +47,7 @@ def WrapGym(wrappers:list[str], gymEnv:gym.Env, renderEnv:gym.Env)->tuple[gym.En
 
 
 class GymEnv(BaseEnv):
-	def __init__(self, envConfig:SCT.Config, gymEnv:Optional[gym.Env]=None):
+	def __init__(self, envConfig:SCT.Config, gymEnv:Optional[gym.Env] = None):
 		super().__init__(envConfig)
 
 		self._RenderCopy = None
@@ -96,7 +96,7 @@ class GymEnv(BaseEnv):
 		return
 
 
-	def Step(self, action:SCT.Action) ->tuple[SCT.State, SCT.Reward, bool, bool]:
+	def Step(self, action:SCT.Action) -> tuple[SCT.State, SCT.Reward, bool, bool]:
 		"""
 		:param action:
 		:return: nextState, reward, done
@@ -116,7 +116,7 @@ class GymEnv(BaseEnv):
 
 		return nextState, reward, terminated, truncated
 
-	def Clone(self) ->BaseEnv:
+	def Clone(self) -> BaseEnv:
 		super().Clone()
 
 		newGym = deepcopy(self._GymEnv)
@@ -124,7 +124,7 @@ class GymEnv(BaseEnv):
 
 		return newEnv
 
-	def Reset(self) ->Any:
+	def Reset(self) -> Any:
 		super().Reset()
 
 		state, _ = self._GymEnv.reset()
@@ -135,11 +135,11 @@ class GymEnv(BaseEnv):
 
 
 
-	def Render(self) ->None:
+	def Render(self) -> None:
 		super().Render()
 		return
 
-	def __del__(self) ->None:
+	def __del__(self) -> None:
 		super().__del__()
 
 		if self._GymEnv is not None:

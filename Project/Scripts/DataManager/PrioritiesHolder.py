@@ -8,17 +8,17 @@ class PrioritiesHolder:
 
 		return
 
-	def Save(self, npyPath:str) ->None:
+	def Save(self, npyPath:str) -> None:
 		np.save(npyPath, self._Priorities)
 		return
 
-	def Load(self, npyPath:str) ->None:
+	def Load(self, npyPath:str) -> None:
 		if not path.exists(npyPath):
 			return
 		self._Priorities = np.load(npyPath)
 		return
 
-	def GetMetaData(self) ->dict:
+	def GetMetaData(self) -> dict:
 		return {
 		}
 
@@ -26,10 +26,10 @@ class PrioritiesHolder:
 
 
 
-	def GetPriorities(self) ->NDArray[np.float32]:
+	def GetPriorities(self) -> NDArray[np.float32]:
 		return self._Priorities
 
-	def UpdatePriorities(self, indexs:NDArray[np.int_], priorities:NDArray[np.float32], offset:float=0.1) ->None:
+	def UpdatePriorities(self, indexs:NDArray[np.int_], priorities:NDArray[np.float32], offset:float = 0.1) -> None:
 
 		for i in range(len(indexs)):
 			idx = indexs[i]
@@ -44,7 +44,7 @@ class PrioritiesHolder:
 		assert np.all(self._Priorities >= 0.0), f"Priorities are negative: {self._Priorities}"
 		return
 
-	def SetStartPriority(self, index:int) ->None:
+	def SetStartPriority(self, index:int) -> None:
 
 		priority = max(self._Priorities.max(), 1.0)
 		assert priority is not np.nan, "priority is nan"

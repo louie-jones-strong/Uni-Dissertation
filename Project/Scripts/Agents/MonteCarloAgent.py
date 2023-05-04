@@ -23,7 +23,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		return
 
-	def GetAction(self, state:SCT.State) ->SCT.Action:
+	def GetAction(self, state:SCT.State) -> SCT.Action:
 		super().GetAction(state)
 		actionValues = self.GetActionValues(state)
 		return self._GetMaxValues(actionValues)
@@ -79,7 +79,14 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		self._SubAgent.Reset()
 		return
 
-	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) -> None:
+	def Remember(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool) -> None:
+
 		super().Remember(state, action, reward, nextState, terminated, truncated)
 		self._SubAgent.Remember(state, action, reward, nextState, terminated, truncated)
 		return

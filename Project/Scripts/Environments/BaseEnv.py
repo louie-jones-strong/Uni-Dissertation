@@ -14,7 +14,7 @@ import numpy as np
 from copy import deepcopy
 
 
-def GetEnv(envConfig:SCT.Config)->'BaseEnv':
+def GetEnv(envConfig:SCT.Config) -> 'BaseEnv':
 	envType = envConfig["EnvType"]
 
 	if envType == "Gym":
@@ -40,7 +40,7 @@ class BaseEnv:
 		self._Done = False
 		return
 
-	def LoadConfig(self, envConfig:SCT.Config) ->None:
+	def LoadConfig(self, envConfig:SCT.Config) -> None:
 		self._Config = envConfig
 
 		return
@@ -52,7 +52,7 @@ class BaseEnv:
 
 
 
-	def Step(self, action:SCT.Action) ->tuple[SCT.State, SCT.Reward, bool, bool]:
+	def Step(self, action:SCT.Action) -> tuple[SCT.State, SCT.Reward, bool, bool]:
 		"""
 		:param action:
 		:return: nextState, reward, done
@@ -68,7 +68,7 @@ class BaseEnv:
 
 		return state, reward, terminated, truncated
 
-	def Reset(self) ->SCT.State:
+	def Reset(self) -> SCT.State:
 		self._CurrentFrame = 0
 		self._Done = False
 
@@ -77,9 +77,9 @@ class BaseEnv:
 
 
 
-	def Render(self) ->None:
+	def Render(self) -> None:
 		return
 
 
-	def __del__(self) ->None:
+	def __del__(self) -> None:
 		return

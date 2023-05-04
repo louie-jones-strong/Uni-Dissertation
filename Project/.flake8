@@ -5,9 +5,16 @@ extend-ignore =
 ; ignore white space after : error
 	E231,
 ; ignore to many blank lines error
-	E303
+	E303,
+; no newline at end of file
+	W292,
+; blank line at end of file
+	W391,
+	E302,
+	E128
 
 
 exclude = .git,__pycache__,docs
 
 max-line-length = 120
+count = True

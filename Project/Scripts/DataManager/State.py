@@ -17,30 +17,36 @@ class State:
 		self.StateId = stateId
 		self.RawState = rawState
 
-		self.FullyExplored      = np.zeros(actionNum)
+		self.FullyExplored = np.zeros(actionNum)
 
-		self.ActionCounts       = np.zeros(actionNum)
-		self.NextStates         = np.empty(actionNum)
-		self.ActionTerminateds  = np.zeros(actionNum)
-		self.ActionRewards      = np.zeros(actionNum)
+		self.ActionCounts = np.zeros(actionNum)
+		self.NextStates = np.empty(actionNum)
+		self.ActionTerminateds = np.zeros(actionNum)
+		self.ActionRewards = np.zeros(actionNum)
 		self.ActionTotalRewards = np.zeros(actionNum)
 		return
 
-	def Remember(self, action:SCT.Action, nextStateId:int, terminated:bool, reward:SCT.Reward, markovModel:"MarkovModel") ->None:
-		self.ActionCounts[action]       += 1
-		self.NextStates[action]          = nextStateId
-		self.ActionTerminateds[action]   = int(terminated == True)
-		self.ActionRewards[action]       = reward
+	def Remember(self,
+			action:SCT.Action,
+			nextStateId:int,
+			terminated:bool,
+			reward:SCT.Reward,
+			markovModel:"MarkovModel") -> None:
+
+		self.ActionCounts[action] += 1
+		self.NextStates[action] = nextStateId
+		self.ActionTerminateds[action] = int(terminated == True)
+		self.ActionRewards[action] = reward
 
 		self._CheckExplored(action, markovModel)
 		return
 
-	def Update(self, action:SCT.Action, totalReward:SCT.Reward, markovModel:"MarkovModel") ->None:
+	def Update(self, action:SCT.Action, totalReward:SCT.Reward, markovModel:"MarkovModel") -> None:
 		self.ActionTotalRewards[action] += totalReward
 		self._CheckExplored(action, markovModel)
 		return
 
-	def _CheckExplored(self, action:SCT.Action, markovModel:"MarkovModel") ->None:
+	def _CheckExplored(self, action:SCT.Action, markovModel:"MarkovModel") -> None:
 
 		if self.FullyExplored[action] == 1:
 			return
@@ -64,7 +70,7 @@ class State:
 
 
 
-	def GetActionValues(self) ->NDArray[np.float32]:
+	def GetActionValues(self) -> NDArray[np.float32]:
 		counts = self.ActionCounts
 
 		if sum(counts) == 0:
@@ -76,7 +82,7 @@ class State:
 		avgRewards += self.ActionRewards
 		return avgRewards
 
-	def GetActionNovelties(self) ->NDArray[np.float32]:
+	def GetActionNovelties(self) -> NDArray[np.float32]:
 
 		countMax = self.ActionCounts.max()
 		if countMax == 0:

@@ -53,7 +53,7 @@ def GetAgent(agentName:str) -> type['BaseAgent']:
 
 
 class BaseAgent:
-	def __init__(self, env:'BaseEnv', envConfig:SCT.Config, mode:AgentMode=AgentMode.Train):
+	def __init__(self, env:'BaseEnv', envConfig:SCT.Config, mode:AgentMode = AgentMode.Train):
 		self.Env = env
 		self.Mode = mode
 		self.Name = self.__class__.__name__.replace("Agent", "")
@@ -99,12 +99,19 @@ EnvConfig: {self.EnvConfig}
 				self.Mode = AgentMode.Eval
 		return
 
-	def Remember(self, state:SCT.State, action:SCT.Action, reward:SCT.Reward, nextState:SCT.State, terminated:bool, truncated:bool) -> None:
+	def Remember(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool) -> None:
+
 		self.TotalRememberedFrame += 1
 		return
 
 
-	def GetAction(self, state:SCT.State) ->SCT.Action:
+	def GetAction(self, state:SCT.State) -> SCT.Action:
 		self.FrameNum += 1
 		self.TotalFrameNum += 1
 
