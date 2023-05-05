@@ -38,10 +38,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			action = actionPrioList[i]
 
 			# predict with markov model
-			nextState, reward, terminated, truncated = self.DataManager._MarkovModel.Predict(state, action)
+			prediction = self.DataManager._MarkovModel.Predict(state, action)
+
 
 			# if not in markov model, simulate
-			if terminated is None:
+			if prediction is None:
 
 				envCopy = env.Clone()
 				nextState, reward, terminated, truncated = envCopy.Step(action)
@@ -54,6 +55,8 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 				del envCopy
 
 			else:
+				nextState, reward, terminated, truncated = prediction
+
 				actionValues[action] = reward
 
 				if not terminated:

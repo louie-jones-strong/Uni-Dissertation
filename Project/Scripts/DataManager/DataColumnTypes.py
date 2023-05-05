@@ -17,7 +17,7 @@ class DataColumnTypes(enum.Enum):
 
 
 
-def GetColumn(columnFilter:list[DataColumnTypes], rows:list[Any]) -> list[Any]:
+def GetColumn(columnFilter:list[DataColumnTypes], rows:tuple[Any, ...]) -> list[Any]:
 	columns = []
 	for col in columnFilter:
 

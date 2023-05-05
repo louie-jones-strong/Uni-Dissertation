@@ -109,12 +109,14 @@ EnvConfig: {self.EnvConfig}
 		return 0
 
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
-		return np.ones(self.Env.ActionSpace.shape, dtype=np.float32)
+		shape = SCT.JoinTuples(self.Env.ActionSpace.shape, None)
+		return np.ones(shape, dtype=np.float32)
 
 	def _GetMaxValues(self, values:NDArray[np.float32]) -> int:
 		maxValue = np.max(values)
 		maxValues = np.where(values == maxValue)[0]
-		return random.choice(maxValues)
+		choice = random.choice(maxValues)
+		return int(choice)
 
 
 	def Save(self, path:str) -> None:

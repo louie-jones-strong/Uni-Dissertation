@@ -2,7 +2,7 @@
 # https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 
 
-from typing import Any
+from typing import Any, SupportsFloat
 import Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 
@@ -19,13 +19,16 @@ class FrameStack(gym.Wrapper):
 		self.k = k
 		self.frames:deque[SCT.State] = deque([], maxlen=k)
 
-		shp = env.observation_space.shape
+		shape = env.observation_space.shape
 
 		dtype = env.observation_space.dtype
+		assert isinstance(dtype, np.uint8) or isinstance(dtype, np.float32), \
+			'FrameStack requires uint8 observations'
+
 		self.observation_space = spaces.Box(
 			low=0,
 			high=255,
-			shape=(shp + (k,)),
+			shape=(SCT.JoinTuples(shape, (k,))),
 			dtype=dtype)
 		return
 
@@ -35,7 +38,7 @@ class FrameStack(gym.Wrapper):
 			self.frames.append(state)
 		return self._get_ob(), info
 
-	def step(self, action:SCT.Action) -> tuple[NDArray[Any], SCT.Reward, bool, bool, dict[str, Any]]:
+	def step(self, action:SCT.Action) -> tuple[NDArray[Any], SupportsFloat, bool, bool, dict[str, Any]]:
 		nextState, reward, terminated, truncated, info = self.env.step(action)
 		self.frames.append(nextState)
 		return self._get_ob(), reward, terminated, truncated, info

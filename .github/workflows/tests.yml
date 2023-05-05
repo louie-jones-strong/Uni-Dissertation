@@ -31,3 +31,6 @@ jobs:
 
       - name: LintChecks
         run: flake8 Scripts/ --config=config.ini
+
+      - name: LintChecks-Tests
+        run: flake8 Tests/ --config=config.ini

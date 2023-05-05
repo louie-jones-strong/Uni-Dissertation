@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 import Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 
@@ -20,21 +20,25 @@ from Environments.BaseEnv import BaseEnv
 class ReplayBuffer:
 	def __init__(self, capacity:int, env:BaseEnv):
 
-		stateShape:tuple[int, ...] = env.ObservationSpace.shape
-		actionShape:tuple[int, ...] = env.ActionSpace.shape
-
-		stateType = env.ObservationSpace.dtype
-		actionType = env.ActionSpace.dtype
-
 
 		self.Capacity = capacity
 		self.Count = 0
 		self.Current = 0
 
-		self._States = np.empty((capacity,) + stateShape,  dtype=stateType)
-		self._Actions = np.empty((capacity,) + actionShape, dtype=actionType)
+		stateShape = env.ObservationSpace.shape
+		actionShape = env.ActionSpace.shape
+
+
+		stateShape = SCT.JoinTuples((capacity,), stateShape)
+		actionShape = SCT.JoinTuples((capacity,), actionShape)
+
+		stateType = env.ObservationSpace.dtype
+		actionType = env.ActionSpace.dtype
+
+		self._States = np.empty(stateShape,  dtype=stateType)
+		self._Actions = np.empty(actionShape, dtype=actionType)
 		self._Rewards = np.empty((capacity), dtype=np.float32)
-		self._NextStates = np.empty((capacity,) + stateShape,  dtype=stateType)
+		self._NextStates = np.empty(stateShape,  dtype=stateType)
 		self._Terminateds = np.empty((capacity), dtype=np.bool_)
 		self._Truncateds = np.empty((capacity), dtype=np.bool_)
 		self._FutureRewards = np.empty((capacity), dtype=np.float32)
@@ -80,22 +84,22 @@ class ReplayBuffer:
 			priorityScale:float = 1.0
 			) -> tuple[
 				NDArray[np.int_],
-				NDArray[Any],
-				NDArray[np.int_],
-				NDArray[np.float32],
-				NDArray[Any],
+				SCT.State_List,
+				SCT.Action_List,
+				SCT.Reward_List,
+				SCT.State_List,
 				NDArray[np.bool_],
 				NDArray[np.bool_],
-				NDArray[np.float32],
+				SCT.Reward_List,
 				NDArray[np.float32]]:
 
 		batchSize = min(batchSize, self.Count)
+		assert batchSize > 1, "batch size must be greater than 1"
 
-		if priorityKey is None:
-			indexs = np.random.choice(self.Count, batchSize)
-			priorities = np.ones((self.Count))
+		priorities:NDArray[np.float32] = np.ones((self.Count), dtype=np.float32)
+		indexs = np.random.choice(self.Count, batchSize)
 
-		else:
+		if priorityKey is not None:
 
 			self.EnsurePriorityHolder(priorityKey)
 			rawPriorities = self._PriorityHolders[priorityKey].GetPriorities()
@@ -108,16 +112,13 @@ class ReplayBuffer:
 
 			priorities = rawPriorities[indexs]
 
-		states = self._States[indexs]
-		actions = self._Actions[indexs]
-		rewards = self._Rewards[indexs]
-		nextStates = self._NextStates[indexs]
-		terminateds = self._Terminateds[indexs]
-		truncateds = self._Truncateds[indexs]
-		futureRewards = self._FutureRewards[indexs]
-
-		if None in futureRewards:
-			futureRewards = None
+		states:SCT.State_List = self._States[indexs]
+		actions:SCT.Action_List = self._Actions[indexs]
+		rewards:SCT.Reward_List = self._Rewards[indexs]
+		nextStates:SCT.State_List = self._NextStates[indexs]
+		terminateds:NDArray[np.bool_] = self._Terminateds[indexs]
+		truncateds:NDArray[np.bool_] = self._Truncateds[indexs]
+		futureRewards:SCT.Reward_List = self._FutureRewards[indexs]
 
 		return indexs, states, actions, rewards, nextStates, terminateds, truncateds, futureRewards, priorities
 
@@ -138,14 +139,17 @@ class ReplayBuffer:
 		if not path.exists(folderPath):
 			makedirs(folderPath)
 
+
+		holderConfig = {}
+		for key in self._PriorityHolders:
+			holderConfig[key] = self._PriorityHolders[key].GetMetaData()
+
 		metaData = {
 			"Capacity": self.Capacity,
 			"Count": self.Count,
 			"Current": self.Current,
-			"PriorityHolders": {}
+			"PriorityHolders": holderConfig
 		}
-		for key in self._PriorityHolders:
-			metaData["PriorityHolders"][key] = self._PriorityHolders[key].GetMetaData()
 
 		# save meta data as json
 		with open(path.join(folderPath, "MetaData.json"), "w") as file:

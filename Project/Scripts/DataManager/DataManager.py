@@ -7,7 +7,6 @@ import DataManager.ReplayBuffer as ReplayBuffer
 import Utils.SharedCoreTypes as SCT
 import Utils.Singleton as Singleton
 from Environments.BaseEnv import BaseEnv
-from events import Events
 from numpy.typing import NDArray
 
 
@@ -18,12 +17,11 @@ class DataManager(Singleton.Singleton):
 		self._Env = env
 
 		# transition accumulator
-		self._OnEmptyTransAcc = Events()
 		self._TransitionAccumulator: deque[tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool]] = deque()
-		self._QValueAccumulator = 0
+		self._QValueAccumulator:SCT.Reward = 0
 
 		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(self._Config["ReplayBufferMaxSize"], self._Env)
-		self._MarkovModel = MarkovModel.MarkovModel(self._Env.ActionSpace.n)
+		self._MarkovModel = MarkovModel.MarkovModel(int(self._Env.ActionSpace.n))
 
 		return
 
@@ -62,12 +60,6 @@ class DataManager(Singleton.Singleton):
 		columns = DataColumnTypes.GetColumn(columns, rowsOrder)
 
 		return indexs, priorities, columns
-
-
-
-	def SubToOnEmptyTransAcc(self, callback) -> None:
-		self._OnEmptyTransAcc += callback
-		return
 
 	def EnvRemember(self,
 			state:SCT.State,
@@ -124,8 +116,6 @@ class DataManager(Singleton.Singleton):
 		state, action, reward, nextState, terminated, truncated = oldest
 		qValue = self._QValueAccumulator
 
-		# invoke the event
-		self._OnEmptyTransAcc.Invoke(state, action, reward, nextState, terminated, truncated, qValue)
 		# self._MarkovModel.OnEmptyTransAcc(state, action, reward, nextState, terminated, truncated, qValue)
 
 		# add to the replay buffer

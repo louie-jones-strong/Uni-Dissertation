@@ -26,15 +26,15 @@ class MarkovModel:
 	def Predict(self,
 			state:SCT.State,
 			action:SCT.Action
-			) -> tuple[Optional[SCT.State], Optional[float], Optional[bool], Optional[bool]]:
+			) -> Optional[tuple[SCT.State, float, bool, bool]]:
 
 		stateInfo = self._GetState(state)
 
 		if stateInfo is None:
-			return None, None, None, None
+			return None
 
 		if stateInfo.ActionCounts[action] == 0:
-			return None, None, None, None
+			return None
 
 		nextState = self.States[stateInfo.NextStates[action]].RawState
 		reward = stateInfo.ActionRewards[action]

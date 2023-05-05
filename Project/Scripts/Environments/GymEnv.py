@@ -79,8 +79,19 @@ class GymEnv(BaseEnv):
 			self._RenderCopy = None
 
 
-		self.ObservationSpace = self._GymEnv.observation_space
-		self.ActionSpace = self._GymEnv.action_space
+		obsSpace = self._GymEnv.observation_space
+		assert isinstance(obsSpace, gym.spaces.Discrete) or isinstance(obsSpace, gym.spaces.Box), \
+			"obsSpace is not of type Discrete or Box"
+
+		self.ObservationSpace = obsSpace
+
+		actSpace = self._GymEnv.action_space
+		assert isinstance(actSpace, gym.spaces.Discrete), \
+			"actSpace is not of type Discrete"
+
+		self.ActionSpace = actSpace
+
+
 		self.RewardRange = self._GymEnv.reward_range
 
 		return
@@ -104,7 +115,7 @@ class GymEnv(BaseEnv):
 
 		self._Done = terminated or truncated
 
-		return nextState, reward, terminated, truncated
+		return nextState, float(reward), terminated, truncated
 
 	def Clone(self) -> BaseEnv:
 		super().Clone()

@@ -22,18 +22,14 @@ class DQNAgent(BaseAgent.BaseAgent):
 		self.ExplorationRate = self.Config["MaxExplorationRate"]
 
 
-		self.ExplorationAgent = None
 
-		if self.Mode == BaseAgent.AgentMode.Train:
-			self.TrainingModel = self.BuildModel()
-			self.TrainingModel.set_weights(self.RunModel.get_weights())
-
-			self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env, envConfig)
-
+		self.TrainingModel = self.BuildModel()
+		self.TrainingModel.set_weights(self.RunModel.get_weights())
+		self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"])(self.Env, envConfig)
 		return
 
 	def BuildModel(self) -> tf.keras.Model:
-		inputShape = self.Env.ObservationSpace.shape
+		inputShape = SCT.JoinTuples(self.Env.ObservationSpace.shape, None)
 		outputNumber = self.Env.ActionSpace.n
 
 
@@ -69,7 +65,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 	def Reset(self) -> None:
 		super().Reset()
 
-		if self.ExplorationAgent is not None and self.Mode == BaseAgent.AgentMode.Train:
+		if self.Mode == BaseAgent.AgentMode.Train:
 			self.ExplorationAgent.Reset()
 
 		return
@@ -84,7 +80,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		super().Remember(state, action, reward, nextState, terminated, truncated)
 
-		if self.ExplorationAgent is not None:
+		if self.Mode == BaseAgent.AgentMode.Train:
 			self.ExplorationAgent.Remember(state, action, reward, nextState, terminated, truncated)
 
 		framesPerTrain = self.Config["FramesPerTrain"]
@@ -104,7 +100,15 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		# samples from the replay buffer
 
-		def GetSamples(bactchSize:int):
+		def GetSamples(bactchSize:int) -> tuple[
+				NDArray[np.int_],
+				SCT.State_List,
+				SCT.Action_List,
+				SCT.Reward_List,
+				SCT.State_List,
+				NDArray[np.bool_],
+				SCT.Reward_List,
+				NDArray[np.float32]]:
 			columns = [
 				DCT.DataColumnTypes.CurrentState,
 				DCT.DataColumnTypes.NextState,
@@ -115,15 +119,21 @@ class DQNAgent(BaseAgent.BaseAgent):
 				DCT.DataColumnTypes.Truncated,
 			]
 
-			indexs, priorities, columns = self.DataManager.Sample(columns, batchSize, self.PriorityKey)
-			states, nextStates, actions, rewards, futureRewards, terminateds, truncateds = columns
+			indexs, priorities, samples = self.DataManager.Sample(columns, batchSize, self.PriorityKey)
+			states, nextStates, actions, rewards, futureRewards, terminateds, truncateds = samples
 
 			dones = np.logical_or(terminateds, truncateds)
-			dones = tf.convert_to_tensor([float(x) for x in dones])
+			dones = dones.astype(np.float32)
 
 			return indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities
 
-		def CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards):
+		def CalTargetQs(
+				states:SCT.State_List,
+				actions:SCT.Action_List,
+				rewards:SCT.Reward_List,
+				nextStates:SCT.State_List,
+				dones:NDArray[np.bool_],
+				futureRewards:SCT.Reward_List) -> SCT.Reward_List:
 
 			nextStatePredictedQ = self.RunModel.predict(nextStates, verbose=0)
 			# get the max Q for the next state
@@ -143,11 +153,15 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 			# Calculate targets (bellman equation)
-			targetQs = rewards + futureQ
+			targetQs:SCT.Reward_List = rewards + futureQ
 
 			return targetQs
 
-		def TrainWeights(targetQs, states, actions, priorities):
+		def TrainWeights(targetQs:SCT.Reward_List,
+				states:SCT.State_List,
+				actions:SCT.Action_List,
+				priorities:NDArray[np.float32]) -> tuple[NDArray[np.float32], NDArray[np.float32]]:
+
 			# aplly gradient descent
 			with tf.GradientTape() as tape:
 				qValues = self.TrainingModel(states)
@@ -166,8 +180,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		batchSize = self.Config["BatchSize"]
 		indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities = GetSamples(batchSize)
-
-		assert np.all(priorities >= 0), f"priorities should be positive, but got {priorities}"
 
 		targetQs = CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards)
 		loss, absError = TrainWeights(targetQs, states, actions, priorities)

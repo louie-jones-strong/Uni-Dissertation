@@ -1,7 +1,7 @@
 # code was modified from
 # https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 
-from typing import Any
+from typing import Any, SupportsFloat
 import Utils.SharedCoreTypes as SCT
 
 # other file dependencies
@@ -17,21 +17,26 @@ class FireResetEnv(gym.Wrapper):
 
 		self.NoOp = 0
 		self.Fire = 1
-		assert env.unwrapped.get_action_meanings()[self.Fire] == 'FIRE'
+
+		# check action space is discrete
+		assert isinstance(env.action_space, gym.spaces.Discrete), \
+			'This wrapper only works with envs with discrete action spaces (e.g. Breakout)'
 
 		actionsNum = env.action_space.n
 		self.action_space = gym.spaces.Discrete(actionsNum-1)
 
 		return
 
-	def reset(self, **kwargs) -> tuple[SCT.State, dict[str, Any]]:
+	def reset(self, **kwargs:Any) -> tuple[SCT.State, dict[str, Any]]:
 
 		state, info = self.env.reset(**kwargs)
 		state, reward, terminated, truncated, info = self.env.step(1)
 
 		return state, info
 
-	def step(self, action:SCT.Action) -> tuple[SCT.State, SCT.Reward, bool, bool, dict[str, Any]]:
+
+
+	def step(self, action:SCT.Action) -> tuple[Any, SupportsFloat, bool, bool, dict[str, Any]]:
 
 		if action >= self.Fire:
 			action += 1
