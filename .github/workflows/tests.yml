@@ -16,44 +16,18 @@ jobs:
         with:
           python-version: 3.10.11
           cache: 'pip' # caching pip dependencies
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements_dev.txt
 
-  TypeChecks:
-    runs-on: ubuntu-latest
-    needs: Setup
-    steps:
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.10.11
-          cache: 'pip' # caching pip dependencies
       - name: Check Type Hints
-        run: |
-          python -m mypy Scripts/Main.py --config-file config.ini
+        run: python -m mypy Scripts/Main.py --config-file config.ini
 
-  UnitTests:
-    runs-on: ubuntu-latest
-    needs: Setup
-    steps:
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.10.11
-          cache: 'pip' # caching pip dependencies
       - name: UnitTest
-        run: |
-          unittest-parallel -q
+        run: unittest-parallel -q
 
-  LintChecks:
-    runs-on: ubuntu-latest
-    needs: Setup
-    steps:
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.10.11
-          cache: 'pip' # caching pip dependencies
       - name: LintChecks
-        run: |
-          flake8 Scripts/ --config=config.ini
+        run: flake8 Scripts/ --config=config.ini
