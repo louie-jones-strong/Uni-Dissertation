@@ -2,7 +2,7 @@
 # https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 
 from typing import Any, SupportsFloat
-import Utils.SharedCoreTypes as SCT
+import src.Utils.SharedCoreTypes as SCT
 
 # other file dependencies
 import gymnasium as gym

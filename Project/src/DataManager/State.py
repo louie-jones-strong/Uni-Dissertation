@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-	from DataManager.MarkovModel import MarkovModel
+	import src.DataManager.MarkovModel as MarkovModel
 
 import numpy as np
-import Utils.SharedCoreTypes as SCT
+import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 
 
@@ -27,7 +27,7 @@ class State:
 			nextStateId:int,
 			terminated:bool,
 			reward:SCT.Reward,
-			markovModel:'MarkovModel') -> None:
+			markovModel:'MarkovModel.MarkovModel') -> None:
 
 		self.ActionCounts[action] += 1
 		self.NextStates[action] = nextStateId
@@ -37,12 +37,12 @@ class State:
 		self._CheckExplored(action, markovModel)
 		return
 
-	def Update(self, action:SCT.Action, totalReward:SCT.Reward, markovModel:'MarkovModel') -> None:
+	def Update(self, action:SCT.Action, totalReward:SCT.Reward, markovModel:'MarkovModel.MarkovModel') -> None:
 		self.ActionTotalRewards[action] += totalReward
 		self._CheckExplored(action, markovModel)
 		return
 
-	def _CheckExplored(self, action:SCT.Action, markovModel:'MarkovModel') -> None:
+	def _CheckExplored(self, action:SCT.Action, markovModel:'MarkovModel.MarkovModel') -> None:
 
 		if self.FullyExplored[action] == 1:
 			return

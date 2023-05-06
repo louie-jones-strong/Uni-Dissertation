@@ -3,12 +3,12 @@ import json
 import os
 import random
 
-import DataManager.DataManager as DataManager
 import numpy as np
-import Utils.SharedCoreTypes as SCT
-from Environments.BaseEnv import BaseEnv
+import src.DataManager.DataManager as DataManager
+import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
-from Utils.PathHelper import GetRootPath
+from src.Environments.BaseEnv import BaseEnv
+from src.Utils.PathHelper import GetRootPath
 
 
 class AgentMode(enum.Enum):

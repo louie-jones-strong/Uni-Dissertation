@@ -1,5 +1,5 @@
 from typing import Optional
-import Utils.SharedCoreTypes as SCT
+import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 
 from . import State

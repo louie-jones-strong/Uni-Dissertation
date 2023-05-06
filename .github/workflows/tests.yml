@@ -24,13 +24,13 @@ jobs:
           pip install -r requirements_dev.txt
 
       - name: Check Type Hints
-        run: python -m mypy Scripts/Main.py --config-file config.ini
+        run: python -m mypy src/Main.py --config-file config.ini
 
       - name: UnitTest
         run: unittest-parallel -q
 
       - name: LintChecks
-        run: flake8 Scripts/ --config=config.ini
+        run: flake8 src/ --config=config.ini
 
       - name: LintChecks-Tests
         run: flake8 Tests/ --config=config.ini

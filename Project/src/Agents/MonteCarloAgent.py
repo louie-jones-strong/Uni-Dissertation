@@ -1,7 +1,7 @@
-import Agents.BaseAgent as BaseAgent
+import src.Agents.BaseAgent as BaseAgent
 import numpy as np
-import Utils.SharedCoreTypes as SCT
-from Environments.BaseEnv import BaseEnv
+import src.Utils.SharedCoreTypes as SCT
+from src.Environments.BaseEnv import BaseEnv
 from numpy.typing import NDArray
 
 

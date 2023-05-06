@@ -3,10 +3,10 @@ from copy import deepcopy
 from typing import Any, Optional
 
 import gymnasium as gym
-import Utils.SharedCoreTypes as SCT
-from Environments.BaseEnv import BaseEnv
+import src.Utils.SharedCoreTypes as SCT
+import src.Environments.BaseEnv as BaseEnv
 
-from .Wrappers import FireResetEnv, FrameStack
+from src.Environments.Wrappers import FireResetEnv, FrameStack
 
 
 def WrapGym(wrappers:list[str], gymEnv:gym.Env, renderEnv:gym.Env) -> tuple[gym.Env, gym.Env]:
@@ -36,7 +36,7 @@ def WrapGym(wrappers:list[str], gymEnv:gym.Env, renderEnv:gym.Env) -> tuple[gym.
 
 
 
-class GymEnv(BaseEnv):
+class GymEnv(BaseEnv.BaseEnv):
 	def __init__(self, envConfig:SCT.Config, gymEnv:Optional[gym.Env] = None):
 		super().__init__(envConfig)
 
@@ -117,7 +117,7 @@ class GymEnv(BaseEnv):
 
 		return nextState, float(reward), terminated, truncated
 
-	def Clone(self) -> BaseEnv:
+	def Clone(self) -> BaseEnv.BaseEnv:
 		super().Clone()
 
 		newGym = deepcopy(self._GymEnv)

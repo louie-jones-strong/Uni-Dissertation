@@ -1,14 +1,13 @@
-import Utils.SharedCoreTypes as SCT
-
 import json
 import os
 
-import Agents.BaseAgent as BaseAgent
-import Environments.BaseEnv as BaseEnv
 import keyboard
-import Utils.UserInputHelper as UI
-from DataManager.DataManager import DataManager
-from Utils.PathHelper import GetRootPath
+import src.Agents.BaseAgent as BaseAgent
+import src.Environments.BaseEnv as BaseEnv
+import src.Utils.SharedCoreTypes as SCT
+import src.Utils.UserInputHelper as UI
+from src.DataManager.DataManager import DataManager
+from src.Utils.PathHelper import GetRootPath
 
 
 class Runner:

@@ -3,7 +3,7 @@
 
 
 from typing import Any, SupportsFloat
-import Utils.SharedCoreTypes as SCT
+import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 
 # other file dependencies
@@ -22,8 +22,8 @@ class FrameStack(gym.Wrapper):
 		shape = env.observation_space.shape
 
 		dtype = env.observation_space.dtype
-		assert isinstance(dtype, np.uint8) or isinstance(dtype, np.float32), \
-			'FrameStack requires uint8 observations'
+		assert dtype == np.uint8 or dtype == np.float32, \
+			f'FrameStack requires uint8 or float32 observations. but was: {dtype}'
 
 		self.observation_space = spaces.Box(
 			low=0,

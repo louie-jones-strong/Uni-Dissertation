@@ -1,13 +1,13 @@
 from collections import deque
 from typing import Any, Optional
 
-import DataManager.DataColumnTypes as DataColumnTypes
-import DataManager.MarkovModel as MarkovModel
-import DataManager.ReplayBuffer as ReplayBuffer
-import Utils.SharedCoreTypes as SCT
-import Utils.Singleton as Singleton
-from Environments.BaseEnv import BaseEnv
+import src.DataManager.DataColumnTypes as DataColumnTypes
+import src.DataManager.MarkovModel as MarkovModel
+import src.DataManager.ReplayBuffer as ReplayBuffer
+import src.Utils.SharedCoreTypes as SCT
+import src.Utils.Singleton as Singleton
 from numpy.typing import NDArray
+from src.Environments.BaseEnv import BaseEnv
 
 
 class DataManager(Singleton.Singleton):

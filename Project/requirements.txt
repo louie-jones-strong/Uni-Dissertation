@@ -9,3 +9,5 @@ opencv-python==4.7.0.72
 tensorflow==2.12.0
 wandb==0.15.0
 events==0.4
+scikit_learn==1.2.2
+xgboost==1.7.5

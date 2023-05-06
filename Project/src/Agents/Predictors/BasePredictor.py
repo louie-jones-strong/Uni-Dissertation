@@ -1,4 +1,4 @@
-import DataManager.DataManager as DataManager
+import src.DataManager.DataManager as DataManager
 
 class BasePredictor:
 
@@ -12,10 +12,10 @@ class BasePredictor:
 	def LoadConfig(self, config):
 		return
 
-	def Save(self, path):
+	def Save(self, folderPath:str):
 		return
 
-	def Load(self, path):
+	def Load(self, folderPath:str):
 		return
 
 	def Train(self):
@@ -24,7 +24,10 @@ class BasePredictor:
 	def _GetSamples(self):
 		indexs, priorities, columns = self.DataManager.GetColumns([self.XLabel, self.YLabel])
 
-		return
+		x = columns[:len(self.XLabel)]
+		y = columns[len(self.XLabel):]
+
+		return x, y
 
 
 	def PredictValue(self, x):

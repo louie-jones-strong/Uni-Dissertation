@@ -1,7 +1,7 @@
 import time
 
 import keyboard
-import Utils.SharedCoreTypes as SCT
+import src.Utils.SharedCoreTypes as SCT
 
 from . import BaseAgent
 

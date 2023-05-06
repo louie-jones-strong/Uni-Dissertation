@@ -6,7 +6,7 @@ Imports for typing should be done as follows:
 # region typing dependencies
 from typing import TYPE_CHECKING, Any, Optional, Type, TypeVar
 
-import Utils.SharedCoreTypes as SCT
+import src.Utils.SharedCoreTypes as SCT
 
 from numpy.typing import NDArray
 if TYPE_CHECKING:

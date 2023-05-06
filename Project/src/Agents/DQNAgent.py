@@ -1,17 +1,17 @@
 import os
 
-import Agents.BaseAgent as BaseAgent
-import DataManager.DataColumnTypes as DCT
 import numpy as np
+import src.Agents.BaseAgent as BaseAgent
+import src.DataManager.DataColumnTypes as DCT
+import src.Environments.BaseEnv as BaseEnv
+import src.Utils.SharedCoreTypes as SCT
 import tensorflow as tf
-import Utils.SharedCoreTypes as SCT
-from Environments.BaseEnv import BaseEnv
 from numpy.typing import NDArray
 
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env:BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
+	def __init__(self, env:BaseEnv.BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
 		super().__init__(env, envConfig, mode=mode)
 
 		self.PriorityKey = "DQNAgent"

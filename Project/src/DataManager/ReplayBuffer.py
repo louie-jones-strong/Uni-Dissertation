@@ -1,24 +1,19 @@
-from typing import Optional
-import Utils.SharedCoreTypes as SCT
-from numpy.typing import NDArray
-
-
-# other imports
-from . import PrioritiesHolder
-import numpy as np
-from os import path, makedirs
 import json
-
 import sys
+from os import makedirs, path
+from typing import Optional
 
-
-from Environments.BaseEnv import BaseEnv
+import numpy as np
+import src.DataManager.PrioritiesHolder as PrioritiesHolder
+import src.Utils.SharedCoreTypes as SCT
+import src.Environments.BaseEnv as BaseEnv
+from numpy.typing import NDArray
 
 # inspired by
 # https://github.com/deepmind/dqn_zoo/blob/master/dqn_zoo/replay.py
 
 class ReplayBuffer:
-	def __init__(self, capacity:int, env:BaseEnv):
+	def __init__(self, capacity:int, env:BaseEnv.BaseEnv):
 
 
 		self.Capacity = capacity
