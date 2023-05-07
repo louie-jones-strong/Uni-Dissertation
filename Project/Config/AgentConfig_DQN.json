@@ -10,5 +10,6 @@
 	"MinExplorationRate": 0.01,
 	"FramesPerTrain": 4,
 	"FramesPerUpdateRunningNetwork": 1000,
-	"EpisodesBetweenEval": 10
+	"EpisodesBetweenEval": 10,
+	"DuelingNetwork": true
 }

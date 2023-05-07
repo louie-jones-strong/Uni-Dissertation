@@ -45,11 +45,34 @@ class DQNAgent(BaseAgent.BaseAgent):
 			model.add(tf.keras.layers.Conv2D(64, 3, strides=1, activation="relu"))
 
 		model.add(tf.keras.layers.Flatten())
-		model.add(tf.keras.layers.Dense(512, activation="relu"))
+
+		# check if we are using dueling network
+		if self.Config["DuelingNetwork"]:
+
+			# value stream (value of the state)
+			valueStream = tf.keras.models.Sequential()
+			valueStream.add(tf.keras.layers.Dense(512, activation="relu"))
+			valueStream.add(tf.keras.layers.Dense(1))
+
+			# advantage stream (advantage of each action)
+			advantageStream = tf.keras.models.Sequential()
+			advantageStream.add(tf.keras.layers.Dense(512, activation="relu"))
+			advantageStream.add(tf.keras.layers.Dense(outputNumber))
 
 
-		# output layer
-		model.add(tf.keras.layers.Dense(outputNumber))
+			# combine the two streams
+			model.add(tf.keras.layers.Lambda(lambda x: tf.expand_dims(x[:, 0], -1) + x[:, 1:] - tf.reduce_mean(x[:, 1:], axis=1, keepdims=True)))
+			model.add(valueStream)
+			model.add(advantageStream)
+
+			# output layer
+			model.add(tf.keras.layers.Dense(outputNumber))
+
+		else:
+			model.add(tf.keras.layers.Dense(512, activation="relu"))
+
+			# output layer
+			model.add(tf.keras.layers.Dense(outputNumber))
 
 		lr = self.Config["LearningRate"]
 		optimizer = tf.keras.optimizers.Adam(learning_rate=lr)
