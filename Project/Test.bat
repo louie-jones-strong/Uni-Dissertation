@@ -1,4 +1,4 @@
-call .venv-dev\src\activate.bat
+call .venv-dev\Scripts\activate.bat
 cls
 py -m mypy src/Main.py --config-file config.ini
 unittest-parallel -q
