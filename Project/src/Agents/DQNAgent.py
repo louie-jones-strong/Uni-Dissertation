@@ -61,7 +61,9 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 			# combine the two streams
-			model.add(tf.keras.layers.Lambda(lambda x: tf.expand_dims(x[:, 0], -1) + x[:, 1:] - tf.reduce_mean(x[:, 1:], axis=1, keepdims=True)))
+			model.add(tf.keras.layers.Lambda(
+				lambda x: tf.expand_dims(x[:, 0], -1) + x[:, 1:] - tf.reduce_mean(x[:, 1:], axis=1, keepdims=True)))
+
 			model.add(valueStream)
 			model.add(advantageStream)
 

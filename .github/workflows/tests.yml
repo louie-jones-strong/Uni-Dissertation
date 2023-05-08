@@ -24,7 +24,7 @@ jobs:
           pip install -r requirements_dev.txt
 
       - name: Check Type Hints
-        run: python -m mypy src/Main.py --config-file config.ini
+        run: python -m mypy Main.py --config-file config.ini
 
       - name: UnitTest
         run: unittest-parallel -q
