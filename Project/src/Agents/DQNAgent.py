@@ -166,7 +166,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 			# if the real future reward is not None, then check if it is better than the predicted
-			if futureRewards is not None:
+			if futureRewards is not None and self.Config["PropagateFutureReward"]:
 				futureQ = np.maximum(futureQ, futureRewards)
 
 			# we should not add future reward if it is the last state
