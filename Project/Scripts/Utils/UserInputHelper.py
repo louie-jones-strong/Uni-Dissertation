@@ -1,7 +1,9 @@
 from typing import Any, TypeVar, Optional
 import os
+import platform
+import keyboard
 
-
+# region console input
 def FilePicker(label:str, folderPath:str) -> str:
 	files = os.listdir(folderPath)
 	choice = OptionPicker(label, files)
@@ -73,3 +75,17 @@ def OptionPicker(label:str, options:list[T]) -> T:
 	choice -= 1
 
 	return options[choice]
+# endregion
+
+
+# region keyboard input
+
+def IsKeyPressed(key:str) -> bool:
+
+	# check if os is linux
+	if platform.system() == "Linux":
+		return False
+
+	return keyboard.is_pressed(key)
+
+# endregion

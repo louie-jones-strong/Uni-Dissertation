@@ -9,7 +9,6 @@ import os
 
 import Agents.BaseAgent as BaseAgent
 import Environments.BaseEnv as BaseEnv
-import keyboard
 import Utils.UserInputHelper as UI
 from DataManager.DataManager import DataManager
 from Utils.PathHelper import GetRootPath
@@ -83,15 +82,15 @@ class Runner:
 
 
 			# check if user wants to reload config
-			if keyboard.is_pressed('alt+c'):
+			if UI.IsKeyPressed('alt+c'):
 				self.LoadConfig()
 				print("+++++++ Loaded Config +++++++")
 
-			if keyboard.is_pressed('alt+s'):
+			if UI.IsKeyPressed('alt+s'):
 				self.Save()
 				print("+++++++ Saved Agent +++++++")
 
-			if keyboard.is_pressed('alt+l'):
+			if UI.IsKeyPressed('alt+l'):
 				self.Load()
 				print("+++++++ Loaded Agent +++++++")
 
