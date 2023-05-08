@@ -1,2 +1,2 @@
 .venv/bin/activate
-python3 Scripts/Main.py
+python3 Main.py
