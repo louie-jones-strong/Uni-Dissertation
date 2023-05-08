@@ -8,6 +8,7 @@ import src.Utils.SharedCoreTypes as SCT
 import src.Utils.Singleton as Singleton
 from numpy.typing import NDArray
 from src.Environments.BaseEnv import BaseEnv
+import os
 
 
 class DataManager(Singleton.Singleton):
@@ -36,13 +37,14 @@ class DataManager(Singleton.Singleton):
 
 	def Save(self, path:str) -> None:
 		self._EmptyAccumulator()
-		self._ReplayBuffer.Save(path)
-		self._MarkovModel.Save(path)
+
+		self._ReplayBuffer.Save(os.path.join(path, "ReplayBuffer"))
+		self._MarkovModel.Save(os.path.join(path, "MarkovModel"))
 		return
 
 	def Load(self, path:str) -> None:
-		self._ReplayBuffer.Load(path)
-		self._MarkovModel.Load(path)
+		self._ReplayBuffer.Load(os.path.join(path, "ReplayBuffer"))
+		self._MarkovModel.Load(os.path.join(path, "MarkovModel"))
 		return
 
 

@@ -132,6 +132,8 @@ class Runner:
 		if not os.path.exists(path):
 			os.makedirs(path)
 
+		self._DataManager.Save(path)
+
 		for agent in self.Agents:
 			agent.Save(path)
 		return
@@ -140,6 +142,8 @@ class Runner:
 		path = os.path.join("data", self.Config["Name"])
 		if not os.path.exists(path):
 			return
+
+		self._DataManager.Load(path)
 
 		for agent in self.Agents:
 			agent.Load(path)
