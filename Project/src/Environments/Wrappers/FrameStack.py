@@ -25,6 +25,9 @@ class FrameStack(gym.Wrapper):
 		assert dtype == np.uint8 or dtype == np.float32, \
 			f'FrameStack requires uint8 or float32 observations. but was: {dtype}'
 
+		assert isinstance(dtype, (np.uint8, np.float32)), \
+			f'FrameStack requires uint8 or float32 observations. but was: {dtype}'
+
 		self.observation_space = spaces.Box(
 			low=0,
 			high=255,
