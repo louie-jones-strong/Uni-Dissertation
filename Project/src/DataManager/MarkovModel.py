@@ -1,6 +1,7 @@
 from typing import Optional
 import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
+import typing
 
 from . import State
 import numpy as np
@@ -10,11 +11,11 @@ class MarkovModel:
 
 	def __init__(self, numActions:int):
 		self.NumActions = numActions
-		self.States:dict[int, State.State] = {}
+		self.States:typing.Dict[int, State.State] = {}
 		return
 
 
-	def GetStateInfo(self, state:SCT.State) -> tuple[NDArray[np.float32], NDArray[np.float32]]:
+	def GetStateInfo(self, state:SCT.State) -> typing.Tuple[NDArray[np.float32], NDArray[np.float32]]:
 
 		stateItem = self._GetState(state)
 
@@ -26,7 +27,7 @@ class MarkovModel:
 	def Predict(self,
 			state:SCT.State,
 			action:SCT.Action
-			) -> Optional[tuple[SCT.State, float, bool, bool]]:
+			) -> Optional[typing.Tuple[SCT.State, float, bool, bool]]:
 
 		stateInfo = self._GetState(state)
 

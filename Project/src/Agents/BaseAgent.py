@@ -18,7 +18,7 @@ class AgentMode(enum.Enum):
 
 
 AgentList = ["Random", "DQN", "Human", "MonteCarlo", "Exploration"]
-def GetAgent(agentName:str) -> type['BaseAgent']:
+def GetAgent(agentName:str) -> type:
 
 
 	if agentName == "Random":

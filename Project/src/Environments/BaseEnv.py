@@ -3,7 +3,7 @@ import src.Utils.SharedCoreTypes as SCT
 import gymnasium as gym
 import numpy as np
 from copy import deepcopy
-
+import typing
 
 def GetEnv(envConfig:SCT.Config) -> 'BaseEnv':
 	envType = envConfig["EnvType"]
@@ -25,7 +25,7 @@ class BaseEnv:
 
 		self.ObservationSpace:SCT.StateSpace = gym.spaces.Box(low=0, high=1, shape=(1, 2), dtype=np.uint8)
 		self.ActionSpace:SCT.ActionSpace = gym.spaces.Discrete(1)
-		self.RewardRange:tuple[float, float] = (0,0)
+		self.RewardRange:typing.Tuple[float, float] = (0,0)
 
 		self._CurrentFrame = 0
 		self._Done = False
@@ -43,7 +43,7 @@ class BaseEnv:
 
 
 
-	def Step(self, action:SCT.Action) -> tuple[SCT.State, SCT.Reward, bool, bool]:
+	def Step(self, action:SCT.Action) -> typing.Tuple[SCT.State, SCT.Reward, bool, bool]:
 		"""
 		:param action:
 		:return: nextState, reward, done

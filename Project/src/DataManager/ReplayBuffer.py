@@ -8,6 +8,7 @@ import src.DataManager.PrioritiesHolder as PrioritiesHolder
 import src.Utils.SharedCoreTypes as SCT
 import src.Environments.BaseEnv as BaseEnv
 from numpy.typing import NDArray
+import typing
 
 # inspired by
 # https://github.com/deepmind/dqn_zoo/blob/master/dqn_zoo/replay.py
@@ -38,7 +39,7 @@ class ReplayBuffer:
 		self._Truncateds = np.empty((capacity), dtype=np.bool_)
 		self._FutureRewards = np.empty((capacity), dtype=np.float32)
 
-		self._PriorityHolders:dict[str, PrioritiesHolder.PrioritiesHolder] = {}
+		self._PriorityHolders:typing.Dict[str, PrioritiesHolder.PrioritiesHolder] = {}
 
 		return
 
@@ -77,7 +78,7 @@ class ReplayBuffer:
 			batchSize:int,
 			priorityKey:Optional[str] = None,
 			priorityScale:float = 1.0
-			) -> tuple[
+			) -> typing.Tuple[
 				NDArray[np.int_],
 				SCT.State_List,
 				SCT.Action_List,

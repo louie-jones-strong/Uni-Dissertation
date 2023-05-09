@@ -9,6 +9,7 @@ import src.Utils.Singleton as Singleton
 from numpy.typing import NDArray
 from src.Environments.BaseEnv import BaseEnv
 import os
+import typing
 
 
 class DataManager(Singleton.Singleton):
@@ -18,7 +19,7 @@ class DataManager(Singleton.Singleton):
 		self._Env = env
 
 		# transition accumulator
-		self._TransitionAccumulator: deque[tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool]] = deque()
+		self._TransitionAccumulator: typing.Deque[typing.Tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool]] = deque()
 		self._QValueAccumulator:SCT.Reward = 0
 
 		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(self._Config["ReplayBufferMaxSize"], self._Env)
@@ -49,10 +50,10 @@ class DataManager(Singleton.Singleton):
 
 
 	def Sample(self,
-			columns:list[DataColumnTypes.DataColumnTypes],
+			columns:typing.List[DataColumnTypes.DataColumnTypes],
 			batchSize:int = -1,
 			priorityKey:Optional[str] = None,
-			priorityScale:float = 1.0) -> tuple[NDArray, NDArray, list[Any]]:
+			priorityScale:float = 1.0) -> typing.Tuple[NDArray, NDArray, typing.List[Any]]:
 
 
 		samples = self._ReplayBuffer.Sample(batchSize, priorityKey=priorityKey, priorityScale=priorityScale)

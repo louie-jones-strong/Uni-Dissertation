@@ -7,6 +7,7 @@ import src.Environments.BaseEnv as BaseEnv
 import src.Utils.SharedCoreTypes as SCT
 import tensorflow as tf
 from numpy.typing import NDArray
+import typing
 
 
 class DQNAgent(BaseAgent.BaseAgent):
@@ -125,7 +126,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		# samples from the replay buffer
 
-		def GetSamples(bactchSize:int) -> tuple[
+		def GetSamples(bactchSize:int) -> typing.Tuple[
 				NDArray[np.int_],
 				SCT.State_List,
 				SCT.Action_List,
@@ -185,7 +186,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		def TrainWeights(targetQs:SCT.Reward_List,
 				states:SCT.State_List,
 				actions:SCT.Action_List,
-				priorities:NDArray[np.float32]) -> tuple[NDArray[np.float32], NDArray[np.float32]]:
+				priorities:NDArray[np.float32]) -> typing.Tuple[NDArray[np.float32], NDArray[np.float32]]:
 
 			# aplly gradient descent
 			with tf.GradientTape() as tape:

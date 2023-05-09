@@ -1,4 +1,5 @@
 from typing import Any
+import typing
 import enum
 
 class DataColumnTypes(enum.Enum):
@@ -17,7 +18,7 @@ class DataColumnTypes(enum.Enum):
 
 
 
-def GetColumn(columnFilter:list[DataColumnTypes], rows:tuple[Any, ...]) -> list[Any]:
+def GetColumn(columnFilter:typing.List[DataColumnTypes], rows:typing.Tuple[Any, ...]) -> typing.List[Any]:
 	columns = []
 	for col in columnFilter:
 

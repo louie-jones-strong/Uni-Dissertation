@@ -7,11 +7,14 @@ import src.Utils.SharedCoreTypes as SCT
 import src.Utils.UserInputHelper as UI
 from src.DataManager.DataManager import DataManager
 from src.Utils.PathHelper import GetRootPath
+import typing
+import time
+from collections import deque
 
 
 class Runner:
 
-	def __init__(self, configPath:str, env:BaseEnv.BaseEnv, agents:list[BaseAgent.BaseAgent], load:bool):
+	def __init__(self, configPath:str, env:BaseEnv.BaseEnv, agents:typing.List[BaseAgent.BaseAgent], load:bool):
 		self.ConfigPath = configPath
 		self.Env = env
 		self._DataManager = DataManager()
@@ -41,26 +44,29 @@ class Runner:
 
 
 	def RunEpisodes(self) -> None:
-		lastRewards = []
+		lastRewards = deque(maxlen=10)
+		lastTimes = deque(maxlen=10)
 
 		episode = 0
 		while episode < self.Config["MaxEpisodes"]:
-			step, reward = self.RunEpisode()
+			startTime = time.process_time()
+			steps, reward = self.RunEpisode()
+			timeTaken = time.process_time() - startTime
 
 			lastRewards.append(reward)
-			if len(lastRewards) > 10:
-				lastRewards.pop(0)
+			lastTimes.append(timeTaken/steps)
 
 			avgReward = sum(lastRewards) / len(lastRewards)
+			avgTime = sum(lastTimes) / len(lastTimes)
 
-			print(f"Episode:{episode+1} steps:{step+1} reward:{reward} avg:{avgReward}")
+			print(f"Episode:{episode+1} steps:{steps+1} reward:{reward} avg:{avgReward} time:{timeTaken} avg:{avgTime}")
 
 			episode += 1
 
 		self.Save()
 		return
 
-	def RunEpisode(self) -> tuple[int, float]:
+	def RunEpisode(self) -> typing.Tuple[int, float]:
 
 		totalReward:float = 0.0
 		state = self.Env.Reset()

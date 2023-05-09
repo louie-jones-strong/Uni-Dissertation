@@ -2,6 +2,7 @@ from typing import TypeVar, Optional
 import os
 import platform
 import keyboard
+import typing
 
 # region console input
 def FilePicker(label:str, folderPath:str) -> str:
@@ -58,7 +59,7 @@ def BoolPicker(label:str) -> bool:
 
 
 T = TypeVar("T")
-def OptionPicker(label:str, options:list[T]) -> T:
+def OptionPicker(label:str, options:typing.List[T]) -> T:
 	if len(options) == 0:
 		raise Exception("No options to pick from")
 	elif len(options) == 1:

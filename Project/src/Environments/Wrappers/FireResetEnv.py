@@ -3,6 +3,7 @@
 
 from typing import Any, SupportsFloat
 import src.Utils.SharedCoreTypes as SCT
+import typing
 
 # other file dependencies
 import gymnasium as gym
@@ -27,7 +28,7 @@ class FireResetEnv(gym.Wrapper):
 
 		return
 
-	def reset(self, **kwargs:Any) -> tuple[SCT.State, dict[str, Any]]:
+	def reset(self, **kwargs:Any) -> typing.Tuple[SCT.State, typing.Dict[str, Any]]:
 
 		state, info = self.env.reset(**kwargs)
 		state, reward, terminated, truncated, info = self.env.step(1)
@@ -36,7 +37,7 @@ class FireResetEnv(gym.Wrapper):
 
 
 
-	def step(self, action:SCT.Action) -> tuple[Any, SupportsFloat, bool, bool, dict[str, Any]]:
+	def step(self, action:SCT.Action) -> typing.Tuple[Any, SupportsFloat, bool, bool, typing.Dict[str, Any]]:
 
 		if action >= self.Fire:
 			action += 1

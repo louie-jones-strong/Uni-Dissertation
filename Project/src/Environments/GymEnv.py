@@ -5,11 +5,12 @@ from typing import Any, Optional
 import gymnasium as gym
 import src.Utils.SharedCoreTypes as SCT
 import src.Environments.BaseEnv as BaseEnv
+import typing
 
 from src.Environments.Wrappers import FireResetEnv, FrameStack
 
 
-def WrapGym(wrappers:list[str], gymEnv:gym.Env, renderEnv:gym.Env) -> tuple[gym.Env, gym.Env]:
+def WrapGym(wrappers:typing.List[str], gymEnv:gym.Env, renderEnv:gym.Env) -> typing.Tuple[gym.Env, gym.Env]:
 	if wrappers is None:
 		return gymEnv, renderEnv
 
@@ -97,7 +98,7 @@ class GymEnv(BaseEnv.BaseEnv):
 		return
 
 
-	def Step(self, action:SCT.Action) -> tuple[SCT.State, SCT.Reward, bool, bool]:
+	def Step(self, action:SCT.Action) -> typing.Tuple[SCT.State, SCT.Reward, bool, bool]:
 		"""
 		:param action:
 		:return: nextState, reward, done
