@@ -3,7 +3,7 @@
 	"EnvType": "Gym",
 	"GymConfig": {
 		"GymID": "BreakoutNoFrameskip-v4",
-		"RenderMode": "human",
+		"RenderMode": "rgb_array",
 		"Wrappers": ["FireResetEnv", "Atari", "FrameStack"]
 	},
 

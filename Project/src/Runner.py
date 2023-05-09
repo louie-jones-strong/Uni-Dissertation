@@ -59,7 +59,7 @@ class Runner:
 			avgReward = sum(lastRewards) / len(lastRewards)
 			avgTime = sum(lastTimes) / len(lastTimes)
 
-			print(f"Episode:{episode+1} steps:{steps+1} reward:{reward} avg:{avgReward} time:{timeTaken} avg:{avgTime}")
+			print(f"Episode:{episode+1} steps:{steps+1} reward:{reward} avg:{avgReward} time:{timeTaken:.2f} avg:{avgTime:.2f}")
 
 			episode += 1
 

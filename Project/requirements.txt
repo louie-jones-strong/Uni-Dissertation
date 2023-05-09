@@ -1,10 +1,11 @@
 numpy
+opencv-python-headless
 gymnasium
 gymnasium[other]
 gymnasium[accept-rom-license]
 gymnasium[atari]
 pygame
-opencv-python
 wandb
 scikit_learn
 xgboost
+keyboard

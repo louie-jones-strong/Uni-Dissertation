@@ -2,7 +2,7 @@
 # https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 
 
-from typing import Any, SupportsFloat
+from typing import Any, SupportsFloat, TYPE_CHECKING
 import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 
@@ -26,8 +26,9 @@ class FrameStack(gym.Wrapper):
 		assert dtype == np.uint8 or dtype == np.float32, \
 			f'FrameStack requires uint8 or float32 observations. but was: {dtype}'
 
-		assert isinstance(dtype, (np.uint8, np.float32)), \
-			f'FrameStack requires uint8 or float32 observations. but was: {dtype}'
+		if TYPE_CHECKING:
+			assert isinstance(dtype, (np.uint8, np.float32)), \
+				f'FrameStack requires uint8 or float32 observations. but was: {dtype}'
 
 		self.observation_space = spaces.Box(
 			low=0,
