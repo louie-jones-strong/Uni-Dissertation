@@ -44,7 +44,7 @@ class FireResetEnv(gym.Wrapper):
 		if action >= self.Fire:
 			action += 1
 
-		state, reward, terminated, truncated, info  = self.env.step(action)
+		state, reward, terminated, truncated, info = self.env.step(action)
 
 		# if life was lost, then fire to restart the game
 		if not (terminated or truncated):

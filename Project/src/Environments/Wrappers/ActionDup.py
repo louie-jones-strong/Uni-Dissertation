@@ -2,15 +2,12 @@
 # https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
 
 
-from typing import Any, SupportsFloat, TYPE_CHECKING
+from typing import Any, SupportsFloat
 import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 
 # other file dependencies
 import gymnasium as gym
-from collections import deque
-from gymnasium import spaces
-import numpy as np
 import typing
 
 
