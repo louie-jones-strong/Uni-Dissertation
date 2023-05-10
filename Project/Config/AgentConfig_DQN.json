@@ -1,16 +1,21 @@
 {
-	"MaxBufferSize": 100000,
-	"MinBufferSize": 10,
-	"BatchSize": 256,
-	"LearningRate": 0.01,
+	"DuellingNetwork": true,
+	"PropagateFutureReward": true,
+	"PriorityScale": 0.7,
+
+	"MaxBufferSize": 1000000,
+	"MinBufferSize": 50000,
+
+	"BatchSize": 32,
+	"LearningRate": 0.00001,
+
 	"FutureRewardDiscount": 0.99,
+	"FramesPerTrain": 4,
+	"FramesPerUpdateRunningNetwork": 10000,
+	"EpisodesBetweenEval": 100,
+
 	"ExplorationAgent": "Random",
 	"ExplorationDelta": 0.0001,
 	"MaxExplorationRate": 1.0,
-	"MinExplorationRate": 0.01,
-	"FramesPerTrain": 4,
-	"FramesPerUpdateRunningNetwork": 1000,
-	"EpisodesBetweenEval": 10,
-	"DuelingNetwork": true,
-	"PropagateFutureReward": true
+	"MinExplorationRate": 0.01
 }

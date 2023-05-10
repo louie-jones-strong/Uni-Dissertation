@@ -10,6 +10,7 @@ from numpy.typing import NDArray
 from src.Environments.BaseEnv import BaseEnv
 import os
 import typing
+import numpy as np
 
 
 class DataManager(Singleton.Singleton):
@@ -48,21 +49,30 @@ class DataManager(Singleton.Singleton):
 		self._MarkovModel.Load(os.path.join(path, "MarkovModel"))
 		return
 
-
 	def Sample(self,
 			columns:typing.List[DataColumnTypes.DataColumnTypes],
 			batchSize:int = -1,
 			priorityKey:Optional[str] = None,
 			priorityScale:float = 1.0) -> typing.Tuple[NDArray, NDArray, typing.List[Any]]:
 
+		if batchSize == -1:
+			samples = self._ReplayBuffer.SampleAll()
+			states, actions, rewards, nextStates, terminateds, truncateds, futureRewards = samples
 
-		samples = self._ReplayBuffer.Sample(batchSize, priorityKey=priorityKey, priorityScale=priorityScale)
-		indexs, states, actions, rewards, nextStates, terminateds, truncateds, futureRewards, priorities = samples
+			indexs = np.arange(len(states))
+			priorities = np.ones(len(states), dtype=np.float32)
+		else:
+			samples = self._ReplayBuffer.Sample(batchSize, priorityKey=priorityKey, priorityScale=priorityScale)
+			indexs, states, actions, rewards, nextStates, terminateds, truncateds, futureRewards, priorities = samples
 
 		rowsOrder = (states, nextStates, actions, rewards, futureRewards, terminateds, truncateds)
 		columns = DataColumnTypes.GetColumn(columns, rowsOrder)
 
 		return indexs, priorities, columns
+
+
+
+
 
 	def EnvRemember(self,
 			state:SCT.State,
@@ -102,7 +112,7 @@ class DataManager(Singleton.Singleton):
 			self._PopAccumulator()
 
 
-		epsilon = 0.1 ** 10
+		epsilon = 0.1 ** 9
 		assert len(self._TransitionAccumulator) == 0, \
 			f"Transition accumulator not empty, has size of: {len(self._TransitionAccumulator)}"
 

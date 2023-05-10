@@ -70,7 +70,3 @@ class BaseEnv:
 
 	def Render(self) -> None:
 		return
-
-
-	def __del__(self) -> None:
-		return

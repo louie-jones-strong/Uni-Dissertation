@@ -4,7 +4,7 @@
 	"GymConfig": {
 		"GymID": "BreakoutNoFrameskip-v4",
 		"RenderMode": "rgb_array",
-		"Wrappers": ["FireResetEnv", "Atari", "FrameStack"]
+		"Wrappers": ["Atari", "FrameStack", "FireResetEnv", "ActionDup"]
 	},
 
 	"IsDeterministic": true,

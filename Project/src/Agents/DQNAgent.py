@@ -48,7 +48,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		model.add(tf.keras.layers.Flatten())
 
 		# check if we are using dueling network
-		if self.Config["DuelingNetwork"]:
+		if self.Config["DuellingNetwork"]:
 
 			# value stream (value of the state)
 			valueStream = tf.keras.models.Sequential()
@@ -145,7 +145,8 @@ class DQNAgent(BaseAgent.BaseAgent):
 				DCT.DataColumnTypes.Truncated,
 			]
 
-			indexs, priorities, samples = self.DataManager.Sample(columns, batchSize, self.PriorityKey)
+			priorityScale = self.Config["PriorityScale"]
+			indexs, priorities, samples = self.DataManager.Sample(columns, batchSize, self.PriorityKey, priorityScale=priorityScale)
 			states, nextStates, actions, rewards, futureRewards, terminateds, truncateds = samples
 
 			dones = np.logical_or(terminateds, truncateds)
@@ -234,12 +235,15 @@ class DQNAgent(BaseAgent.BaseAgent):
 		isExploreAction = False
 		# if it is training mode
 		if self.Mode == BaseAgent.AgentMode.Train:
-			if np.random.random() < self.ExplorationRate:
+			if len(self.DataManager._ReplayBuffer) < self.Config["MinBufferSize"]:
 				isExploreAction = True
+			else:
+				if np.random.random() < self.ExplorationRate:
+					isExploreAction = True
 
-			# decay exploration rate
-			self.ExplorationRate -= self.Config["ExplorationDelta"]
-			self.ExplorationRate = max(self.ExplorationRate, self.Config["MinExplorationRate"])
+				# decay exploration rate
+				self.ExplorationRate -= self.Config["ExplorationDelta"]
+				self.ExplorationRate = max(self.ExplorationRate, self.Config["MinExplorationRate"])
 
 
 

@@ -52,8 +52,6 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 				if not (terminated or truncated):
 					actionValues[action] += np.max(self._SearchActions(envCopy, nextState, depth=depth + 1))
 
-				del envCopy
-
 			else:
 				nextState, reward, terminated, truncated = prediction
 

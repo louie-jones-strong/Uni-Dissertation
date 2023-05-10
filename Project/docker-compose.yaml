@@ -10,8 +10,7 @@ services:
       # add output dictionary for the learned data
       - ML_Data:/app/data
 
-      # dictionaries for dev and config files
-      - Dev_Config:/app/Dev_Config
+      # dictionaries for dev
       - .:/app/Dev_Source
     deploy:
       resources:
@@ -26,4 +25,3 @@ services:
 
 volumes:
   ML_Data:
-  Dev_Config:

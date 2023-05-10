@@ -7,30 +7,39 @@ import src.Utils.SharedCoreTypes as SCT
 import src.Environments.BaseEnv as BaseEnv
 import typing
 
-from src.Environments.Wrappers import FireResetEnv, FrameStack
+from src.Environments.Wrappers import FireResetEnv, FrameStack, ActionDup
 
 
 def WrapGym(wrappers:typing.List[str], gymEnv:gym.Env, renderEnv:gym.Env) -> typing.Tuple[gym.Env, gym.Env]:
 	if wrappers is None:
 		return gymEnv, renderEnv
 
-	if "FireResetEnv" in wrappers:
-		gymEnv = FireResetEnv.FireResetEnv(gymEnv)
-		renderEnv = FireResetEnv.FireResetEnv(renderEnv)
+	for wrapper in wrappers:
 
-	if "Atari" in wrappers:
+		if "FireResetEnv" in wrapper:
+			gymEnv = FireResetEnv.FireResetEnv(gymEnv)
+			renderEnv = FireResetEnv.FireResetEnv(renderEnv)
 
-		gymEnv = gym.wrappers.AtariPreprocessing(gymEnv,
-			noop_max=0,
-			frame_skip=1,
-			screen_size=84,
-			terminal_on_life_loss=True,
-			grayscale_obs=True,
-			grayscale_newaxis=False,
-			scale_obs=True)
+		elif "Atari" in wrapper:
 
-	if "FrameStack" in wrappers:
-		gymEnv = FrameStack.FrameStack(gymEnv, 4)
+			gymEnv = gym.wrappers.AtariPreprocessing(gymEnv,
+				noop_max=0,
+				frame_skip=1,
+				screen_size=84,
+				terminal_on_life_loss=False,
+				grayscale_obs=True,
+				grayscale_newaxis=False,
+				scale_obs=True)
+
+		elif "FrameStack" in wrapper:
+			gymEnv = FrameStack.FrameStack(gymEnv, 4)
+
+		elif "ActionDup" in wrapper:
+			gymEnv = ActionDup.ActionDup(gymEnv, 2)
+			renderEnv = ActionDup.ActionDup(renderEnv, 2)
+
+		else:
+			raise Exception(f"Unknown wrapper: {wrapper}")
 
 	return gymEnv, renderEnv
 
@@ -139,14 +148,4 @@ class GymEnv(BaseEnv.BaseEnv):
 
 	def Render(self) -> None:
 		super().Render()
-		return
-
-	def __del__(self) -> None:
-		super().__del__()
-
-		if self._GymEnv is not None:
-			self._GymEnv.close()
-
-		if self._RenderCopy is not None:
-			self._RenderCopy.close()
 		return

@@ -11,22 +11,17 @@ class DecisonTreePredictor(BasePredictor.BasePredictor):
 		return
 
 	def PredictValue(self, x):
-		y, confidence = super().PredictValue(x)
+		y = super().PredictValue(x)
 
 		predictions = self.Predictor.predict(x)
 
 
-		return predictions, confidence
+		return predictions
 
-	def Train(self):
+	def Train(self, x, y):
 		super().Train()
-		# x, y = self._GetSamples()
-
-
-		x = np.random.rand(100, 10)
-		y = np.random.randint(2, size=100)
 
 		self.Predictor.fit(x, y)
 
-		return x, y
+		return
 

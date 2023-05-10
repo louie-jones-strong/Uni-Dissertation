@@ -43,7 +43,13 @@ def Main() -> None:
 
 	# run
 	runner = Runner.Runner(envConfigPath, env, agents, load)
-	runner.RunEpisodes()
+
+	try:
+		runner.RunEpisodes()
+	except KeyboardInterrupt:
+		if UI.BoolPicker("Save?"):
+			runner.Save()
+
 
 	return
 

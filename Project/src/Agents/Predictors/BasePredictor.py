@@ -22,7 +22,8 @@ class BasePredictor:
 		return
 
 	def _GetSamples(self):
-		indexs, priorities, columns = self.DataManager.GetColumns([self.XLabel, self.YLabel])
+		joinedColumns = self.XLabel + self.YLabel
+		indexs, priorities, columns = self.DataManager.Sample(joinedColumns)
 
 		x = columns[:len(self.XLabel)]
 		y = columns[len(self.XLabel):]
@@ -32,8 +33,7 @@ class BasePredictor:
 
 	def PredictValue(self, x):
 		y = None
-		confidence = None
-		return y, confidence
+		return y
 
 	def GetValueNovelties(self, x):
 		novelties = None
