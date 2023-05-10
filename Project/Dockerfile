@@ -1,6 +1,8 @@
-FROM tensorflow/tensorflow:latest-gpu
-WORKDIR /App
+FROM tensorflow/tensorflow:2.12.0-gpu
+WORKDIR /app
+RUN pip install --upgrade pip
 
-EXPOSE 8888
-# run the container doing nothing so we can connect to it
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+

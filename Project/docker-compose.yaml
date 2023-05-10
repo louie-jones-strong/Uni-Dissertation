@@ -1,0 +1,29 @@
+services:
+  dev-env:
+    # image: tensorflow/tensorflow:2.12.0-gpu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: imagename
+
+    volumes:
+      # add output dictionary for the learned data
+      - ML_Data:/app/data
+
+      # dictionaries for dev and config files
+      - Dev_Config:/app/Dev_Config
+      - .:/app/Dev_Source
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    working_dir: /app
+    tty: true
+
+volumes:
+  ML_Data:
+  Dev_Config:
