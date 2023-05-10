@@ -41,7 +41,7 @@ class PrioritiesHolder:
 			self._Priorities[idx] = priority
 
 		# check that all priorities are valid
-		assert np.all(self._Priorities >= 0.0), f"Priorities are negative: {self._Priorities}"
+		assert np.all(self._Priorities > 0.0), f"Priorities are negative: {self._Priorities}"
 		return
 
 	def SetStartPriority(self, index:int) -> None:

@@ -49,31 +49,10 @@ class DataManager(Singleton.Singleton):
 		self._MarkovModel.Load(os.path.join(path, "MarkovModel"))
 		return
 
-	def Sample(self,
-			columns:typing.List[DataColumnTypes.DataColumnTypes],
-			batchSize:int = -1,
-			priorityKey:Optional[str] = None,
-			priorityScale:float = 1.0) -> typing.Tuple[NDArray, NDArray, typing.List[Any]]:
-
-		if batchSize == -1:
-			samples = self._ReplayBuffer.SampleAll()
-			states, actions, rewards, nextStates, terminateds, truncateds, futureRewards = samples
-
-			indexs = np.arange(len(states))
-			priorities = np.ones(len(states), dtype=np.float32)
-		else:
-			samples = self._ReplayBuffer.Sample(batchSize, priorityKey=priorityKey, priorityScale=priorityScale)
-			indexs, states, actions, rewards, nextStates, terminateds, truncateds, futureRewards, priorities = samples
-
-		rowsOrder = (states, nextStates, actions, rewards, futureRewards, terminateds, truncateds)
-		columns = DataColumnTypes.GetColumn(columns, rowsOrder)
-
-		return indexs, priorities, columns
 
 
 
-
-
+# region Calls from Env Runner
 	def EnvRemember(self,
 			state:SCT.State,
 			action:SCT.Action,
@@ -105,7 +84,7 @@ class DataManager(Singleton.Singleton):
 		# empty transition accumulator into the replay buffer
 		self._EmptyAccumulator()
 		return
-
+# endregion
 
 	def _EmptyAccumulator(self) -> None:
 		while len(self._TransitionAccumulator) > 0:
@@ -139,3 +118,67 @@ class DataManager(Singleton.Singleton):
 		self._QValueAccumulator *= (1/self._Config["QFuncGamma"])
 		return
 
+
+
+
+
+# region data sampling
+
+	def GetColumns(self, columns):
+		columnsData = self._ReplayBuffer.SampleAll()
+
+		columnsData = DataColumnTypes.FilterColumns(columns, columnsData)
+		return columnsData
+
+	def _JoinColumnsData(self, columnsData):
+
+		output = []
+		for i in range(len(columnsData[0])):
+			joinedRow = [columnsData[j][i] for j in range(len(columnsData))]
+			columnsData[i] = np.array(joinedRow)
+
+		output = np.array(output)
+		return output
+
+	def GetXYData(self, xColumns, yColumns):
+
+		joinedColumns = xColumns + yColumns
+		joinedColumnsData = self.GetColumns(joinedColumns)
+
+		xColumnsData = joinedColumnsData[:len(xColumns)]
+		yColumnsData = joinedColumnsData[len(xColumns):]
+
+		# join x columns
+		if len(xColumnsData) > 1:
+			xColumnsData = self._JoinColumnsData(xColumnsData)
+
+		if len(yColumnsData) > 1:
+			yColumnsData = self._JoinColumnsData(yColumnsData)
+
+		return xColumnsData, yColumnsData
+
+
+
+
+	def GetSampleIndexs(self, batchSize,
+			priorityKey:Optional[str] = None,
+			priorityScale:float = 1.0):
+
+		return self._ReplayBuffer.GetSampleIndexs(batchSize, priorityKey, priorityScale)
+
+	def SampleArrays(self,
+			arrays,
+			batchSize,
+			priorityKey:Optional[str] = None,
+			priorityScale:float = 1.0):
+
+		indexs, priorities = self.GetSampleIndexs(batchSize, priorityKey, priorityScale)
+
+		sampledArrays = []
+		for array in arrays:
+			sampledArrays.append(array[indexs])
+
+		return indexs, priorities, sampledArrays
+
+
+# endregion

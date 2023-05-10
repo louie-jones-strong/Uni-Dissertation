@@ -91,51 +91,7 @@ class ReplayBuffer:
 		truncateds:NDArray[np.bool_] = self._Truncateds[:self.Count]
 		futureRewards:SCT.Reward_List = self._FutureRewards[:self.Count]
 
-		return states, actions, rewards, nextStates, terminateds, truncateds, futureRewards
-
-	def Sample(self,
-			batchSize:int,
-			priorityKey:Optional[str] = None,
-			priorityScale:float = 1.0
-			) -> typing.Tuple[
-				NDArray[np.int_],
-				SCT.State_List,
-				SCT.Action_List,
-				SCT.Reward_List,
-				SCT.State_List,
-				NDArray[np.bool_],
-				NDArray[np.bool_],
-				SCT.Reward_List,
-				NDArray[np.float32]]:
-
-		batchSize = min(batchSize, self.Count)
-		assert batchSize > 1, "batch size must be greater than 1"
-
-		priorities:NDArray[np.float32] = np.ones((self.Count), dtype=np.float32)
-		indexs = np.random.choice(self.Count, batchSize)
-
-		if priorityKey is not None:
-
-			self.EnsurePriorityHolder(priorityKey)
-			rawPriorities = self._PriorityHolders[priorityKey].GetPriorities()
-
-
-			scaledPriorities = rawPriorities[:self.Count] ** priorityScale
-
-			probabilities = scaledPriorities / sum(scaledPriorities)
-			indexs = np.random.choice(self.Count, batchSize, p=probabilities)
-
-			priorities = rawPriorities[indexs]
-
-		states:SCT.State_List = self._States[indexs]
-		actions:SCT.Action_List = self._Actions[indexs]
-		rewards:SCT.Reward_List = self._Rewards[indexs]
-		nextStates:SCT.State_List = self._NextStates[indexs]
-		terminateds:NDArray[np.bool_] = self._Terminateds[indexs]
-		truncateds:NDArray[np.bool_] = self._Truncateds[indexs]
-		futureRewards:SCT.Reward_List = self._FutureRewards[indexs]
-
-		return indexs, states, actions, rewards, nextStates, terminateds, truncateds, futureRewards, priorities
+		return states, nextStates, actions, rewards, futureRewards, terminateds, truncateds
 
 	def UpdatePriorities(self,
 			priorityKey:str,
@@ -224,3 +180,29 @@ class ReplayBuffer:
 				self._PriorityHolders[key].Load(itemPath)
 
 		return
+
+
+	def GetSampleIndexs(self, batchSize,
+			priorityKey:Optional[str] = None,
+			priorityScale:float = 1.0):
+
+		batchSize = min(batchSize, self.Count)
+		assert batchSize > 1, "batch size must be greater than 1"
+
+		priorities = np.ones((self.Count), dtype=np.float32)
+
+		if priorityKey is None:
+			indexs = np.random.choice(self.Count, batchSize)
+
+		else:
+			self.EnsurePriorityHolder(priorityKey)
+			rawPriorities = self._PriorityHolders[priorityKey].GetPriorities()
+
+			scaledPriorities = rawPriorities[:self.Count] ** priorityScale
+
+			probabilities = scaledPriorities / sum(scaledPriorities)
+			indexs = np.random.choice(self.Count, batchSize, p=probabilities)
+
+			priorities = rawPriorities[indexs]
+
+		return indexs, priorities

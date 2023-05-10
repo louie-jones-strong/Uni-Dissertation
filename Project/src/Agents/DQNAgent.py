@@ -146,9 +146,11 @@ class DQNAgent(BaseAgent.BaseAgent):
 			]
 
 			priorityScale = self.Config["PriorityScale"]
-			indexs, priorities, samples = self.DataManager.Sample(columns, batchSize, self.PriorityKey, priorityScale=priorityScale)
-			states, nextStates, actions, rewards, futureRewards, terminateds, truncateds = samples
 
+			columnsData = self.DataManager.GetColumns(columns)
+			indexs, priorities, samples = self.DataManager.SampleArrays(columnsData, bactchSize, self.PriorityKey, priorityScale=priorityScale)
+
+			states, nextStates, actions, rewards, futureRewards, terminateds, truncateds = samples
 			dones = np.logical_or(terminateds, truncateds)
 			dones = dones.astype(np.float32)
 
@@ -212,7 +214,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		loss, absError = TrainWeights(targetQs, states, actions, priorities)
 
 
-		assert np.all(absError > 0), f"absError should be positive, but got {absError}"
+		assert np.all(absError >= 0), f"absError should be positive, but got {absError}"
 
 		# update the priorities
 		self.DataManager._ReplayBuffer.UpdatePriorities(self.PriorityKey, indexs, absError)

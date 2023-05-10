@@ -16,7 +16,9 @@ class DataColumnTypes(enum.Enum):
 
 	PlayStyleTags = 7
 
-def GetColumn(columnFilter:typing.List[DataColumnTypes], rows:typing.Tuple[Any, ...]) -> typing.List[Any]:
+
+
+def FilterColumns(columnFilter:typing.List[DataColumnTypes], rows:typing.Tuple[Any, ...]) -> typing.List[Any]:
 	columns = []
 	for col in columnFilter:
 
