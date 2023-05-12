@@ -6,6 +6,7 @@ import src.Environments.BaseEnv as BaseEnv
 import src.Utils.SharedCoreTypes as SCT
 import src.Utils.UserInputHelper as UI
 from src.DataManager.DataManager import DataManager
+from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
 import typing
 import time
@@ -18,6 +19,7 @@ class Runner:
 		self.ConfigPath = configPath
 		self.Env = env
 		self._DataManager = DataManager()
+		self._Logger = Logger()
 		self.Agents = agents
 
 		self.LoadConfig()
@@ -51,6 +53,9 @@ class Runner:
 		while episode < self.Config["MaxEpisodes"]:
 			startTime = time.process_time()
 			steps, reward = self.RunEpisode()
+
+			self._Logger.EpisodeEnd()
+
 			timeTaken = time.process_time() - startTime
 
 			lastRewards.append(reward)
@@ -80,6 +85,8 @@ class Runner:
 			self.Remember(state, action, reward, nextState, terminated, truncated)
 
 			totalReward += reward
+
+			self._Logger.FrameEnd(reward, terminated, truncated)
 
 
 			# check if user wants to reload config

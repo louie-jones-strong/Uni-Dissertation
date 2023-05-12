@@ -135,7 +135,7 @@ class DataManager(Singleton.Singleton):
 		output = []
 		for i in range(len(columnsData[0])):
 			joinedRow = [columnsData[j][i] for j in range(len(columnsData))]
-			columnsData[i] = np.array(joinedRow)
+			output.append(np.array(joinedRow))
 
 		output = np.array(output)
 		return output
@@ -151,9 +151,13 @@ class DataManager(Singleton.Singleton):
 		# join x columns
 		if len(xColumnsData) > 1:
 			xColumnsData = self._JoinColumnsData(xColumnsData)
+		else:
+			xColumnsData = xColumnsData[0]
 
 		if len(yColumnsData) > 1:
 			yColumnsData = self._JoinColumnsData(yColumnsData)
+		else:
+			yColumnsData = yColumnsData[0]
 
 		return xColumnsData, yColumnsData
 

@@ -1,13 +1,12 @@
 from . import BasePredictor
-from xgboost import XGBClassifier
 import numpy as np
+from sklearn.linear_model import LinearRegression
 
-class DecisonTreePredictor(BasePredictor.BasePredictor):
+class LinearRegressionPredictor(BasePredictor.BasePredictor):
 
 	def __init__(self, xLabels, yLabels):
 		super().__init__(xLabels, yLabels)
-		self.Predictor = XGBClassifier(n_estimators=10, max_depth=5, learning_rate=1, objective='binary:logistic')
-
+		self.Predictor = LinearRegression()
 		return
 
 	def Predict(self, x):
@@ -21,6 +20,7 @@ class DecisonTreePredictor(BasePredictor.BasePredictor):
 		super().Train()
 
 		x, y = self.DataManager.GetXYData(self._XLabels, self._YLabels)
+
 		self.Predictor.fit(x, y)
 
 		self._Evaluate()

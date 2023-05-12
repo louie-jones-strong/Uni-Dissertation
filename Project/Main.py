@@ -5,6 +5,7 @@ import src.Agents.BaseAgent as BaseAgent
 import src.Environments.BaseEnv as BaseEnv
 import src.Utils.UserInputHelper as UI
 from src.DataManager.DataManager import DataManager
+from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
 
 import src.Runner as Runner
@@ -25,6 +26,10 @@ def Main() -> None:
 	# load data manager
 	dataManager = DataManager()
 	dataManager.Setup(config, env)
+
+	# load logger
+	logger = Logger()
+	logger.Setup(config)
 
 	# load agents
 	numAgents = UI.NumPicker("Number of agents", 1, 1)

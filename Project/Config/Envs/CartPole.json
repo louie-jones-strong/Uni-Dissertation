@@ -10,7 +10,7 @@
 	"IsDeterministic": true,
 	"MaxAgents": 1,
 	"MaxSteps": 1000,
-	"MaxEpisodes": 1000,
+	"MaxEpisodes": 100000,
 	"AgentConfig": {
 		"Human": {
 			"FPS": 10,
