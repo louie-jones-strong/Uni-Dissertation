@@ -164,32 +164,60 @@ class DQNAgent(BaseAgent.BaseAgent):
 				dones:NDArray[np.bool_],
 				futureRewards:SCT.Reward_List) -> SCT.Reward_List:
 
-			nextStatePredictedQ = self.RunModel.predict(nextStates, verbose=0)
-			# get the max Q for the next state
-			futureQ = np.max(nextStatePredictedQ, axis=1)
+			# nextStatePredictedQ = self.RunModel.predict(nextStates, verbose=0)
+			# # get the max Q for the next state
+			# futureQ = np.max(nextStatePredictedQ, axis=1)
 
 
-			# if the real future reward is not None, then check if it is better than the predicted
-			if futureRewards is not None and self.Config["PropagateFutureReward"]:
-				futureQ = np.maximum(futureQ, futureRewards)
+			# # if the real future reward is not None, then check if it is better than the predicted
+			# if futureRewards is not None and self.Config["PropagateFutureReward"]:
+			# 	futureQ = np.maximum(futureQ, futureRewards)
 
-			# we should not add future reward if it is the last state
-			futureQ *= (1-dones)
+			# # we should not add future reward if it is the last state
+			# futureQ *= (1-dones)
 
-			# discount factor for future rewards
-			gamma = self.Config["FutureRewardDiscount"]
-			futureQ *= gamma
+			# # discount factor for future rewards
+			# gamma = self.Config["FutureRewardDiscount"]
+			# futureQ *= gamma
 
+
+			# # Calculate targets (bellman equation)
+			# targetQs:SCT.Reward_List = rewards + futureQ
+
+
+
+
+
+
+
+
+			# training DQN estimates best action in new states
+			arg_q_max = self.TrainingModel.predict(nextStates, verbose=0).argmax(axis=1)
+
+			# Target DQN estimates q-vals for new states
+			future_q_vals = self.RunModel.predict(nextStates, verbose=0)
+			double_q = future_q_vals[range(len(dones)), arg_q_max]
 
 			# Calculate targets (bellman equation)
-			targetQs:SCT.Reward_List = rewards + futureQ
+			gamma = self.Config["FutureRewardDiscount"]
+			target_q = rewards + (gamma*double_q * (1-dones))
 
-			return targetQs
+
+
+
+
+
+
+
+
+
+
+			return target_q
 
 		def TrainWeights(targetQs:SCT.Reward_List,
 				states:SCT.State_List,
 				actions:SCT.Action_List,
-				priorities:NDArray[np.float32]) -> typing.Tuple[NDArray[np.float32], NDArray[np.float32]]:
+				importance:NDArray[np.float32]) -> typing.Tuple[NDArray[np.float32], NDArray[np.float32]]:
 
 			# aplly gradient descent
 			with tf.GradientTape() as tape:
@@ -200,7 +228,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 				absError = abs(targetQs - currentQ)
 				loss = self.LossFunc(targetQs, currentQ)
-				loss = tf.reduce_mean(loss * priorities)
+				loss = tf.reduce_mean(loss * importance)
 
 			gradients = tape.gradient(loss, self.TrainingModel.trainable_variables)
 			self.TrainingModel.optimizer.apply_gradients(zip(gradients, self.TrainingModel.trainable_variables))
@@ -209,9 +237,14 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 		batchSize = self.Config["BatchSize"]
 		indexs, states, actions, rewards, nextStates, dones, futureRewards, priorities = GetSamples(batchSize)
+		importance = priorities ** (1-self.ExplorationRate)
+
 
 		targetQs = CalTargetQs(states, actions, rewards, nextStates, dones, futureRewards)
-		loss, absError = TrainWeights(targetQs, states, actions, priorities)
+		loss, absError = TrainWeights(targetQs, states, actions, importance)
+
+
+		self._Logger.LogDict({"DQN_loss": loss.numpy()})
 
 
 		assert np.all(absError >= 0), f"absError should be positive, but got {absError}"
@@ -258,7 +291,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 			# get action values from the network
 			state = np.expand_dims(state, axis=0)
 			actionValues = self.RunModel.predict(state, verbose=0)[0]
-
 		return actionValues
 
 

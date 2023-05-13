@@ -40,8 +40,7 @@ class Logger(Singleton.Singleton):
 		}
 
 
-		self._CurrentFrame += 1
-		self._TotalFrames += 1
+
 
 		if terminated or truncated:
 			logDict["Terminated"] = float(terminated)
@@ -57,6 +56,9 @@ class Logger(Singleton.Singleton):
 		if self._WandbOn:
 			self.LogDict(logDict)
 			wandb.log({}, commit=True)
+
+		self._CurrentFrame += 1
+		self._TotalFrames += 1
 		return
 
 	def EpisodeEnd(self):

@@ -5,6 +5,7 @@ import random
 
 import numpy as np
 import src.DataManager.DataManager as DataManager
+import src.Utils.Metrics.Logger as Logger
 import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 from src.Environments.BaseEnv import BaseEnv
@@ -52,6 +53,7 @@ class BaseAgent:
 		self.LoadConfig(envConfig)
 
 		self.DataManager = DataManager.DataManager()
+		self._Logger = Logger.Logger()
 
 		self.FrameNum = 0
 		self.TotalFrameNum = 0

@@ -54,8 +54,6 @@ class Runner:
 			startTime = time.process_time()
 			steps, reward = self.RunEpisode()
 
-			self._Logger.EpisodeEnd()
-
 			timeTaken = time.process_time() - startTime
 
 			lastRewards.append(reward)
