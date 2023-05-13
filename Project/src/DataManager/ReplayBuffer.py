@@ -76,20 +76,23 @@ class ReplayBuffer:
 
 	def SampleAll(self) -> typing.Tuple[
 				SCT.State_List,
+				SCT.State_List,
 				SCT.Action_List,
 				SCT.Reward_List,
-				SCT.State_List,
+				SCT.Reward_List,
 				NDArray[np.bool_],
-				NDArray[np.bool_],
-				SCT.Reward_List]:
+				NDArray[np.bool_]]:
 
 		states:SCT.State_List = self._States[:self.Count]
-		actions:SCT.Action_List = self._Actions[:self.Count]
-		rewards:SCT.Reward_List = self._Rewards[:self.Count]
 		nextStates:SCT.State_List = self._NextStates[:self.Count]
+
+		actions:SCT.Action_List = self._Actions[:self.Count]
+
+		rewards:SCT.Reward_List = self._Rewards[:self.Count]
+		futureRewards:SCT.Reward_List = self._FutureRewards[:self.Count]
+
 		terminateds:NDArray[np.bool_] = self._Terminateds[:self.Count]
 		truncateds:NDArray[np.bool_] = self._Truncateds[:self.Count]
-		futureRewards:SCT.Reward_List = self._FutureRewards[:self.Count]
 
 		return states, nextStates, actions, rewards, futureRewards, terminateds, truncateds
 
@@ -182,9 +185,9 @@ class ReplayBuffer:
 		return
 
 
-	def GetSampleIndexs(self, batchSize,
+	def GetSampleIndexs(self, batchSize:int,
 			priorityKey:Optional[str] = None,
-			priorityScale:float = 1.0):
+			priorityScale:float = 1.0) -> typing.Tuple[NDArray[np.int_], NDArray[np.float32]]:
 
 		batchSize = min(batchSize, self.Count)
 		assert batchSize > 1, "batch size must be greater than 1"

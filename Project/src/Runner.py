@@ -12,6 +12,9 @@ import typing
 import time
 from collections import deque
 
+import src.Agents.Predictors.DecisonTreePredictor as DecisonTreePredictor
+import src.DataManager.DataColumnTypes as DCT
+
 
 class Runner:
 
@@ -21,6 +24,11 @@ class Runner:
 		self._DataManager = DataManager()
 		self._Logger = Logger()
 		self.Agents = agents
+
+
+		xColumns = [DCT.DataColumnTypes.CurrentState, DCT.DataColumnTypes.Action]
+		yColumns = [DCT.DataColumnTypes.Reward]
+		self.Predictor = DecisonTreePredictor.DecisonTreePredictor(xColumns, yColumns, "RewardPredictor")
 
 		self.LoadConfig()
 
@@ -81,6 +89,7 @@ class Runner:
 			truncated = truncated or step >= self.Config["MaxSteps"] - 1
 
 			self.Remember(state, action, reward, nextState, terminated, truncated)
+			self.Predictor.Observe([[state], [action]], reward)
 
 			totalReward += reward
 
@@ -149,7 +158,7 @@ class Runner:
 		return
 
 	def Load(self) -> None:
-		path = os.path.join("data", self.Config["Name"])
+		path = os.path.join(GetRootPath(), "data", self.Config["Name"])
 		if not os.path.exists(path):
 			return
 

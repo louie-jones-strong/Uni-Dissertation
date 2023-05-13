@@ -1,16 +1,16 @@
+import os
+import typing
 from collections import deque
-from typing import Any, Optional
+from typing import Optional
 
-import src.DataManager.DataColumnTypes as DataColumnTypes
+import numpy as np
+import src.DataManager.DataColumnTypes as DCT
 import src.DataManager.MarkovModel as MarkovModel
 import src.DataManager.ReplayBuffer as ReplayBuffer
 import src.Utils.SharedCoreTypes as SCT
 import src.Utils.Singleton as Singleton
-from numpy.typing import NDArray
 from src.Environments.BaseEnv import BaseEnv
-import os
-import typing
-import numpy as np
+from numpy.typing import NDArray
 
 
 class DataManager(Singleton.Singleton):
@@ -20,7 +20,8 @@ class DataManager(Singleton.Singleton):
 		self._Env = env
 
 		# transition accumulator
-		self._TransitionAccumulator: typing.Deque[typing.Tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool]] = deque()
+		stateTupleType = typing.Tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool]
+		self._TransitionAccumulator: typing.Deque[stateTupleType] = deque()
 		self._QValueAccumulator:SCT.Reward = 0
 
 		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(self._Config["ReplayBufferMaxSize"], self._Env)
@@ -53,6 +54,7 @@ class DataManager(Singleton.Singleton):
 
 
 # region Calls from Env Runner
+
 	def EnvRemember(self,
 			state:SCT.State,
 			action:SCT.Action,
@@ -84,6 +86,7 @@ class DataManager(Singleton.Singleton):
 		# empty transition accumulator into the replay buffer
 		self._EmptyAccumulator()
 		return
+
 # endregion
 
 	def _EmptyAccumulator(self) -> None:
@@ -124,10 +127,10 @@ class DataManager(Singleton.Singleton):
 
 # region data sampling
 
-	def GetColumns(self, columns):
+	def GetColumns(self, columns:typing.List[DCT.DataColumnTypes]) -> typing.List[NDArray]:
 		columnsData = self._ReplayBuffer.SampleAll()
 
-		columnsData = DataColumnTypes.FilterColumns(columns, columnsData)
+		columnsData = DCT.FilterColumns(columns, columnsData)
 		return columnsData
 
 	def _JoinColumnsData(self, columnsData):
@@ -140,7 +143,10 @@ class DataManager(Singleton.Singleton):
 		output = np.array(output)
 		return output
 
-	def GetXYData(self, xColumns, yColumns):
+	def GetXYData(self,
+			xColumns:typing.List[DCT.DataColumnTypes],
+			yColumns:typing.List[DCT.DataColumnTypes]
+			) -> typing.Tuple[typing.List[NDArray], typing.List[NDArray]]:
 
 		joinedColumns = xColumns + yColumns
 		joinedColumnsData = self.GetColumns(joinedColumns)
@@ -148,31 +154,31 @@ class DataManager(Singleton.Singleton):
 		xColumnsData = joinedColumnsData[:len(xColumns)]
 		yColumnsData = joinedColumnsData[len(xColumns):]
 
-		# join x columns
-		if len(xColumnsData) > 1:
-			xColumnsData = self._JoinColumnsData(xColumnsData)
-		else:
-			xColumnsData = xColumnsData[0]
+		# # join x columns
+		# if len(xColumnsData) > 1:
+		# 	xColumnsData = self._JoinColumnsData(xColumnsData)
+		# else:
+		# 	xColumnsData = xColumnsData[0]
 
-		if len(yColumnsData) > 1:
-			yColumnsData = self._JoinColumnsData(yColumnsData)
-		else:
-			yColumnsData = yColumnsData[0]
+		# if len(yColumnsData) > 1:
+		# 	yColumnsData = self._JoinColumnsData(yColumnsData)
+		# else:
+		# 	yColumnsData = yColumnsData[0]
 
 		return xColumnsData, yColumnsData
 
 
 
 
-	def GetSampleIndexs(self, batchSize,
+	def GetSampleIndexs(self, batchSize:int,
 			priorityKey:Optional[str] = None,
-			priorityScale:float = 1.0):
+			priorityScale:float = 1.0) -> typing.Tuple[NDArray[np.int_], NDArray[np.float32]]:
 
 		return self._ReplayBuffer.GetSampleIndexs(batchSize, priorityKey, priorityScale)
 
 	def SampleArrays(self,
 			arrays,
-			batchSize,
+			batchSize:int,
 			priorityKey:Optional[str] = None,
 			priorityScale:float = 1.0):
 
