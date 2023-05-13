@@ -9,6 +9,7 @@ from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
 
 import src.Runner as Runner
+import time
 
 
 def Main() -> None:
@@ -20,8 +21,28 @@ def Main() -> None:
 	with open(envConfigPath) as f:
 		config = json.load(f)
 
+	# load agents
+	mode = BaseAgent.AgentMode.Train
+	if UI.BoolPicker("Play"):
+		mode = BaseAgent.AgentMode.Play
+
+	load = UI.BoolPicker("Load")
+
 	# load env
 	env = BaseEnv.GetEnv(config)
+
+	agents = []
+	for i in range(1):
+		agentType = UI.OptionPicker(f"Agent_{i+1}", BaseAgent.AgentList)
+		agent = BaseAgent.GetAgent(agentType)(env, config, mode=mode)
+		agents.append(agent)
+
+	timeStamp = time.time()
+	runId = f"{config['Name']}_{timeStamp}"
+	runPath = os.path.join(GetRootPath(), "data", config['Name'], runId)
+
+
+
 
 	# load data manager
 	dataManager = DataManager()
@@ -29,25 +50,10 @@ def Main() -> None:
 
 	# load logger
 	logger = Logger()
-	logger.Setup(config)
-
-	# load agents
-	numAgents = UI.NumPicker("Number of agents", 1, 1)
-
-	mode = BaseAgent.AgentMode.Train
-	if UI.BoolPicker("Play"):
-		mode = BaseAgent.AgentMode.Play
-
-	load = UI.BoolPicker("Load")
-
-	agents = []
-	for i in range(numAgents):
-		agentType = UI.OptionPicker(f"Agent_{i+1}", BaseAgent.AgentList)
-		agent = BaseAgent.GetAgent(agentType)(env, config, mode=mode)
-		agents.append(agent)
+	logger.Setup(config, runId=runId)
 
 	# run
-	runner = Runner.Runner(envConfigPath, env, agents, load)
+	runner = Runner.Runner(envConfigPath, runPath, env, agents, load)
 
 	try:
 		runner.RunEpisodes()

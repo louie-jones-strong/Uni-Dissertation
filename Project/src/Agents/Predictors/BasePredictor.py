@@ -38,6 +38,9 @@ class BasePredictor:
 
 	def Predict(self, x):
 
+		if self._FramesSinceTrained < 0:
+			return None, 0.0
+
 		proccessedX = self._PreProccessX(x)
 		predicted = self._Predict(proccessedX)
 		proccessedPrediction = self._PostProccess(predicted)
@@ -47,22 +50,28 @@ class BasePredictor:
 
 	def Observe(self, x, y):
 
-		proccessedY = self._PreProccessY(y)
-		predicted = self.Predict(x)[0]
+		if self._FramesSinceTrained >= 0:
 
-		error = abs(proccessedY - predicted)
-		self._Logger.LogDict({
-			f"{self._Name}_Error": error
-		})
+			proccessedY = self._PreProccessY(y)
+			predicted = self.Predict(x)[0]
 
-		self._FramesSinceTrained += 1
+			error = abs(proccessedY - predicted)
+			self._Logger.LogDict({
+				f"{self._Name}_Validation_Error": error
+			})
+
+			self._FramesSinceTrained += 1
+
 		# do we need to train this frame?
-		if self._FramesSinceTrained >= 10:
+		if self._FramesSinceTrained >= 10 or self._FramesSinceTrained < 0:
 			self.Train()
 		return
 
 	def Train(self):
 		x, y = self._DataManager.GetXYData(self._XLabels, self._YLabels)
+
+		if len(y) == 0 or len(y[0]) < 2:
+			return
 
 		proccessedX = self._PreProccessX(x)
 		proccessedY = self._PreProccessY(y)
@@ -76,8 +85,8 @@ class BasePredictor:
 		# accurracy = self._AccurracyFunc(y, prediction)
 
 		# self._Logger.LogDict({
-		# 	f"{self._Name}_Loss": loss,
-		# 	f"{self._Name}_Accurracy": accurracy
+		# 	f"{self._Name}_Trained_Loss": loss,
+		# 	f"{self._Name}_Trained_Accurracy": accurracy
 		# })
 		return
 
@@ -96,12 +105,16 @@ class BasePredictor:
 		# proccessedY = self._DataManager._JoinColumnsData(y)
 		return proccessedY
 
+
+
 	def _Predict(self, x):
 		if self._FramesSinceTrained < 0:
 			self.Train()
 
 		predicted = None
 		return predicted
+
+
 
 	def _PostProccess(self, prediction):
 

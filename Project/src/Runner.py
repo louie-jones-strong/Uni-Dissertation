@@ -18,8 +18,9 @@ import src.DataManager.DataColumnTypes as DCT
 
 class Runner:
 
-	def __init__(self, configPath:str, env:BaseEnv.BaseEnv, agents:typing.List[BaseAgent.BaseAgent], load:bool):
+	def __init__(self, configPath:str, runPath:str, env:BaseEnv.BaseEnv, agents:typing.List[BaseAgent.BaseAgent], load:bool):
 		self.ConfigPath = configPath
+		self._RunPath = runPath
 		self.Env = env
 		self._DataManager = DataManager()
 		self._Logger = Logger()
