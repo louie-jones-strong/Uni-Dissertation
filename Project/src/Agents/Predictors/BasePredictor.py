@@ -30,6 +30,8 @@ class BasePredictor:
 
 
 	def Predict(self, x):
+		assert self._FramesSinceTrained >= 0, "Predictor has not been trained yet"
+
 		predicted = None
 		return predicted
 
