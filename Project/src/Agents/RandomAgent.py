@@ -11,11 +11,11 @@ class RandomAgent(BaseAgent):
 
 	def GetAction(self, state:SCT.State) -> Any:
 		super().GetAction(state)
-		return self.Env.ActionSpace.sample()
+		return self._ActionSpace.sample()
 
 
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
 		super().GetActionValues(state)
 
-		actions = int(self.Env.ActionSpace.n)
+		actions = int(self._ActionSpace.n)
 		return np.random.rand(actions).astype(np.float32)

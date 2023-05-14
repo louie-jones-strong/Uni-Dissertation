@@ -45,8 +45,13 @@ def GetAgent(agentName:str) -> type:
 
 
 class BaseAgent:
-	def __init__(self, env:'BaseEnv', envConfig:SCT.Config, mode:AgentMode = AgentMode.Train):
-		self.Env = env
+	def __init__(self,
+			observationSpace:SCT.StateSpace,
+			actionSpace:SCT.ActionSpace,
+			envConfig:SCT.Config, mode:AgentMode = AgentMode.Train):
+
+		self._ObservationSpace = observationSpace
+		self._ActionSpace = actionSpace
 		self.Mode = mode
 		self.Name = self.__class__.__name__.replace("Agent", "")
 

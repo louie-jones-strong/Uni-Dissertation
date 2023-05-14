@@ -15,17 +15,26 @@ from numpy.typing import NDArray
 
 class DataManager(Singleton.Singleton):
 
-	def Setup(self, config:SCT.Config, env:BaseEnv) -> None:
+	def Setup(self,
+			config:SCT.Config,
+			observationSpace:SCT.StateSpace,
+			actionSpace:SCT.ActionSpace) -> None:
+
 		self.LoadConfig(config)
-		self._Env = env
+		self._ObservationSpace = observationSpace
+		self._ActionSpace = actionSpace
 
 		# transition accumulator
 		stateTupleType = typing.Tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool]
 		self._TransitionAccumulator: typing.Deque[stateTupleType] = deque()
 		self._QValueAccumulator:SCT.Reward = 0
 
-		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(self._Config["ReplayBufferMaxSize"], self._Env)
-		self._MarkovModel = MarkovModel.MarkovModel(int(self._Env.ActionSpace.n))
+		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(
+				self._Config["ReplayBufferMaxSize"],
+				observationSpace,
+				actionSpace)
+
+		self._MarkovModel = MarkovModel.MarkovModel(int(actionSpace.n))
 
 		return
 
@@ -43,6 +52,7 @@ class DataManager(Singleton.Singleton):
 
 		self._ReplayBuffer.Save(os.path.join(path, "ReplayBuffer"))
 		self._MarkovModel.Save(os.path.join(path, "MarkovModel"))
+
 		return
 
 	def Load(self, path:str) -> None:
@@ -153,17 +163,6 @@ class DataManager(Singleton.Singleton):
 
 		xColumnsData = joinedColumnsData[:len(xColumns)]
 		yColumnsData = joinedColumnsData[len(xColumns):]
-
-		# # join x columns
-		# if len(xColumnsData) > 1:
-		# 	xColumnsData = self._JoinColumnsData(xColumnsData)
-		# else:
-		# 	xColumnsData = xColumnsData[0]
-
-		# if len(yColumnsData) > 1:
-		# 	yColumnsData = self._JoinColumnsData(yColumnsData)
-		# else:
-		# 	yColumnsData = yColumnsData[0]
 
 		return xColumnsData, yColumnsData
 

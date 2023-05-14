@@ -4,25 +4,21 @@ from sklearn.linear_model import LinearRegression
 
 class LinearRegressionPredictor(BasePredictor.BasePredictor):
 
-	def __init__(self, xLabels, yLabels):
-		super().__init__(xLabels, yLabels)
+	def __init__(self, xLabels, yLabels, name):
+		super().__init__(xLabels, yLabels, name)
 		self.Predictor = LinearRegression()
 		return
 
-	def Predict(self, x):
-		super().Predict(x)
+	def _Predict(self, x):
+		super()._Predict(x)
 
 		predicted = self.Predictor.predict(x)
 
 		return predicted
 
-	def Train(self):
-		super().Train()
-
-		x, y = self.DataManager.GetXYData(self._XLabels, self._YLabels)
+	def _Train(self, x, y):
+		super()._Train(x, y)
 
 		self.Predictor.fit(x, y)
-
-		self._Evaluate()
 		return
 

@@ -12,7 +12,7 @@ import typing
 import time
 from collections import deque
 
-import src.Agents.Predictors.DecisonTreePredictor as DecisonTreePredictor
+import src.Agents.Predictors.EnsemblePredictor as EnsemblePredictor
 import src.DataManager.DataColumnTypes as DCT
 
 
@@ -29,7 +29,7 @@ class Runner:
 
 		xColumns = [DCT.DataColumnTypes.CurrentState, DCT.DataColumnTypes.Action]
 		yColumns = [DCT.DataColumnTypes.Reward]
-		self.Predictor = DecisonTreePredictor.DecisonTreePredictor(xColumns, yColumns, "RewardPredictor")
+		self.Predictor = EnsemblePredictor.EnsemblePredictor(xColumns, yColumns, "RewardPredictor")
 
 		self.LoadConfig()
 

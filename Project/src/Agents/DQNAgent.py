@@ -12,8 +12,12 @@ import typing
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env:BaseEnv.BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
-		super().__init__(env, envConfig, mode=mode)
+	def __init__(self,
+			observationSpace:SCT.StateSpace,
+			actionSpace:SCT.ActionSpace,
+			envConfig:SCT.Config,
+			mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
+		super().__init__(observationSpace, actionSpace, envConfig, mode=mode)
 
 		self.PriorityKey = "DQNAgent"
 

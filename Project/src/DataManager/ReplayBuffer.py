@@ -14,22 +14,24 @@ import typing
 # https://github.com/deepmind/dqn_zoo/blob/master/dqn_zoo/replay.py
 
 class ReplayBuffer:
-	def __init__(self, capacity:int, env:BaseEnv.BaseEnv):
+	def __init__(self, capacity:int,
+			observationSpace:SCT.StateSpace,
+			actionSpace:SCT.ActionSpace):
 
 
 		self.Capacity = capacity
 		self.Count = 0
 		self.Current = 0
 
-		stateShape = env.ObservationSpace.shape
-		actionShape = env.ActionSpace.shape
+		stateShape = observationSpace.shape
+		actionShape = actionSpace.shape
 
 
 		stateShape = SCT.JoinTuples((capacity,), stateShape)
 		actionShape = SCT.JoinTuples((capacity,), actionShape)
 
-		stateType = env.ObservationSpace.dtype
-		actionType = env.ActionSpace.dtype
+		stateType = observationSpace.dtype
+		actionType = actionSpace.dtype
 
 		self._States = np.empty(stateShape,  dtype=stateType)
 		self._Actions = np.empty(actionShape, dtype=actionType)

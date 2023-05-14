@@ -101,8 +101,7 @@ class BasePredictor:
 		return proccessX
 
 	def _PreProccessY(self, y):
-		proccessedY = y
-		# proccessedY = self._DataManager._JoinColumnsData(y)
+		proccessedY = self._DataManager._JoinColumnsData(y)
 		return proccessedY
 
 

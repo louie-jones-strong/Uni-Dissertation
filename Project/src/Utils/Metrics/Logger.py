@@ -8,7 +8,7 @@ import wandb
 class Logger(Singleton.Singleton):
 	_ProjectName = "Dissertation"
 
-	def Setup(self, config:SCT.Config, runId:Optional[str] = None, wandbOn:bool = True) -> None:
+	def Setup(self, config:SCT.Config, runPath:str, runId:Optional[str] = None, wandbOn:bool = True) -> None:
 		self._RunId = runId
 		self._Config = config
 
@@ -18,10 +18,11 @@ class Logger(Singleton.Singleton):
 		self._EpisodeCumulativeReward = 0.0
 
 
-		self._WandbOn = wandbOn
 
+
+		self._WandbOn = wandbOn
 		if self._WandbOn:
-			wandb.init(project=self._ProjectName, config=self._Config, id=self._RunId, resume="allow")
+			wandb.init(project=self._ProjectName, config=self._Config, id=self._RunId, resume="allow", dir=runPath)
 		return
 
 	def LogDict(self, dict:typing.Dict[str, float]) -> None:

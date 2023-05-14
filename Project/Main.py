@@ -27,30 +27,29 @@ def Main() -> None:
 		mode = BaseAgent.AgentMode.Play
 
 	load = UI.BoolPicker("Load")
+	agentType = UI.OptionPicker(f"Agent", BaseAgent.AgentList)
 
 	# load env
 	env = BaseEnv.GetEnv(config)
 
 	agents = []
 	for i in range(1):
-		agentType = UI.OptionPicker(f"Agent_{i+1}", BaseAgent.AgentList)
-		agent = BaseAgent.GetAgent(agentType)(env, config, mode=mode)
-		agents.append(agent)
+		agents.append(BaseAgent.GetAgent(agentType)(env.ObservationSpace, env.ActionSpace, config, mode=mode))
 
-	timeStamp = time.time()
+	timeStamp = int(time.time())
 	runId = f"{config['Name']}_{timeStamp}"
-	runPath = os.path.join(GetRootPath(), "data", config['Name'], runId)
+	runPath = os.path.join(GetRootPath(), "data", config['Name'])#, runId)
 
 
 
 
 	# load data manager
 	dataManager = DataManager()
-	dataManager.Setup(config, env)
+	dataManager.Setup(config, env.ObservationSpace, env.ActionSpace)
 
 	# load logger
 	logger = Logger()
-	logger.Setup(config, runId=runId)
+	logger.Setup(config, runPath, runId=runId)
 
 	# run
 	runner = Runner.Runner(envConfigPath, runPath, env, agents, load)

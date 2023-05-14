@@ -7,8 +7,12 @@ from numpy.typing import NDArray
 
 class MonteCarloAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, env:BaseEnv, envConfig:SCT.Config, mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
-		super().__init__(env, envConfig, mode=mode)
+	def __init__(self,
+			observationSpace:SCT.StateSpace,
+			actionSpace:SCT.ActionSpace,
+			envConfig:SCT.Config,
+			mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
+		super().__init__(observationSpace, actionSpace, envConfig, mode=mode)
 
 		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"])(self.Env, envConfig, mode=mode)
 

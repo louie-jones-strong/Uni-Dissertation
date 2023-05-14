@@ -21,8 +21,8 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		return
 
-	def Predict(self, x):
-		super().Predict(x)
+	def _Predict(self, x):
+		super()._Predict(x)
 
 		predicted = []
 		for yLabel in self._YLabels:
@@ -30,11 +30,11 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		return predicted
 
-	def Train(self):
-		super().Train()
+	def _Train(self):
+		super()._Train()
 
 		for yLabel in self._YLabels:
-			self._Predictors[yLabel].Train()
+			self._Predictors[yLabel]._Train()
 
 
 		self._Evaluate()
