@@ -14,7 +14,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
 		super().__init__(observationSpace, actionSpace, envConfig, mode=mode)
 
-		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"])(self.Env, envConfig, mode=mode)
+		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"])(self._ObservationSpace, self._ActionSpace, mode=mode)
 
 		return
 

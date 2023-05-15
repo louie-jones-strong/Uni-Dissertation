@@ -13,6 +13,8 @@ import time
 from collections import deque
 
 import src.Agents.Predictors.EnsemblePredictor as EnsemblePredictor
+import src.Agents.Predictors.MultiYPredictor as MultiYPredictor
+
 import src.DataManager.DataColumnTypes as DCT
 
 
@@ -28,8 +30,8 @@ class Runner:
 
 
 		xColumns = [DCT.DataColumnTypes.CurrentState, DCT.DataColumnTypes.Action]
-		yColumns = [DCT.DataColumnTypes.Reward]
-		self.Predictor = EnsemblePredictor.EnsemblePredictor(xColumns, yColumns, "RewardPredictor")
+		yColumns = [DCT.DataColumnTypes.Reward, DCT.DataColumnTypes.Terminated, DCT.DataColumnTypes.Truncated]
+		self.Predictor = MultiYPredictor.MultiYPredictor(xColumns, yColumns)
 
 		self.LoadConfig()
 
@@ -90,7 +92,7 @@ class Runner:
 			truncated = truncated or step >= self.Config["MaxSteps"] - 1
 
 			self.Remember(state, action, reward, nextState, terminated, truncated)
-			self.Predictor.Observe([[state], [action]], reward)
+			self.Predictor.Observe([[state], [action]], [[reward], [terminated], [truncated]])
 
 			totalReward += reward
 

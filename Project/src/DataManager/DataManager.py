@@ -21,8 +21,8 @@ class DataManager(Singleton.Singleton):
 			actionSpace:SCT.ActionSpace) -> None:
 
 		self.LoadConfig(config)
-		self._ObservationSpace = observationSpace
-		self._ActionSpace = actionSpace
+		self.ObservationSpace = observationSpace
+		self.ActionSpace = actionSpace
 
 		# transition accumulator
 		stateTupleType = typing.Tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool]
@@ -31,10 +31,10 @@ class DataManager(Singleton.Singleton):
 
 		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(
 				self._Config["ReplayBufferMaxSize"],
-				observationSpace,
-				actionSpace)
+				self.ObservationSpace,
+				self.ActionSpace)
 
-		self._MarkovModel = MarkovModel.MarkovModel(int(actionSpace.n))
+		self._MarkovModel = MarkovModel.MarkovModel(int(self.ActionSpace.n))
 
 		return
 
@@ -59,8 +59,6 @@ class DataManager(Singleton.Singleton):
 		self._ReplayBuffer.Load(os.path.join(path, "ReplayBuffer"))
 		self._MarkovModel.Load(os.path.join(path, "MarkovModel"))
 		return
-
-
 
 
 # region Calls from Env Runner
@@ -144,6 +142,10 @@ class DataManager(Singleton.Singleton):
 		return columnsData
 
 	def _JoinColumnsData(self, columnsData):
+
+		# if len(columnsData) <= 1:
+
+		# 	return np.array(columnsData[0])
 
 		output = []
 		for i in range(len(columnsData[0])):

@@ -7,6 +7,7 @@ import wandb
 
 class Logger(Singleton.Singleton):
 	_ProjectName = "Dissertation"
+	_Setup = False
 
 	def Setup(self, config:SCT.Config, runPath:str, runId:Optional[str] = None, wandbOn:bool = True) -> None:
 		self._RunId = runId
@@ -16,6 +17,7 @@ class Logger(Singleton.Singleton):
 		self._CurrentEpisode = 0
 		self._TotalFrames = 0
 		self._EpisodeCumulativeReward = 0.0
+		self._Setup = True
 
 
 
@@ -26,6 +28,9 @@ class Logger(Singleton.Singleton):
 		return
 
 	def LogDict(self, dict:typing.Dict[str, float]) -> None:
+		if not self._Setup:
+			return
+
 
 		if self._WandbOn:
 			wandb.log(dict, self._TotalFrames, commit=False)
@@ -33,6 +38,9 @@ class Logger(Singleton.Singleton):
 
 
 	def FrameEnd(self, frameReward:SCT.Reward, terminated:bool, truncated:bool) -> None:
+		if not self._Setup:
+			return
+
 
 		self._EpisodeCumulativeReward += frameReward
 
@@ -66,6 +74,9 @@ class Logger(Singleton.Singleton):
 		return
 
 	def _EpisodeEnd(self) -> None:
+		if not self._Setup:
+			return
+
 		self._CurrentFrame = 0
 		self._CurrentEpisode += 1
 		self._EpisodeCumulativeReward = 0

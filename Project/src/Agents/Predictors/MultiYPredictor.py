@@ -1,5 +1,6 @@
 from src.Agents.Predictors import BasePredictor, EnsemblePredictor
 import numpy as np
+from numpy.typing import NDArray
 
 
 class MultiYPredictor(BasePredictor.BasePredictor):
@@ -14,6 +15,7 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 	def Observe(self, x, y):
 		super().Observe(x, y)
+		assert len(y) == len(self._YLabels), "y must have the same number of elements as yLabels"
 
 		for i in range(len(self._YLabels)):
 			yLabel = self._YLabels[i]
@@ -21,7 +23,7 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		return
 
-	def _Predict(self, x):
+	def _Predict(self, x:NDArray) -> NDArray:
 		super()._Predict(x)
 
 		predicted = []
@@ -30,13 +32,10 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		return predicted
 
-	def _Train(self):
-		super()._Train()
+	def _Train(self, x:NDArray, y:NDArray) -> None:
+		super()._Train(x, y)
 
 		for yLabel in self._YLabels:
-			self._Predictors[yLabel]._Train()
-
-
-		self._Evaluate()
+			self._Predictors[yLabel].Train()
 		return
 
