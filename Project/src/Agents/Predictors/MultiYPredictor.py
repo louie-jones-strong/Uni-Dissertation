@@ -23,14 +23,23 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		return
 
+	def _Evaluate(self, rawPrediction, proccessedY):
+
+		data = rawPrediction[0]
+		for i in range(1, len(rawPrediction)):
+			data = np.concatenate((data, rawPrediction[i]), axis=1)
+
+		return super()._Evaluate(data, proccessedY)
+
 	def _Predict(self, x:NDArray) -> NDArray:
 		super()._Predict(x)
 
 		predicted = []
 		for yLabel in self._YLabels:
-			predicted.append(self._Predictors[yLabel].Predict(x))
+			prediction = self._Predictors[yLabel]._Predict(x)
+			predicted.append(prediction)
 
-		return predicted
+		return np.array(predicted)
 
 	def _Train(self, x:NDArray, y:NDArray) -> None:
 		super()._Train(x, y)

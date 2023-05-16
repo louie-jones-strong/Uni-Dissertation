@@ -1,6 +1,6 @@
 import unittest
 import os
-from src.Agents.Predictors import DecisonTreePredictor, LinearRegressionPredictor, EnsemblePredictor
+from src.Agents.Predictors import DecisonTreePredictor, LinearRegressionPredictor, EnsemblePredictor, MultiYPredictor
 import src.DataManager.DataColumnTypes as DCT
 import src.DataManager.DataManager as DataManager
 import gymnasium.spaces as spaces
@@ -12,7 +12,7 @@ class Test_Predictors(unittest.TestCase):
 		self.PredictorConstructors = [
 			DecisonTreePredictor.DecisonTreePredictor,
 			LinearRegressionPredictor.LinearRegressionPredictor,
-			EnsemblePredictor.EnsemblePredictor
+			EnsemblePredictor.EnsemblePredictor,
 		]
 
 		self.ObservationSpace = spaces.Discrete(16)
@@ -43,8 +43,7 @@ class Test_Predictors(unittest.TestCase):
 			self.assertIsNotNone(predictorInstance, f"{predictor} is None")
 
 			# check that the predictor has the correct name
-			expectedName = f"{yLabels[0].name}_{predictor.__name__.replace('Predictor', '')}"
-			self.assertEqual(predictorInstance._Name, expectedName)
+			self.CheckPredictorName(predictorInstance, yLabels)
 
 
 			# check predict returns None when not trained
@@ -78,3 +77,53 @@ class Test_Predictors(unittest.TestCase):
 			self.assertLessEqual(confidence, 1)
 		return
 
+
+	def test_MultiYPredictor(self):
+		xLabels = [DCT.DataColumnTypes.CurrentState]
+		yLabels = [DCT.DataColumnTypes.Terminated, DCT.DataColumnTypes.Truncated]
+
+		x = [[1]]
+		y = [[False], [False]]
+
+		predictorInstance = MultiYPredictor.MultiYPredictor(xLabels, yLabels)
+		self.assertIsNotNone(predictorInstance, f"{predictorInstance} is None")
+
+		self.CheckPredictorName(predictorInstance, yLabels)
+
+		# check predict returns None when not trained
+		prediction, confidence = predictorInstance.Predict(x)
+
+		self.assertIsNone(prediction)
+
+		# check no train when no data
+		predictorInstance.Observe(x, y)
+		self.assertEqual(predictorInstance._FramesSinceTrained, -1)
+
+		predictorInstance.Train()
+		self.assertEqual(predictorInstance._FramesSinceTrained, -1)
+
+
+		# load data into the data manager
+		self.assertTrue(os.path.exists(self.DataPath), f"Data path {self.DataPath} does not exist")
+		self.DataManager.Load(self.DataPath)
+		x, y = self.DataManager.GetXYData(xLabels, yLabels)
+		self.assertGreater(len(x[0]), 1)
+
+
+		predictorInstance.Train()
+		prediction, confidence = predictorInstance.Predict(x)
+		self.assertIsNotNone(prediction)
+		self.assertIsNotNone(confidence)
+		self.assertGreaterEqual(confidence, 0)
+		self.assertLessEqual(confidence, 1)
+
+
+		return
+
+
+	def CheckPredictorName(self, predictor, yLabels):
+		yLabelNames = "".join([y.name for y in yLabels])
+		yLabelNames = yLabelNames.replace("DataColumnTypes.", "")
+		expectedName = f"{yLabelNames}_{predictor.__class__.__name__.replace('Predictor', '')}"
+		self.assertEqual(predictor._Name, expectedName)
+		return

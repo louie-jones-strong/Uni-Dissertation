@@ -25,3 +25,7 @@ def FilterColumns(columnFilter:typing.List[DataColumnTypes], rows:typing.Tuple[A
 		assert col.value < len(rows), f"Column {col.name} not found in rows"
 		columns.append(rows[col.value])
 	return columns
+
+
+
+

@@ -9,8 +9,9 @@ import src.DataManager.MarkovModel as MarkovModel
 import src.DataManager.ReplayBuffer as ReplayBuffer
 import src.Utils.SharedCoreTypes as SCT
 import src.Utils.Singleton as Singleton
-from src.Environments.BaseEnv import BaseEnv
 from numpy.typing import NDArray
+from tensorflow.keras.utils import to_categorical
+import gymnasium.spaces as spaces
 
 
 class DataManager(Singleton.Singleton):
@@ -141,20 +142,6 @@ class DataManager(Singleton.Singleton):
 		columnsData = DCT.FilterColumns(columns, columnsData)
 		return columnsData
 
-	def _JoinColumnsData(self, columnsData):
-
-		# if len(columnsData) <= 1:
-
-		# 	return np.array(columnsData[0])
-
-		output = []
-		for i in range(len(columnsData[0])):
-			joinedRow = [columnsData[j][i] for j in range(len(columnsData))]
-			output.append(np.array(joinedRow))
-
-		output = np.array(output)
-		return output
-
 	def GetXYData(self,
 			xColumns:typing.List[DCT.DataColumnTypes],
 			yColumns:typing.List[DCT.DataColumnTypes]
@@ -191,5 +178,111 @@ class DataManager(Singleton.Singleton):
 
 		return indexs, priorities, sampledArrays
 
+
+# endregion
+
+
+
+# region pre and post process columns
+	def PreProcessColumns(self, columnsData, columnLabels):
+
+		data = self.PreProcessSingleColumn(columnsData[0], columnLabels[0])
+
+		for i in range(1, len(columnLabels)):
+			columnData = self.PreProcessSingleColumn(columnsData[i], columnLabels[i])
+
+			data = np.concatenate((data, columnData), axis=1)
+
+		# data = np.array(data)
+		# data = self._JoinColumnsData(data)
+
+		return data
+
+	def PostProcessColumns(self, columnsData, columnLabels):
+
+		if len(columnLabels) == 1:
+			return self.PostProcessSingleColumn(columnsData, columnLabels[0])
+
+		data = []
+		for i in range(len(columnLabels)):
+			columnData = self.PostProcessSingleColumn(columnsData[i], columnLabels[i])
+			data.append(columnData)
+
+		data = np.array(data)
+		data = self._JoinColumnsData(data)
+
+		return data
+
+
+
+	def _JoinColumnsData(self, columnsData):
+		if len(columnsData) == 1:
+			return columnsData[0]
+
+		output = []
+		for i in range(len(columnsData[0])):
+			joinedRow = [columnsData[j][i] for j in range(len(columnsData))]
+			output.append(np.array(joinedRow))
+
+		output = np.array(output)
+		return output
+
+
+
+
+	def PreProcessSingleColumn(self, data, label):
+		proccessed = data
+
+		if (label == DCT.DataColumnTypes.Terminated or
+				label == DCT.DataColumnTypes.Truncated):
+			# one hot encode the boolean values
+			intBools = [int(i) for i in data]
+			proccessed = to_categorical(intBools, num_classes=2)
+
+		elif label == DCT.DataColumnTypes.Reward:
+			# todo if reward is clipped then we can one hot encode it
+			pass
+
+		elif label == DCT.DataColumnTypes.Action and \
+				isinstance(self.ActionSpace, spaces.Discrete):
+
+			# one hot encode the action
+			proccessed = to_categorical(data, num_classes=self.ActionSpace.n)
+
+		elif (label == DCT.DataColumnTypes.CurrentState or
+				label == DCT.DataColumnTypes.NextState) and \
+				isinstance(self.ObservationSpace, spaces.Discrete):
+
+			# one hot encode the state
+			proccessed = to_categorical(data, num_classes=self.ObservationSpace.n)
+
+
+		return proccessed
+
+	def PostProcessSingleColumn(self, data, label):
+		proccessed = data
+
+		if (label == DCT.DataColumnTypes.Terminated or
+				label == DCT.DataColumnTypes.Truncated):
+			# argmax the one hot encoded boolean values
+			intBools = np.argmax(data, axis=1)
+			proccessed = np.array([bool(i) for i in intBools])
+
+		elif label == DCT.DataColumnTypes.Reward:
+			# todo if reward is clipped then we can one hot encode it
+			pass
+
+		elif label == DCT.DataColumnTypes.Action:
+			if isinstance(self.ActionSpace, spaces.Discrete):
+				# argmax the one hot encoded action
+				proccessed = np.argmax(data, axis=1)
+
+		elif (label == DCT.DataColumnTypes.CurrentState or
+				label == DCT.DataColumnTypes.NextState):
+			if isinstance(self.ObservationSpace, spaces.Discrete):
+				# argmax the one hot encoded state
+				proccessed = np.argmax(data, axis=1)
+
+		return np.array([proccessed])
 
 # endregion

@@ -70,7 +70,7 @@ class BasePredictor:
 			proccessedX = self._PreProccessX(x)
 			predicted = self._Predict(proccessedX)
 
-			error = abs(np.mean(proccessedY - predicted))
+			error = self._Evaluate(predicted, proccessedY)
 			self._Logger.LogDict({
 				f"{self._Name}_Validation_Error": error
 			})
@@ -96,60 +96,64 @@ class BasePredictor:
 
 		# evaluate the model
 		prediction = self._Predict(proccessedX)
-		error = abs(np.mean(proccessedY - prediction))
+		error = self._Evaluate(prediction, proccessedY)
 
 		self._Logger.LogDict({
 			f"{self._Name}_Trained_Error": error
 		})
 		return
 
+	def _Evaluate(self, rawPrediction, proccessedY):
 
+		error = abs(np.mean(proccessedY - rawPrediction))
+		return error
 
 
 
 	def _PreProccessX(self, x:NDArray) -> NDArray:
 
-		proccessX = self._DataManager._JoinColumnsData(x)
+		proccessed = self._DataManager.PreProcessColumns(x, self._XLabels)
+		# proccessed = self._DataManager._JoinColumnsData(x)
 
-		return proccessX
+		return proccessed
 
 	def _PreProccessY(self, y:NDArray) -> NDArray:
+		proccessed = self._DataManager.PreProcessColumns(y, self._YLabels)
+		# proccessed = self._DataManager._JoinColumnsData(x)
+
+		return proccessed
 
 		# is multi Y label
-		if len(self._YLabels) > 1:
-			return np.array(y)
+		# if len(self._YLabels) > 1:
+		# 	return np.array(y)
 
-		y = y[0]
-		proccessed = y
+		# y = y[0]
+		# proccessed = y
 
-		yLabel = self._YLabels[0]
+		# yLabel = self._YLabels[0]
 
-		if (yLabel == DCT.DataColumnTypes.Terminated or
-				yLabel == DCT.DataColumnTypes.Truncated):
-			# one hot encode the boolean values
-			intBools = [int(i) for i in y]
-			proccessed = to_categorical(intBools, num_classes=2)
+		# if (yLabel == DCT.DataColumnTypes.Terminated or
+		# 		yLabel == DCT.DataColumnTypes.Truncated):
+		# 	# one hot encode the boolean values
+		# 	intBools = [int(i) for i in y]
+		# 	proccessed = to_categorical(intBools, num_classes=2)
 
-		elif yLabel == DCT.DataColumnTypes.Reward:
-			# todo if reward is clipped then we can one hot encode it
-			pass
+		# elif yLabel == DCT.DataColumnTypes.Reward:
+		# 	# todo if reward is clipped then we can one hot encode it
+		# 	pass
 
-		elif yLabel == DCT.DataColumnTypes.Action:
-			if isinstance(self._DataManager.ActionSpace, spaces.Discrete):
-				# one hot encode the action
-				proccessed = to_categorical(y, num_classes=self._DataManager.ActionSpace.n)
+		# elif yLabel == DCT.DataColumnTypes.Action:
+		# 	if isinstance(self._DataManager.ActionSpace, spaces.Discrete):
+		# 		# one hot encode the action
+		# 		proccessed = to_categorical(y, num_classes=self._DataManager.ActionSpace.n)
 
-		elif (yLabel == DCT.DataColumnTypes.CurrentState or
-				yLabel == DCT.DataColumnTypes.NextState):
-			if isinstance(self._DataManager.ObservationSpace, spaces.Discrete):
-				# one hot encode the state
-				proccessed = to_categorical(y, num_classes=self._DataManager.ObservationSpace.n)
+		# elif (yLabel == DCT.DataColumnTypes.CurrentState or
+		# 		yLabel == DCT.DataColumnTypes.NextState):
+		# 	if isinstance(self._DataManager.ObservationSpace, spaces.Discrete):
+		# 		# one hot encode the state
+		# 		proccessed = to_categorical(y, num_classes=self._DataManager.ObservationSpace.n)
 
-
-
-		return np.array(proccessed)
-
-
+		# return np.array(proccessed)
 
 	def _Predict(self, x:NDArray) -> NDArray:
 		if self._FramesSinceTrained < 0:
@@ -161,37 +165,40 @@ class BasePredictor:
 
 
 	def _PostProccess(self, prediction:NDArray) -> NDArray:
+		proccessed = self._DataManager.PostProcessColumns(prediction, self._YLabels)
+		# proccessed = self._DataManager._JoinColumnsData(x)
 
-		# is multi Y label
-		if len(self._YLabels) > 1:
-			return prediction
+		return proccessed
+		# # is multi Y label
+		# if len(self._YLabels) > 1:
+		# 	return prediction
 
-		proccessed = prediction
+		# proccessed = prediction
 
-		yLabel = self._YLabels[0]
+		# yLabel = self._YLabels[0]
 
-		if (yLabel == DCT.DataColumnTypes.Terminated or
-				yLabel == DCT.DataColumnTypes.Truncated):
-			# argmax the one hot encoded boolean values
-			intBools = np.argmax(prediction, axis=1)
-			proccessed = np.array([bool(i) for i in intBools])
+		# if (yLabel == DCT.DataColumnTypes.Terminated or
+		# 		yLabel == DCT.DataColumnTypes.Truncated):
+		# 	# argmax the one hot encoded boolean values
+		# 	intBools = np.argmax(prediction, axis=1)
+		# 	proccessed = np.array([bool(i) for i in intBools])
 
-		elif yLabel == DCT.DataColumnTypes.Reward:
-			# todo if reward is clipped then we can one hot encode it
-			pass
+		# elif yLabel == DCT.DataColumnTypes.Reward:
+		# 	# todo if reward is clipped then we can one hot encode it
+		# 	pass
 
-		elif yLabel == DCT.DataColumnTypes.Action:
-			if isinstance(self._DataManager.ActionSpace, spaces.Discrete):
-				# argmax the one hot encoded action
-				proccessed = np.argmax(prediction, axis=1)
+		# elif yLabel == DCT.DataColumnTypes.Action:
+		# 	if isinstance(self._DataManager.ActionSpace, spaces.Discrete):
+		# 		# argmax the one hot encoded action
+		# 		proccessed = np.argmax(prediction, axis=1)
 
-		elif (yLabel == DCT.DataColumnTypes.CurrentState or
-				yLabel == DCT.DataColumnTypes.NextState):
-			if isinstance(self._DataManager.ObservationSpace, spaces.Discrete):
-				# argmax the one hot encoded state
-				proccessed = np.argmax(prediction, axis=1)
+		# elif (yLabel == DCT.DataColumnTypes.CurrentState or
+		# 		yLabel == DCT.DataColumnTypes.NextState):
+		# 	if isinstance(self._DataManager.ObservationSpace, spaces.Discrete):
+		# 		# argmax the one hot encoded state
+		# 		proccessed = np.argmax(prediction, axis=1)
 
-		return np.array([proccessed])
+		# return np.array([proccessed])
 
 
 

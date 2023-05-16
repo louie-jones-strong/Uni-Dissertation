@@ -8,7 +8,6 @@ import src.DataManager.DataManager as DataManager
 import src.Utils.Metrics.Logger as Logger
 import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
-from src.Environments.BaseEnv import BaseEnv
 from src.Utils.PathHelper import GetRootPath
 
 
@@ -116,7 +115,7 @@ EnvConfig: {self.EnvConfig}
 		return 0
 
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
-		shape = SCT.JoinTuples(self.Env.ActionSpace.shape, None)
+		shape = SCT.JoinTuples(self._ActionSpace.shape, None)
 		return np.ones(shape, dtype=np.float32)
 
 	def _GetMaxValues(self, values:NDArray[np.float32]) -> int:

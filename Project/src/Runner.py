@@ -20,7 +20,13 @@ import src.DataManager.DataColumnTypes as DCT
 
 class Runner:
 
-	def __init__(self, configPath:str, runPath:str, env:BaseEnv.BaseEnv, agents:typing.List[BaseAgent.BaseAgent], load:bool):
+	def __init__(self,
+			configPath:str,
+			runPath:str,
+			env:BaseEnv.BaseEnv,
+			agents:typing.List[BaseAgent.BaseAgent],
+			load:bool):
+
 		self.ConfigPath = configPath
 		self._RunPath = runPath
 		self.Env = env
@@ -57,8 +63,8 @@ class Runner:
 
 
 	def RunEpisodes(self) -> None:
-		lastRewards = deque(maxlen=10)
-		lastTimes = deque(maxlen=10)
+		lastRewards:typing.Deque[float] = deque(maxlen=10)
+		lastTimes:typing.Deque[float] = deque(maxlen=10)
 
 		episode = 0
 		while episode < self.Config["MaxEpisodes"]:
