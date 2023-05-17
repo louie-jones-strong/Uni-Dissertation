@@ -193,9 +193,6 @@ class DataManager(Singleton.Singleton):
 
 			data = np.concatenate((data, columnData), axis=1)
 
-		# data = np.array(data)
-		# data = self._JoinColumnsData(data)
-
 		return data
 
 	def PostProcessColumns(self, columnsData, columnLabels):
@@ -207,9 +204,6 @@ class DataManager(Singleton.Singleton):
 		for i in range(len(columnLabels)):
 			columnData = self.PostProcessSingleColumn(columnsData[i], columnLabels[i])
 			data.append(columnData)
-
-		data = np.array(data)
-		data = self._JoinColumnsData(data)
 
 		return data
 
@@ -263,6 +257,7 @@ class DataManager(Singleton.Singleton):
 
 	def PostProcessSingleColumn(self, data, label):
 		proccessed = np.reshape(data, (len(data), -1))
+		proccessed = np.squeeze(proccessed)
 
 		if (label == DCT.DataColumnTypes.Terminated or
 				label == DCT.DataColumnTypes.Truncated):
@@ -274,16 +269,18 @@ class DataManager(Singleton.Singleton):
 			# todo if reward is clipped then we can one hot encode it
 			pass
 
-		elif label == DCT.DataColumnTypes.Action:
-			if isinstance(self.ActionSpace, spaces.Discrete):
-				# argmax the one hot encoded action
-				proccessed = np.argmax(data, axis=1)
+		elif label == DCT.DataColumnTypes.Action and \
+				isinstance(self.ActionSpace, spaces.Discrete):
+
+			# argmax the one hot encoded action
+			proccessed = np.argmax(data, axis=1)
 
 		elif (label == DCT.DataColumnTypes.CurrentState or
-				label == DCT.DataColumnTypes.NextState):
-			if isinstance(self.ObservationSpace, spaces.Discrete):
-				# argmax the one hot encoded state
-				proccessed = np.argmax(data, axis=1)
+				label == DCT.DataColumnTypes.NextState) and \
+				isinstance(self.ObservationSpace, spaces.Discrete):
+
+			# argmax the one hot encoded state
+			proccessed = np.argmax(data, axis=1)
 
 		return np.array([proccessed])
 

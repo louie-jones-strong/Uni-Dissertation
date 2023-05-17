@@ -23,13 +23,27 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		return
 
-	def _Evaluate(self, rawPrediction, proccessedY):
+	def _Evaluate(self, rawPrediction, proccessedY, y):
 
 		data = rawPrediction[0]
 		for i in range(1, len(rawPrediction)):
 			data = np.concatenate((data, rawPrediction[i]), axis=1)
 
-		return super()._Evaluate(data, proccessedY)
+		error = abs(np.mean(proccessedY - data))
+
+
+		totalItemWiseEqual = np.ones(len(rawPrediction[0]), dtype=np.bool_)
+		for i in range(len(self._YLabels)):
+			# accuracy
+			label = self._YLabels[i]
+			prediction = self._DataManager.PostProcessSingleColumn(rawPrediction[i], label)[0]
+
+			itemWiseEqual = self._ItemWiseEqual(prediction, y[i])
+			totalItemWiseEqual = np.logical_and(totalItemWiseEqual, itemWiseEqual)
+
+		accuracy = np.mean(totalItemWiseEqual)
+
+		return error, accuracy
 
 	def _Predict(self, x:NDArray) -> NDArray:
 		super()._Predict(x)

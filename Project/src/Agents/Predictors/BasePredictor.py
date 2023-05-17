@@ -68,9 +68,10 @@ class BasePredictor:
 			proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
 			predicted = self._Predict(proccessedX)
 
-			error = self._Evaluate(predicted, proccessedY)
+			error, accuracy = self._Evaluate(predicted, proccessedY, y)
 			self._Logger.LogDict({
-				f"{self._Name}_Validation_Error": error
+				f"{self._Name}_Validation_Error": error,
+				f"{self._Name}_Validation_Accuracy": accuracy
 			})
 
 			self._FramesSinceTrained += 1
@@ -94,17 +95,35 @@ class BasePredictor:
 
 		# evaluate the model
 		prediction = self._Predict(proccessedX)
-		error = self._Evaluate(prediction, proccessedY)
+		error, accuracy = self._Evaluate(prediction, proccessedY, y)
 
 		self._Logger.LogDict({
-			f"{self._Name}_Trained_Error": error
+			f"{self._Name}_Trained_Error": error,
+			f"{self._Name}_Trained_Accuracy": accuracy
 		})
 		return
 
-	def _Evaluate(self, rawPrediction, proccessedY):
+	def _Evaluate(self, rawPrediction, proccessedY, y):
 
 		error = abs(np.mean(proccessedY - rawPrediction))
-		return error
+
+		prediction = self._DataManager.PostProcessColumns(rawPrediction, self._YLabels)
+
+
+		accuracy = np.mean(self._ItemWiseEqual(prediction, y))
+
+		return error, accuracy
+
+	@staticmethod
+	def _ItemWiseEqual(prediction, target):
+
+		itemsEqual = prediction == target
+		itemsEqual = np.squeeze(itemsEqual)
+
+		if len(itemsEqual.shape) > 1:
+			itemsEqual = np.all(itemsEqual, axis=1)
+
+		return itemsEqual
 
 	def _Predict(self, x:NDArray) -> NDArray:
 		if self._FramesSinceTrained < 0:

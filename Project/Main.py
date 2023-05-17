@@ -7,12 +7,18 @@ import src.Utils.UserInputHelper as UI
 from src.DataManager.DataManager import DataManager
 from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
+from typing import Optional
 
 import src.Runner as Runner
 import time
 
 
-def Main() -> None:
+def Main(envIdx:Optional[int],
+		isPlayMode:Optional[bool],
+		load:Optional[bool],
+		agentIdx:Optional[int],
+		wandbOn:Optional[bool]) -> None:
+
 	# find all environments in the configs folder
 	configPath = os.path.join(GetRootPath(), "Config", "Envs")
 	envConfigPath = UI.FilePicker("Environments", configPath)
@@ -68,7 +74,7 @@ if __name__ == "__main__":
 
 	try:
 
-		Main()
+		Main(None, None, None, None, None)
 
 	except KeyboardInterrupt:
 		print("")
