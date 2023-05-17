@@ -3,8 +3,6 @@ import src.Utils.Metrics.Logger as Logger
 import src.DataManager.DataColumnTypes as DCT
 import typing
 import src.Utils.SharedCoreTypes as SCT
-import gymnasium.spaces as spaces
-from tensorflow.keras.utils import to_categorical
 import numpy as np
 from numpy.typing import NDArray
 
@@ -52,10 +50,10 @@ class BasePredictor:
 		if self._FramesSinceTrained < 0:
 			return None, 0.0
 
-		proccessedX = self._PreProccessX(x)
+		proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
 
 		predicted = self._Predict(proccessedX)
-		proccessedPrediction = self._PostProccess(predicted)
+		proccessedPrediction = self._DataManager.PostProcessColumns(predicted, self._YLabels)
 
 		# todo: confidence
 		confidence = np.ones(len(x), dtype=np.float32) * 0.5
@@ -65,9 +63,9 @@ class BasePredictor:
 
 		if self._FramesSinceTrained >= 0:
 
-			proccessedY = self._PreProccessY(y)
+			proccessedY = self._DataManager.PreProcessColumns(y, self._YLabels)
 
-			proccessedX = self._PreProccessX(x)
+			proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
 			predicted = self._Predict(proccessedX)
 
 			error = self._Evaluate(predicted, proccessedY)
@@ -88,8 +86,8 @@ class BasePredictor:
 		if len(y) == 0 or len(y[0]) < 2:
 			return
 
-		proccessedX = self._PreProccessX(x)
-		proccessedY = self._PreProccessY(y)
+		proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
+		proccessedY = self._DataManager.PreProcessColumns(y, self._YLabels)
 
 		self._Train(proccessedX, proccessedY)
 		self._FramesSinceTrained = 0
@@ -108,99 +106,12 @@ class BasePredictor:
 		error = abs(np.mean(proccessedY - rawPrediction))
 		return error
 
-
-
-	def _PreProccessX(self, x:NDArray) -> NDArray:
-
-		proccessed = self._DataManager.PreProcessColumns(x, self._XLabels)
-		# proccessed = self._DataManager._JoinColumnsData(x)
-
-		return proccessed
-
-	def _PreProccessY(self, y:NDArray) -> NDArray:
-		proccessed = self._DataManager.PreProcessColumns(y, self._YLabels)
-		# proccessed = self._DataManager._JoinColumnsData(x)
-
-		return proccessed
-
-		# is multi Y label
-		# if len(self._YLabels) > 1:
-		# 	return np.array(y)
-
-		# y = y[0]
-		# proccessed = y
-
-		# yLabel = self._YLabels[0]
-
-		# if (yLabel == DCT.DataColumnTypes.Terminated or
-		# 		yLabel == DCT.DataColumnTypes.Truncated):
-		# 	# one hot encode the boolean values
-		# 	intBools = [int(i) for i in y]
-		# 	proccessed = to_categorical(intBools, num_classes=2)
-
-		# elif yLabel == DCT.DataColumnTypes.Reward:
-		# 	# todo if reward is clipped then we can one hot encode it
-		# 	pass
-
-		# elif yLabel == DCT.DataColumnTypes.Action:
-		# 	if isinstance(self._DataManager.ActionSpace, spaces.Discrete):
-		# 		# one hot encode the action
-		# 		proccessed = to_categorical(y, num_classes=self._DataManager.ActionSpace.n)
-
-		# elif (yLabel == DCT.DataColumnTypes.CurrentState or
-		# 		yLabel == DCT.DataColumnTypes.NextState):
-		# 	if isinstance(self._DataManager.ObservationSpace, spaces.Discrete):
-		# 		# one hot encode the state
-		# 		proccessed = to_categorical(y, num_classes=self._DataManager.ObservationSpace.n)
-
-		# return np.array(proccessed)
-
 	def _Predict(self, x:NDArray) -> NDArray:
 		if self._FramesSinceTrained < 0:
 			self.Train()
 
 		predicted = None
 		return predicted
-
-
-
-	def _PostProccess(self, prediction:NDArray) -> NDArray:
-		proccessed = self._DataManager.PostProcessColumns(prediction, self._YLabels)
-		# proccessed = self._DataManager._JoinColumnsData(x)
-
-		return proccessed
-		# # is multi Y label
-		# if len(self._YLabels) > 1:
-		# 	return prediction
-
-		# proccessed = prediction
-
-		# yLabel = self._YLabels[0]
-
-		# if (yLabel == DCT.DataColumnTypes.Terminated or
-		# 		yLabel == DCT.DataColumnTypes.Truncated):
-		# 	# argmax the one hot encoded boolean values
-		# 	intBools = np.argmax(prediction, axis=1)
-		# 	proccessed = np.array([bool(i) for i in intBools])
-
-		# elif yLabel == DCT.DataColumnTypes.Reward:
-		# 	# todo if reward is clipped then we can one hot encode it
-		# 	pass
-
-		# elif yLabel == DCT.DataColumnTypes.Action:
-		# 	if isinstance(self._DataManager.ActionSpace, spaces.Discrete):
-		# 		# argmax the one hot encoded action
-		# 		proccessed = np.argmax(prediction, axis=1)
-
-		# elif (yLabel == DCT.DataColumnTypes.CurrentState or
-		# 		yLabel == DCT.DataColumnTypes.NextState):
-		# 	if isinstance(self._DataManager.ObservationSpace, spaces.Discrete):
-		# 		# argmax the one hot encoded state
-		# 		proccessed = np.argmax(prediction, axis=1)
-
-		# return np.array([proccessed])
-
-
 
 	def _Train(self, x:NDArray, y:NDArray) -> None:
 		return

@@ -1,7 +1,6 @@
-from . import BasePredictor, DecisonTreePredictor, LinearRegressionPredictor
+from . import BasePredictor, DecisonTreePredictor, LinearPredictor
 import numpy as np
 from numpy.typing import NDArray
-import typing
 
 class EnsemblePredictor(BasePredictor.BasePredictor):
 
@@ -10,7 +9,7 @@ class EnsemblePredictor(BasePredictor.BasePredictor):
 
 		self._Predictors = [
 			DecisonTreePredictor.DecisonTreePredictor(xLabels, yLabels),
-			LinearRegressionPredictor.LinearRegressionPredictor(xLabels, yLabels)
+			LinearPredictor.LinearPredictor(xLabels, yLabels)
 		]
 		return
 

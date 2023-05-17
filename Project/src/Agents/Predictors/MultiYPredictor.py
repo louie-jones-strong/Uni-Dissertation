@@ -19,7 +19,7 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		for i in range(len(self._YLabels)):
 			yLabel = self._YLabels[i]
-			self._Predictors[yLabel].Observe(x, y[i])
+			self._Predictors[yLabel].Observe(x, [y[i]])
 
 		return
 
@@ -39,7 +39,7 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 			prediction = self._Predictors[yLabel]._Predict(x)
 			predicted.append(prediction)
 
-		return np.array(predicted)
+		return predicted
 
 	def _Train(self, x:NDArray, y:NDArray) -> None:
 		super()._Train(x, y)

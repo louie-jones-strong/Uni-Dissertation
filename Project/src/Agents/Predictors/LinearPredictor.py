@@ -1,9 +1,8 @@
 from . import BasePredictor
-import numpy as np
 from sklearn.linear_model import LinearRegression
 from numpy.typing import NDArray
 
-class LinearRegressionPredictor(BasePredictor.BasePredictor):
+class LinearPredictor(BasePredictor.BasePredictor):
 
 	def __init__(self, xLabels, yLabels):
 		super().__init__(xLabels, yLabels)

@@ -1,9 +1,9 @@
 from . import BasePredictor
 from xgboost import XGBClassifier
-import numpy as np
 import typing
 import src.DataManager.DataColumnTypes as DCT
 from numpy.typing import NDArray
+import numpy as np
 
 class DecisonTreePredictor(BasePredictor.BasePredictor):
 
@@ -19,6 +19,8 @@ class DecisonTreePredictor(BasePredictor.BasePredictor):
 		super()._Predict(x)
 
 		predicted = self.Predictor.predict(x)
+
+		predicted = np.reshape(predicted, (len(predicted), -1))
 
 		return predicted
 

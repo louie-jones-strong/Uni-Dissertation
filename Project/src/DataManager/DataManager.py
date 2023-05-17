@@ -231,7 +231,9 @@ class DataManager(Singleton.Singleton):
 
 
 	def PreProcessSingleColumn(self, data, label):
-		proccessed = data
+
+		# add a dimension to the data at the end
+		proccessed = np.reshape(data, (len(data), -1))
 
 		if (label == DCT.DataColumnTypes.Terminated or
 				label == DCT.DataColumnTypes.Truncated):
@@ -260,7 +262,7 @@ class DataManager(Singleton.Singleton):
 		return proccessed
 
 	def PostProcessSingleColumn(self, data, label):
-		proccessed = data
+		proccessed = np.reshape(data, (len(data), -1))
 
 		if (label == DCT.DataColumnTypes.Terminated or
 				label == DCT.DataColumnTypes.Truncated):

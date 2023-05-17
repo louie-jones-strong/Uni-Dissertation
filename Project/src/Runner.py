@@ -1,21 +1,18 @@
 import json
 import os
+import time
+import typing
+from collections import deque
 
 import src.Agents.BaseAgent as BaseAgent
+import src.Agents.Predictors.MultiYPredictor as MultiYPredictor
+import src.DataManager.DataColumnTypes as DCT
 import src.Environments.BaseEnv as BaseEnv
 import src.Utils.SharedCoreTypes as SCT
 import src.Utils.UserInputHelper as UI
 from src.DataManager.DataManager import DataManager
 from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
-import typing
-import time
-from collections import deque
-
-import src.Agents.Predictors.EnsemblePredictor as EnsemblePredictor
-import src.Agents.Predictors.MultiYPredictor as MultiYPredictor
-
-import src.DataManager.DataColumnTypes as DCT
 
 
 class Runner:
@@ -35,8 +32,16 @@ class Runner:
 		self.Agents = agents
 
 
-		xColumns = [DCT.DataColumnTypes.CurrentState, DCT.DataColumnTypes.Action]
-		yColumns = [DCT.DataColumnTypes.Reward, DCT.DataColumnTypes.Terminated, DCT.DataColumnTypes.Truncated]
+		xColumns = [
+			DCT.DataColumnTypes.CurrentState,
+			DCT.DataColumnTypes.Action]
+
+		yColumns = [
+			DCT.DataColumnTypes.NextState,
+			DCT.DataColumnTypes.Reward,
+			DCT.DataColumnTypes.Terminated,
+			DCT.DataColumnTypes.Truncated]
+
 		self.Predictor = MultiYPredictor.MultiYPredictor(xColumns, yColumns)
 
 		self.LoadConfig()
@@ -98,7 +103,7 @@ class Runner:
 			truncated = truncated or step >= self.Config["MaxSteps"] - 1
 
 			self.Remember(state, action, reward, nextState, terminated, truncated)
-			self.Predictor.Observe([[state], [action]], [[reward], [terminated], [truncated]])
+			self.Predictor.Observe([[state], [action]], [[nextState], [reward], [terminated], [truncated]])
 
 			totalReward += reward
 

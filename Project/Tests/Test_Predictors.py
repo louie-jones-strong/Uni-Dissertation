@@ -1,6 +1,6 @@
 import unittest
 import os
-from src.Agents.Predictors import DecisonTreePredictor, LinearRegressionPredictor, EnsemblePredictor, MultiYPredictor
+from src.Agents.Predictors import DecisonTreePredictor, LinearPredictor, EnsemblePredictor, MultiYPredictor
 import src.DataManager.DataColumnTypes as DCT
 import src.DataManager.DataManager as DataManager
 import gymnasium.spaces as spaces
@@ -11,7 +11,7 @@ class Test_Predictors(unittest.TestCase):
 	def setUp(self):
 		self.PredictorConstructors = [
 			DecisonTreePredictor.DecisonTreePredictor,
-			LinearRegressionPredictor.LinearRegressionPredictor,
+			LinearPredictor.LinearPredictor,
 			EnsemblePredictor.EnsemblePredictor,
 		]
 
@@ -126,4 +126,32 @@ class Test_Predictors(unittest.TestCase):
 		yLabelNames = yLabelNames.replace("DataColumnTypes.", "")
 		expectedName = f"{yLabelNames}_{predictor.__class__.__name__.replace('Predictor', '')}"
 		self.assertEqual(predictor._Name, expectedName)
+		return
+
+
+
+	def test_PredictingForwardModel(self):
+		xLabels = [DCT.DataColumnTypes.CurrentState, DCT.DataColumnTypes.Action]
+		yLabels = [
+			DCT.DataColumnTypes.NextState,
+			DCT.DataColumnTypes.Terminated,
+			DCT.DataColumnTypes.Truncated,
+			DCT.DataColumnTypes.Reward]
+
+		predictor = MultiYPredictor.MultiYPredictor(xLabels, yLabels)
+
+		self.assertTrue(os.path.exists(self.DataPath), f"Data path {self.DataPath} does not exist")
+		self.DataManager.Load(self.DataPath)
+
+
+
+		predictor.Train()
+		self.assertGreaterEqual(predictor._FramesSinceTrained, 0)
+
+		x = [[1], [0]]
+		y = [[1], [False], [False], [0.0]]
+
+		predictor.Predict(x)
+		predictor.Observe(x, y)
+
 		return
