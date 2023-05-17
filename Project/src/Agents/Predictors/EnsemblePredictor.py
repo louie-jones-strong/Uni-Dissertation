@@ -36,3 +36,13 @@ class EnsemblePredictor(BasePredictor.BasePredictor):
 
 		predictions = np.mean(predictions, axis=0)
 		return predictions
+
+
+	def _Train(self, x:NDArray, y:NDArray) -> bool:
+		super()._Train(x, y)
+
+		wasTrained = False
+		for predictor in self._Predictors:
+			wasTrained = wasTrained or predictor.Train()
+
+		return wasTrained

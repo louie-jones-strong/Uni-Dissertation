@@ -20,5 +20,5 @@ class LinearPredictor(BasePredictor.BasePredictor):
 		super()._Train(x, y)
 
 		self.Predictor.fit(x, y)
-		return
+		return True
 

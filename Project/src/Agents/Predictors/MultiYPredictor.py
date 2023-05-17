@@ -58,7 +58,9 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 	def _Train(self, x:NDArray, y:NDArray) -> None:
 		super()._Train(x, y)
 
+		wasTrained = False
 		for yLabel in self._YLabels:
-			self._Predictors[yLabel].Train()
-		return
+			wasTrained = wasTrained or self._Predictors[yLabel].Train()
+
+		return wasTrained
 

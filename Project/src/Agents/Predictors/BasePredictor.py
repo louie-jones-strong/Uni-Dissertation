@@ -5,6 +5,7 @@ import typing
 import src.Utils.SharedCoreTypes as SCT
 import numpy as np
 from numpy.typing import NDArray
+from collections import deque
 
 
 class BasePredictor:
@@ -12,7 +13,7 @@ class BasePredictor:
 	def __init__(self,
 			xLabels:typing.List[DCT.DataColumnTypes],
 			yLabels:typing.List[DCT.DataColumnTypes]):
-
+		self.LoadConfig({})
 		assert len(xLabels) > 0, "xLabels must have at least one element"
 		assert len(yLabels) > 0, "yLabels must have at least one element"
 
@@ -29,10 +30,16 @@ class BasePredictor:
 		self._Logger = Logger.Logger()
 
 		self._FramesSinceTrained = -1
-
+		self._ErrorQueue = deque()
+		self._AccuracyQueue = deque()
 		return
 
 	def LoadConfig(self, config:SCT.Config) -> None:
+		self._Config = config
+		self._Config["MinFramesBetweenTraining"] = 100
+		self._Config["MinAccuracy"] = 0.9
+		self._Config["MaxError"] = 0.1
+		self._Config["ValidationAverageWindow"] = 100
 		return
 
 	def Save(self, folderPath:str) -> None:
@@ -61,47 +68,77 @@ class BasePredictor:
 
 	def Observe(self, x, y) -> None:
 
-		if self._FramesSinceTrained >= 0:
+		# train the model if we haven't trained yet
+		if self._FramesSinceTrained < 0:
+			self.Train()
 
+		else:
+			# validate the model, if we have a trained model
 			proccessedY = self._DataManager.PreProcessColumns(y, self._YLabels)
 
 			proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
 			predicted = self._Predict(proccessedX)
 
 			error, accuracy = self._Evaluate(predicted, proccessedY, y)
+
+
+			self._ErrorQueue.append(error)
+			if len(self._ErrorQueue) > self._Config["ValidationAverageWindow"]:
+				self._ErrorQueue.popleft()
+
+			self._AccuracyQueue.append(accuracy)
+			if len(self._AccuracyQueue) > self._Config["ValidationAverageWindow"]:
+				self._AccuracyQueue.popleft()
+
 			self._Logger.LogDict({
 				f"{self._Name}_Validation_Error": error,
 				f"{self._Name}_Validation_Accuracy": accuracy
 			})
-
 			self._FramesSinceTrained += 1
 
-		# todo: do we need to train this frame?
-		if self._FramesSinceTrained >= 10 or self._FramesSinceTrained < 0:
 			self.Train()
 		return
 
-	def Train(self) -> None:
+	def Train(self) -> bool:
+
+		# check if we have trained recently
+		if self._FramesSinceTrained >= 0 and \
+				self._FramesSinceTrained < self._Config["MinFramesBetweenTraining"]:
+			return False
+
+		avgError = np.mean(self._ErrorQueue)
+		avgAccuracy = np.mean(self._AccuracyQueue)
+
+		modelInBounds = avgAccuracy > self._Config["MinAccuracy"] and \
+				avgError < self._Config["MaxError"]
+
+		if modelInBounds and self._FramesSinceTrained >= 0:
+			return False
+
 		x, y = self._DataManager.GetXYData(self._XLabels, self._YLabels)
 
+		# check if we have enough data to train
 		if len(y) == 0 or len(y[0]) < 2:
-			return
+			return False
 
 		proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
 		proccessedY = self._DataManager.PreProcessColumns(y, self._YLabels)
 
-		self._Train(proccessedX, proccessedY)
-		self._FramesSinceTrained = 0
+		wasTrained = self._Train(proccessedX, proccessedY)
 
-		# evaluate the model
-		prediction = self._Predict(proccessedX)
-		error, accuracy = self._Evaluate(prediction, proccessedY, y)
+		# evaluate the model if we trained it
+		if wasTrained:
+			self._FramesSinceTrained = 0
 
-		self._Logger.LogDict({
-			f"{self._Name}_Trained_Error": error,
-			f"{self._Name}_Trained_Accuracy": accuracy
-		})
-		return
+			prediction = self._Predict(proccessedX)
+			error, accuracy = self._Evaluate(prediction, proccessedY, y)
+
+			self._Logger.LogDict({
+				f"{self._Name}_Trained_Error": error,
+				f"{self._Name}_Trained_Accuracy": accuracy
+			})
+
+		return wasTrained
 
 	def _Evaluate(self, rawPrediction, proccessedY, y):
 
@@ -132,5 +169,5 @@ class BasePredictor:
 		predicted = None
 		return predicted
 
-	def _Train(self, x:NDArray, y:NDArray) -> None:
-		return
+	def _Train(self, x:NDArray, y:NDArray) -> bool:
+		return False
