@@ -51,7 +51,7 @@ def Main(envIdx:Optional[int],
 
 	# load data manager
 	dataManager = DataManager()
-	dataManager.Setup(config, env.ObservationSpace, env.ActionSpace)
+	dataManager.Setup(config, env.ObservationSpace, env.ActionSpace, env.RewardRange)
 
 	# load logger
 	logger = Logger()

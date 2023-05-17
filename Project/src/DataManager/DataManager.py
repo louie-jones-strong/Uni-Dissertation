@@ -19,11 +19,13 @@ class DataManager(Singleton.Singleton):
 	def Setup(self,
 			config:SCT.Config,
 			observationSpace:SCT.StateSpace,
-			actionSpace:SCT.ActionSpace) -> None:
+			actionSpace:SCT.ActionSpace,
+			rewardRange:typing.Tuple[float, float]) -> None:
 
 		self.LoadConfig(config)
 		self.ObservationSpace = observationSpace
 		self.ActionSpace = actionSpace
+		self.RewardRange = rewardRange
 
 		# transition accumulator
 		stateTupleType = typing.Tuple[SCT.State, SCT.Action, SCT.Reward, SCT.State, bool, bool]
@@ -266,8 +268,10 @@ class DataManager(Singleton.Singleton):
 			proccessed = np.array([bool(i) for i in intBools])
 
 		elif label == DCT.DataColumnTypes.Reward:
+			# we know that the reward has to be in the rewardRange
+			proccessed = np.clip(proccessed, self.RewardRange[0], self.RewardRange[1])
+
 			# todo if reward is clipped then we can one hot encode it
-			pass
 
 		elif label == DCT.DataColumnTypes.Action and \
 				isinstance(self.ActionSpace, spaces.Discrete):

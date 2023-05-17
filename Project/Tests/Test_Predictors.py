@@ -17,10 +17,11 @@ class Test_Predictors(unittest.TestCase):
 
 		self.ObservationSpace = spaces.Discrete(16)
 		self.ActionSpace = spaces.Discrete(4)
+		self.RewardRange = (0, 1)
 		self.DataPath = os.path.join(GetRootPath(), "data", "FrozenLake")
 
 		self.DataManager = DataManager.DataManager()
-		self.DataManager.Setup({}, self.ObservationSpace, self.ActionSpace)
+		self.DataManager.Setup({}, self.ObservationSpace, self.ActionSpace, self.RewardRange)
 		return
 
 	def test_ClassesExist(self):
