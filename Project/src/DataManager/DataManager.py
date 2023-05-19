@@ -288,4 +288,28 @@ class DataManager(Singleton.Singleton):
 
 		return np.array([proccessed])
 
+
+	def IsColumnDiscrete(self, label:DCT.DataColumnTypes) -> bool:
+		isDiscrete = False
+
+		if (label == DCT.DataColumnTypes.Terminated or
+				label == DCT.DataColumnTypes.Truncated):
+			isDiscrete = True
+
+		elif label == DCT.DataColumnTypes.Reward:
+			# todo if reward is clipped then we can one hot encode it
+			# isDiscrete = True
+			pass
+
+		elif label == DCT.DataColumnTypes.Action and \
+				isinstance(self.ActionSpace, spaces.Discrete):
+			isDiscrete = True
+
+		elif (label == DCT.DataColumnTypes.CurrentState or
+				label == DCT.DataColumnTypes.NextState) and \
+				isinstance(self.ObservationSpace, spaces.Discrete):
+			isDiscrete = True
+
+
+		return isDiscrete
 # endregion

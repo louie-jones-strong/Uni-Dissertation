@@ -17,17 +17,17 @@ class BasePredictor:
 		assert len(xLabels) > 0, "xLabels must have at least one element"
 		assert len(yLabels) > 0, "yLabels must have at least one element"
 
+		self._DataManager = DataManager.DataManager()
+		self._Logger = Logger.Logger()
+
 		self._XLabels = xLabels
 		self._YLabels = yLabels
+		self._IsDiscrete = all([self._DataManager.IsColumnDiscrete(y) for y in yLabels])
 
 		className = self.__class__.__name__.replace("Predictor", "")
 		predictionName = "".join([y.name for y in yLabels])
 		predictionName = predictionName.replace("DataColumnTypes.", "")
 		self._Name = f"{predictionName}_{className}"
-
-
-		self._DataManager = DataManager.DataManager()
-		self._Logger = Logger.Logger()
 
 		self._StepsSinceTrained = -1
 		self._ErrorQueue = deque()
@@ -109,8 +109,8 @@ class BasePredictor:
 		avgError = np.mean(self._ErrorQueue)
 		avgAccuracy = np.mean(self._AccuracyQueue)
 
-		modelInBounds = avgAccuracy > self._Config["MinAccuracy"] and \
-				avgError < self._Config["MaxError"]
+		modelInBounds = avgError < self._Config["MaxError"] and \
+			((not self._IsDiscrete) or avgAccuracy > self._Config["MinAccuracy"])
 
 		if modelInBounds and self._StepsSinceTrained >= 0:
 			return False
