@@ -29,14 +29,14 @@ class BasePredictor:
 		self._DataManager = DataManager.DataManager()
 		self._Logger = Logger.Logger()
 
-		self._FramesSinceTrained = -1
+		self._StepsSinceTrained = -1
 		self._ErrorQueue = deque()
 		self._AccuracyQueue = deque()
 		return
 
 	def LoadConfig(self, config:SCT.Config) -> None:
 		self._Config = config
-		self._Config["MinFramesBetweenTraining"] = 100
+		self._Config["MinStepsBetweenTraining"] = 100
 		self._Config["MinAccuracy"] = 0.9
 		self._Config["MaxError"] = 0.1
 		self._Config["ValidationAverageWindow"] = 100
@@ -54,7 +54,7 @@ class BasePredictor:
 
 	def Predict(self, x:NDArray) -> typing.Tuple[NDArray, NDArray[np.float32]]:
 
-		if self._FramesSinceTrained < 0:
+		if self._StepsSinceTrained < 0:
 			return None, 0.0
 
 		proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
@@ -69,7 +69,7 @@ class BasePredictor:
 	def Observe(self, x, y) -> None:
 
 		# train the model if we haven't trained yet
-		if self._FramesSinceTrained < 0:
+		if self._StepsSinceTrained < 0:
 			self.Train()
 
 		else:
@@ -94,7 +94,7 @@ class BasePredictor:
 				f"{self._Name}_Validation_Error": error,
 				f"{self._Name}_Validation_Accuracy": accuracy
 			})
-			self._FramesSinceTrained += 1
+			self._StepsSinceTrained += 1
 
 			self.Train()
 		return
@@ -102,8 +102,8 @@ class BasePredictor:
 	def Train(self) -> bool:
 
 		# check if we have trained recently
-		if self._FramesSinceTrained >= 0 and \
-				self._FramesSinceTrained < self._Config["MinFramesBetweenTraining"]:
+		if self._StepsSinceTrained >= 0 and \
+				self._StepsSinceTrained < self._Config["MinStepsBetweenTraining"]:
 			return False
 
 		avgError = np.mean(self._ErrorQueue)
@@ -112,7 +112,7 @@ class BasePredictor:
 		modelInBounds = avgAccuracy > self._Config["MinAccuracy"] and \
 				avgError < self._Config["MaxError"]
 
-		if modelInBounds and self._FramesSinceTrained >= 0:
+		if modelInBounds and self._StepsSinceTrained >= 0:
 			return False
 
 		x, y = self._DataManager.GetXYData(self._XLabels, self._YLabels)
@@ -128,7 +128,10 @@ class BasePredictor:
 
 		# evaluate the model if we trained it
 		if wasTrained:
-			self._FramesSinceTrained = 0
+			self._ErrorQueue.clear()
+			self._AccuracyQueue.clear()
+
+			self._StepsSinceTrained = 0
 
 			prediction = self._Predict(proccessedX)
 			error, accuracy = self._Evaluate(prediction, proccessedY, y)
@@ -163,7 +166,7 @@ class BasePredictor:
 		return itemsEqual
 
 	def _Predict(self, x:NDArray) -> NDArray:
-		if self._FramesSinceTrained < 0:
+		if self._StepsSinceTrained < 0:
 			self.Train()
 
 		predicted = None

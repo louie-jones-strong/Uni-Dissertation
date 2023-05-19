@@ -3,20 +3,27 @@ import typing
 import src.Utils.SharedCoreTypes as SCT
 import src.Utils.Singleton as Singleton
 import wandb
-
+import src.Utils.Metrics.Timer as Timer
 
 class Logger(Singleton.Singleton):
+	# config
 	_ProjectName = "Dissertation"
+	_TimeStackSeparator = "."
+
+	# state
 	_Setup = False
+	_TimerLabelStack = []
 
 	def Setup(self, config:SCT.Config, runPath:str, runId:Optional[str] = None, wandbOn:bool = True) -> None:
 		self._RunId = runId
 		self._Config = config
 
-		self._CurrentFrame = 0
+		self._CurrentStep = 0
 		self._CurrentEpisode = 0
-		self._TotalFrames = 0
+		self._TotalSteps = 0
 		self._EpisodeCumulativeReward = 0.0
+		self._TotalTimePerStep = {}
+		self._TotalTimePerEpisode = {}
 		self._Setup = True
 
 
@@ -33,23 +40,27 @@ class Logger(Singleton.Singleton):
 
 
 		if self._WandbOn:
-			wandb.log(dict, self._TotalFrames, commit=False)
+			wandb.log(dict, self._TotalSteps, commit=False)
 		return
 
 
-	def FrameEnd(self, frameReward:SCT.Reward, terminated:bool, truncated:bool) -> None:
+	def StepEnd(self, StepReward:SCT.Reward, terminated:bool, truncated:bool) -> None:
 		if not self._Setup:
 			return
 
 
-		self._EpisodeCumulativeReward += frameReward
+		self._EpisodeCumulativeReward += StepReward
 
 		logDict = {
+			"TotalSteps": self._TotalSteps,
 			"TotalEpisodes": self._CurrentEpisode,
-			"CurrentFrame": self._CurrentFrame,
-			"FrameReward": frameReward,
+			"CurrentStep": self._CurrentStep,
+			"StepReward": StepReward,
 			"EpisodeCumulativeReward": self._EpisodeCumulativeReward,
 		}
+
+		logDict.update(self._TotalTimePerStep)
+		self._TotalTimePerStep.clear()
 
 
 
@@ -59,26 +70,58 @@ class Logger(Singleton.Singleton):
 			logDict["Truncated"] = float(truncated)
 			logDict["EpisodeTotalReward"] = self._EpisodeCumulativeReward
 
+			logDict.update(self._TotalTimePerEpisode)
+			self._TotalTimePerEpisode.clear()
+
 			self._EpisodeEnd()
-
-
-
-
 
 		if self._WandbOn:
 			self.LogDict(logDict)
 			wandb.log({}, commit=True)
 
-		self._CurrentFrame += 1
-		self._TotalFrames += 1
+		self._CurrentStep += 1
+		self._TotalSteps += 1
 		return
 
 	def _EpisodeEnd(self) -> None:
 		if not self._Setup:
 			return
 
-		self._CurrentFrame = 0
+		self._CurrentStep = 0
 		self._CurrentEpisode += 1
 		self._EpisodeCumulativeReward = 0
+
+		return
+
+
+	def Time(self, label:str) -> Timer.Timer:
+
+		assert self._Setup, "Logger not setup"
+		assert len(label) > 0, "Timer label cannot be empty"
+		assert self._TimeStackSeparator not in label, f"Timer label cannot contain '{self._TimeStackSeparator}'"
+
+		self._TimerLabelStack.append(label)
+
+		return Timer.Timer(label, self.TimerComplete)
+
+	def TimerComplete(self, timer:Timer.Timer) -> None:
+		assert self._Setup, "Logger not setup"
+
+		label = timer._Label
+		stackedLabel = self._TimeStackSeparator.join(self._TimerLabelStack)
+		assert label == self._TimerLabelStack[-1], f"Timer '{stackedLabel}' completed out of order"
+
+		self._TimerLabelStack.pop()
+
+
+		StepLabel = f"Time:Step.{stackedLabel}"
+		if StepLabel not in self._TotalTimePerStep:
+			self._TotalTimePerStep[StepLabel] = 0.0
+		self._TotalTimePerStep[StepLabel] += timer._Interval
+
+		episodeLabel = f"Time:Episode.{stackedLabel}"
+		if episodeLabel not in self._TotalTimePerEpisode:
+			self._TotalTimePerEpisode[episodeLabel] = 0.0
+		self._TotalTimePerEpisode[episodeLabel] += timer._Interval
 
 		return

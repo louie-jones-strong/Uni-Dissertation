@@ -1,5 +1,5 @@
 from . import BasePredictor
-from xgboost import XGBClassifier
+import xgboost as xgb
 import typing
 import src.DataManager.DataColumnTypes as DCT
 from numpy.typing import NDArray
@@ -11,14 +11,22 @@ class DecisonTreePredictor(BasePredictor.BasePredictor):
 			xLabels:typing.List[DCT.DataColumnTypes],
 			yLabels:typing.List[DCT.DataColumnTypes]):
 		super().__init__(xLabels, yLabels)
-		self.Predictor = XGBClassifier(n_estimators=10, max_depth=5, learning_rate=1, objective='binary:logistic')
+
+		# classification problem
+		objective = 'multi:softmax'
+
+
+		# regression problem
+		objective = 'reg:squarederror'
+
+		self.Predictor = None
 
 		return
 
 	def _Predict(self, x:NDArray) -> NDArray:
 		super()._Predict(x)
 
-		predicted = self.Predictor.predict(x)
+		predicted = self.Predictor.predict(xgb.DMatrix(x))
 
 		predicted = np.reshape(predicted, (len(predicted), -1))
 
@@ -27,6 +35,15 @@ class DecisonTreePredictor(BasePredictor.BasePredictor):
 	def _Train(self, x:NDArray, y:NDArray) -> None:
 		super()._Train(x, y)
 
-		self.Predictor.fit(x, y)
+		dtrain = xgb.DMatrix(x, label=y)
+
+		params = {
+			'objective': 'reg:squarederror'
+		}
+
+		# Train the model
+		num_rounds = 100
+		self.Predictor = xgb.train(params, dtrain, num_rounds)
+
 		return True
 

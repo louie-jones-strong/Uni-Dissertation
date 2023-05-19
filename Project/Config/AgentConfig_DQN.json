@@ -10,8 +10,8 @@
 	"LearningRate": 0.00001,
 
 	"FutureRewardDiscount": 0.99,
-	"FramesPerTrain": 4,
-	"FramesPerUpdateRunningNetwork": 1000,
+	"StepsPerTrain": 4,
+	"StepsPerUpdateRunningNetwork": 1000,
 	"EpisodesBetweenEval": 100,
 
 	"ExplorationAgent": "Random",

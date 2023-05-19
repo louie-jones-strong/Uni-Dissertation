@@ -54,10 +54,10 @@ class Test_Predictors(unittest.TestCase):
 
 			# check no train when no data
 			predictorInstance.Observe(x, y)
-			self.assertEqual(predictorInstance._FramesSinceTrained, -1)
+			self.assertEqual(predictorInstance._StepsSinceTrained, -1)
 
 			predictorInstance.Train()
-			self.assertEqual(predictorInstance._FramesSinceTrained, -1)
+			self.assertEqual(predictorInstance._StepsSinceTrained, -1)
 
 			instances.append(predictorInstance)
 
@@ -98,10 +98,10 @@ class Test_Predictors(unittest.TestCase):
 
 		# check no train when no data
 		predictorInstance.Observe(x, y)
-		self.assertEqual(predictorInstance._FramesSinceTrained, -1)
+		self.assertEqual(predictorInstance._StepsSinceTrained, -1)
 
 		predictorInstance.Train()
-		self.assertEqual(predictorInstance._FramesSinceTrained, -1)
+		self.assertEqual(predictorInstance._StepsSinceTrained, -1)
 
 
 		# load data into the data manager
@@ -147,7 +147,7 @@ class Test_Predictors(unittest.TestCase):
 
 
 		predictor.Train()
-		self.assertGreaterEqual(predictor._FramesSinceTrained, 0)
+		self.assertGreaterEqual(predictor._StepsSinceTrained, 0)
 
 		x = [[1], [0]]
 		y = [[1], [False], [False], [0.0]]

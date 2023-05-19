@@ -74,6 +74,7 @@ class Runner:
 		episode = 0
 		while episode < self.Config["MaxEpisodes"]:
 			startTime = time.process_time()
+
 			steps, reward = self.RunEpisode()
 
 			timeTaken = time.process_time() - startTime
@@ -93,44 +94,48 @@ class Runner:
 
 	def RunEpisode(self) -> typing.Tuple[int, float]:
 
+
 		totalReward:float = 0.0
 		state = self.Env.Reset()
 		for step in range(self.Config["MaxSteps"]):
 
-			action = self.GetAction(state)
+			with self._Logger.Time("Step"):
 
-			nextState, reward, terminated, truncated = self.Env.Step(action)
-			truncated = truncated or step >= self.Config["MaxSteps"] - 1
+				with self._Logger.Time("GetAction"):
+					action = self.GetAction(state)
 
-			self.Remember(state, action, reward, nextState, terminated, truncated)
-			self.Predictor.Observe([[state], [action]], [[nextState], [reward], [terminated], [truncated]])
+				with self._Logger.Time("Step"):
+					nextState, reward, terminated, truncated = self.Env.Step(action)
+					truncated = truncated or step >= self.Config["MaxSteps"] - 1
 
-			totalReward += reward
+				with self._Logger.Time("Remember"):
+					self.Remember(state, action, reward, nextState, terminated, truncated)
 
-			self._Logger.FrameEnd(reward, terminated, truncated)
+				totalReward += reward
+
+				self._Logger.StepEnd(reward, terminated, truncated)
 
 
-			# check if user wants to reload config
-			if UI.IsKeyPressed('alt+c'):
-				self.LoadConfig()
-				print("+++++++ Loaded Config +++++++")
+				# check if user wants to reload config
+				if UI.IsKeyPressed('alt+c'):
+					self.LoadConfig()
+					print("+++++++ Loaded Config +++++++")
 
-			if UI.IsKeyPressed('alt+s'):
-				self.Save()
-				print("+++++++ Saved Agent +++++++")
+				if UI.IsKeyPressed('alt+s'):
+					self.Save()
+					print("+++++++ Saved Agent +++++++")
 
-			if UI.IsKeyPressed('alt+l'):
-				self.Load()
-				print("+++++++ Loaded Agent +++++++")
+				if UI.IsKeyPressed('alt+l'):
+					self.Load()
+					print("+++++++ Loaded Agent +++++++")
 
-			state = nextState
-			if terminated or truncated:
-				break
+				state = nextState
+				if terminated or truncated:
+					break
 
-		self.Reset()
+		with self._Logger.Time("Reset"):
+			self.Reset()
 		return step, totalReward
-
-
 
 	def GetAction(self, state:SCT.State) -> SCT.Action:
 		return self.Agents[0].GetAction(state)
@@ -142,22 +147,24 @@ class Runner:
 			nextState:SCT.State,
 			terminated:bool,
 			truncated:bool) -> None:
+		with self._Logger.Time("DataManager"):
+			self._DataManager.EnvRemember(state, action, reward, nextState, terminated, truncated)
 
-		# update data manager
-		self._DataManager.EnvRemember(state, action, reward, nextState, terminated, truncated)
+		with self._Logger.Time("Agents"):
+			for agent in self.Agents:
+				agent.Remember(state, action, reward, nextState, terminated, truncated)
 
-		# update agents
-		for agent in self.Agents:
-			agent.Remember(state, action, reward, nextState, terminated, truncated)
+		with self._Logger.Time("Predictor"):
+			self.Predictor.Observe([[state], [action]], [[nextState], [reward], [terminated], [truncated]])
 		return
 
 	def Reset(self) -> None:
-		# update data manager
-		self._DataManager.EnvReset()
+		with self._Logger.Time("DataManager"):
+			self._DataManager.EnvReset()
 
-		# update agents
-		for agent in self.Agents:
-			agent.Reset()
+		with self._Logger.Time("Agents"):
+			for agent in self.Agents:
+				agent.Reset()
 		return
 
 	def Save(self) -> None:

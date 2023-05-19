@@ -59,9 +59,9 @@ class BaseAgent:
 		self.DataManager = DataManager.DataManager()
 		self._Logger = Logger.Logger()
 
-		self.FrameNum = 0
-		self.TotalFrameNum = 0
-		self.TotalRememberedFrame = 0
+		self.StepNum = 0
+		self.TotalStepNum = 0
+		self.TotalRememberedStep = 0
 		self.EpisodeNum = 0
 		return
 
@@ -83,7 +83,7 @@ EnvConfig: {self.EnvConfig}
 		return
 
 	def Reset(self) -> None:
-		self.FrameNum = 0
+		self.StepNum = 0
 		self.EpisodeNum += 1
 
 
@@ -104,13 +104,13 @@ EnvConfig: {self.EnvConfig}
 			terminated:bool,
 			truncated:bool) -> None:
 
-		self.TotalRememberedFrame += 1
+		self.TotalRememberedStep += 1
 		return
 
 
 	def GetAction(self, state:SCT.State) -> SCT.Action:
-		self.FrameNum += 1
-		self.TotalFrameNum += 1
+		self.StepNum += 1
+		self.TotalStepNum += 1
 
 		return 0
 

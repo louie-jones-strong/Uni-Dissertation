@@ -27,7 +27,7 @@ class BaseEnv:
 		self.ActionSpace:SCT.ActionSpace = gym.spaces.Discrete(1)
 		self.RewardRange:typing.Tuple[float, float] = (0,0)
 
-		self._CurrentFrame = 0
+		self._CurrentStep = 0
 		self._Done = False
 		return
 
@@ -48,7 +48,7 @@ class BaseEnv:
 		:param action:
 		:return: nextState, reward, done
 		"""
-		self._CurrentFrame += 1
+		self._CurrentStep += 1
 
 
 		state = 1
@@ -60,7 +60,7 @@ class BaseEnv:
 		return state, reward, terminated, truncated
 
 	def Reset(self) -> SCT.State:
-		self._CurrentFrame = 0
+		self._CurrentStep = 0
 		self._Done = False
 
 		state = 1

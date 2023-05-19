@@ -114,8 +114,8 @@ class DQNAgent(BaseAgent.BaseAgent):
 		if self.Mode == BaseAgent.AgentMode.Train:
 			self.ExplorationAgent.Remember(state, action, reward, nextState, terminated, truncated)
 
-		framesPerTrain = self.Config["FramesPerTrain"]
-		if self.TotalRememberedFrame % framesPerTrain == 0:
+		StepsPerTrain = self.Config["StepsPerTrain"]
+		if self.TotalRememberedStep % StepsPerTrain == 0:
 			self.Train()
 		return
 
@@ -259,7 +259,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 
 
 		# update the training network
-		if self.TotalRememberedFrame % self.Config["FramesPerUpdateRunningNetwork"] == 0:
+		if self.TotalRememberedStep % self.Config["StepsPerUpdateRunningNetwork"] == 0:
 			self.RunModel.set_weights(self.TrainingModel.get_weights())
 			print("=================update running network=================")
 		return
