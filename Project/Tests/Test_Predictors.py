@@ -35,9 +35,13 @@ class Test_Predictors(unittest.TestCase):
 		xLabels = [DCT.DataColumnTypes.CurrentState]
 		yLabels = [DCT.DataColumnTypes.Terminated]
 
+		x, y = self.DataManager.GetXYData(xLabels, yLabels)
+		self.assertEqual(len(x[0]), 0)
+
 		x = [[1]]
 		y = [[False]]
 		instances = []
+
 
 		for predictor in self.PredictorConstructors:
 			predictorInstance = predictor(xLabels, yLabels)

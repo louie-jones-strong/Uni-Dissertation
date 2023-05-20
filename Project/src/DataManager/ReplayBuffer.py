@@ -6,7 +6,6 @@ from typing import Optional
 import numpy as np
 import src.DataManager.PrioritiesHolder as PrioritiesHolder
 import src.Utils.SharedCoreTypes as SCT
-import src.Environments.BaseEnv as BaseEnv
 from numpy.typing import NDArray
 import typing
 

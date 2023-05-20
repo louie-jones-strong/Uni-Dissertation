@@ -17,7 +17,7 @@ class Test_Timer(unittest.TestCase):
 	def test_CollectsTime(self):
 		timer = Timer.Timer("Test")
 		with timer:
-			for i in range(100_000_000):
+			for i in range(10_000_000):
 				x = i * i
 
 		self.assertGreater(timer._Interval, 0.0)

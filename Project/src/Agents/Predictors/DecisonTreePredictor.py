@@ -12,15 +12,7 @@ class DecisonTreePredictor(BasePredictor.BasePredictor):
 			yLabels:typing.List[DCT.DataColumnTypes]):
 		super().__init__(xLabels, yLabels)
 
-		# classification problem
-		objective = 'multi:softmax'
-
-
-		# regression problem
-		objective = 'reg:squarederror'
-
 		self.Predictor = None
-
 		return
 
 	def _Predict(self, x:NDArray) -> NDArray:
@@ -37,9 +29,12 @@ class DecisonTreePredictor(BasePredictor.BasePredictor):
 
 		dtrain = xgb.DMatrix(x, label=y)
 
-		params = {
-			'objective': 'reg:squarederror'
-		}
+		# regression problem
+		params = {'objective': 'reg:squarederror'}
+
+		# classification problem
+		if self._IsDiscrete:
+			params = {'objective': 'binary:logistic'}
 
 		# Train the model
 		num_rounds = 100

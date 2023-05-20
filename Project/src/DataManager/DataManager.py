@@ -186,7 +186,11 @@ class DataManager(Singleton.Singleton):
 
 
 # region pre and post process columns
-	def PreProcessColumns(self, columnsData, columnLabels):
+
+	def PreProcessColumns(self,
+			columnsData:typing.List[NDArray],
+			columnLabels:typing.List[DCT.DataColumnTypes]
+			) -> typing.List[NDArray]:
 
 		data = self.PreProcessSingleColumn(columnsData[0], columnLabels[0])
 
@@ -197,7 +201,10 @@ class DataManager(Singleton.Singleton):
 
 		return data
 
-	def PostProcessColumns(self, columnsData, columnLabels):
+	def PostProcessColumns(self,
+			columnsData:typing.List[NDArray],
+			columnLabels:typing.List[DCT.DataColumnTypes]
+			) -> typing.List[NDArray]:
 
 		if len(columnLabels) == 1:
 			return self.PostProcessSingleColumn(columnsData, columnLabels[0])
@@ -226,7 +233,7 @@ class DataManager(Singleton.Singleton):
 
 
 
-	def PreProcessSingleColumn(self, data, label):
+	def PreProcessSingleColumn(self, data:NDArray, label:DCT.DataColumnTypes) -> NDArray:
 
 		# add a dimension to the data at the end
 		proccessed = np.reshape(data, (len(data), -1))
@@ -257,7 +264,7 @@ class DataManager(Singleton.Singleton):
 
 		return proccessed
 
-	def PostProcessSingleColumn(self, data, label):
+	def PostProcessSingleColumn(self, data:NDArray, label:DCT.DataColumnTypes) -> NDArray:
 		proccessed = np.reshape(data, (len(data), -1))
 		proccessed = np.squeeze(proccessed)
 
@@ -308,6 +315,7 @@ class DataManager(Singleton.Singleton):
 		elif (label == DCT.DataColumnTypes.CurrentState or
 				label == DCT.DataColumnTypes.NextState) and \
 				isinstance(self.ObservationSpace, spaces.Discrete):
+
 			isDiscrete = True
 
 

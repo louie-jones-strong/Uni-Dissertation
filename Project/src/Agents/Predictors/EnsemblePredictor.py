@@ -43,6 +43,8 @@ class EnsemblePredictor(BasePredictor.BasePredictor):
 
 		wasTrained = False
 		for predictor in self._Predictors:
-			wasTrained = wasTrained or predictor.Train()
+
+			if predictor.Train():
+				wasTrained = True
 
 		return wasTrained

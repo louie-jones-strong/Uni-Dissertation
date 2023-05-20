@@ -12,7 +12,7 @@ class Logger(Singleton.Singleton):
 
 	# state
 	_Setup = False
-	_TimerLabelStack = []
+	_TimerLabelStack:typing.List[str] = []
 
 	def Setup(self, config:SCT.Config, runPath:str, runId:Optional[str] = None, wandbOn:bool = True) -> None:
 		self._RunId = runId
@@ -22,8 +22,8 @@ class Logger(Singleton.Singleton):
 		self._CurrentEpisode = 0
 		self._TotalSteps = 0
 		self._EpisodeCumulativeReward = 0.0
-		self._TotalTimePerStep = {}
-		self._TotalTimePerEpisode = {}
+		self._TotalTimePerStep:typing.Dict[str, float] = {}
+		self._TotalTimePerEpisode:typing.Dict[str, float] = {}
 		self._Setup = True
 
 

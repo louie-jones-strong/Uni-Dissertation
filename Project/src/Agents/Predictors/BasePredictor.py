@@ -48,23 +48,39 @@ class BasePredictor:
 	def Load(self, folderPath:str) -> None:
 		return
 
+	@staticmethod
+	def _ItemWiseEqual(prediction:NDArray, target:NDArray):
+
+		itemsEqual = prediction == target
+		itemsEqual = np.squeeze(itemsEqual)
+
+		if len(itemsEqual.shape) > 1:
+			itemsEqual = np.all(itemsEqual, axis=1)
+
+		return itemsEqual
 
 
-
-
-	def Predict(self, x:NDArray) -> typing.Tuple[NDArray, NDArray[np.float32]]:
+	def Predict(self, x:typing.List[NDArray]) -> typing.Tuple[NDArray, NDArray[np.float32]]:
 
 		if self._StepsSinceTrained < 0:
 			return None, 0.0
 
-		proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
 
-		predicted = self._Predict(proccessedX)
-		proccessedPrediction = self._DataManager.PostProcessColumns(predicted, self._YLabels)
+		proccessedX = self._DataManager.PreProcessColumns(x, self._XLabels)
+		rawPrediction = self.CalRawPrediction(proccessedX)
+
+		proccessedPrediction = self._DataManager.PostProcessColumns(rawPrediction, self._YLabels)
 
 		# todo: confidence
 		confidence = np.ones(len(x), dtype=np.float32) * 0.5
 		return proccessedPrediction, confidence
+
+	def CalRawPrediction(self, proccessedX):
+		if self._StepsSinceTrained < 0:
+			return None, 0.0
+
+		rawPrediction = self._Predict(proccessedX)
+		return rawPrediction
 
 	def Observe(self, x, y) -> None:
 
@@ -143,6 +159,8 @@ class BasePredictor:
 
 		return wasTrained
 
+
+
 	def _Evaluate(self, rawPrediction, proccessedY, y):
 
 		error = abs(np.mean(proccessedY - rawPrediction))
@@ -154,23 +172,13 @@ class BasePredictor:
 
 		return error, accuracy
 
-	@staticmethod
-	def _ItemWiseEqual(prediction, target):
-
-		itemsEqual = prediction == target
-		itemsEqual = np.squeeze(itemsEqual)
-
-		if len(itemsEqual.shape) > 1:
-			itemsEqual = np.all(itemsEqual, axis=1)
-
-		return itemsEqual
-
 	def _Predict(self, x:NDArray) -> NDArray:
-		if self._StepsSinceTrained < 0:
-			self.Train()
-
-		predicted = None
-		return predicted
+		return None
 
 	def _Train(self, x:NDArray, y:NDArray) -> bool:
 		return False
+
+
+
+
+

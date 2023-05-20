@@ -1,5 +1,6 @@
 import time
-from typing import Callable, Optional
+from typing import Callable, Optional, Type
+import types
 
 class Timer:
 	def __init__(self,
@@ -18,9 +19,13 @@ class Timer:
 
 	def __enter__(self) -> None:
 		self._Start = time.process_time()
-		return self
+		return
 
-	def __exit__(self, *args) -> None:
+	def __exit__(self,
+			exc_type:Optional[Type[BaseException]],
+			exc_value:Optional[BaseException],
+			exc_traceback:Optional[types.TracebackType]) -> None:
+
 		self._End = time.process_time()
 		self._Interval = self._End - self._Start
 

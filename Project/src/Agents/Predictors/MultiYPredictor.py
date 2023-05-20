@@ -45,12 +45,12 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		return error, accuracy
 
-	def _Predict(self, x:NDArray) -> NDArray:
-		super()._Predict(x)
+	def _Predict(self, proccessedX:NDArray) -> NDArray:
+		super()._Predict(proccessedX)
 
 		predicted = []
 		for yLabel in self._YLabels:
-			prediction = self._Predictors[yLabel]._Predict(x)
+			prediction = self._Predictors[yLabel].CalRawPrediction(proccessedX)
 			predicted.append(prediction)
 
 		return predicted
@@ -60,7 +60,9 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		wasTrained = False
 		for yLabel in self._YLabels:
-			wasTrained = wasTrained or self._Predictors[yLabel].Train()
+
+			if self._Predictors[yLabel].Train():
+				wasTrained = True
 
 		return wasTrained
 

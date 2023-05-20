@@ -153,7 +153,9 @@ class DQNAgent(BaseAgent.BaseAgent):
 			priorityScale = self.Config["PriorityScale"]
 
 			columnsData = self.DataManager.GetColumns(columns)
-			indexs, priorities, samples = self.DataManager.SampleArrays(columnsData, bactchSize, self.PriorityKey, priorityScale=priorityScale)
+			indexs, priorities, samples = self.DataManager.SampleArrays(columnsData,bactchSize,
+																		self.PriorityKey,
+																		priorityScale=priorityScale)
 
 			states, nextStates, actions, rewards, futureRewards, terminateds, truncateds = samples
 			dones = np.logical_or(terminateds, truncateds)
@@ -169,33 +171,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 				dones:NDArray[np.bool_],
 				futureRewards:SCT.Reward_List) -> SCT.Reward_List:
 
-			# nextStatePredictedQ = self.RunModel.predict(nextStates, verbose=0)
-			# # get the max Q for the next state
-			# futureQ = np.max(nextStatePredictedQ, axis=1)
-
-
-			# # if the real future reward is not None, then check if it is better than the predicted
-			# if futureRewards is not None and self.Config["PropagateFutureReward"]:
-			# 	futureQ = np.maximum(futureQ, futureRewards)
-
-			# # we should not add future reward if it is the last state
-			# futureQ *= (1-dones)
-
-			# # discount factor for future rewards
-			# gamma = self.Config["FutureRewardDiscount"]
-			# futureQ *= gamma
-
-
-			# # Calculate targets (bellman equation)
-			# targetQs:SCT.Reward_List = rewards + futureQ
-
-
-
-
-
-
-
-
 			# training DQN estimates best action in new states
 			arg_q_max = self.TrainingModel.predict(nextStates, verbose=0).argmax(axis=1)
 
@@ -206,16 +181,6 @@ class DQNAgent(BaseAgent.BaseAgent):
 			# Calculate targets (bellman equation)
 			gamma = self.Config["FutureRewardDiscount"]
 			target_q = rewards + (gamma*double_q * (1-dones))
-
-
-
-
-
-
-
-
-
-
 
 			return target_q
 
