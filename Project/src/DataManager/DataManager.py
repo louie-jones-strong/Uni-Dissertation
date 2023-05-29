@@ -25,6 +25,7 @@ class DataManager(Singleton.Singleton):
 		self.LoadConfig(config)
 		self.ObservationSpace = observationSpace
 		self.ActionSpace = actionSpace
+		self.ActionList = self._GetActionList()
 		self.RewardRange = rewardRange
 
 		# transition accumulator
@@ -38,6 +39,16 @@ class DataManager(Singleton.Singleton):
 				self.ActionSpace)
 
 		self._MarkovModel = MarkovModel.MarkovModel(int(self.ActionSpace.n))
+
+		return
+
+	def _GetActionList(self) -> typing.List[SCT.Action]:
+		if isinstance(self.ActionSpace, spaces.Discrete):
+			return [i for i in range(self.ActionSpace.n)]
+
+		elif isinstance(self.ActionSpace, spaces.Box):
+			raise NotImplementedError
+
 
 		return
 

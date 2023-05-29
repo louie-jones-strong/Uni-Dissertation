@@ -37,7 +37,7 @@ class BasePredictor:
 	def LoadConfig(self, config:SCT.Config) -> None:
 		self._Config = config
 		self._Config["MinStepsBetweenTraining"] = 100
-		self._Config["MinAccuracy"] = 0.9
+		self._Config["MinAccuracy"] = 0.99
 		self._Config["MaxError"] = 0.1
 		self._Config["ValidationAverageWindow"] = 100
 		return

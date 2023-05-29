@@ -30,8 +30,16 @@ class TreeNode:
 
 		return
 
-	def Selection(self, exploreFactor:float) -> typing.Tuple['TreeNode', SCT.Action]:
+	def Selection(self, exploreFactor:float) -> 'TreeNode':
 
+		if self.Done:
+			return self
+
+		if self.Counts == 0:
+			return self
+
+		if self.Children is None:
+			return self
 
 
 		nodeScores = np.array([child.GetNodeScore(exploreFactor, self.Counts) for child in self.Children])
@@ -39,10 +47,29 @@ class TreeNode:
 		selectedIndex = np.argmax(nodeScores)
 		selectedNode = self.Children[selectedIndex]
 
-		return selectedNode
+		return selectedNode.Selection(exploreFactor)
 
-	def Expand(self) -> None:
+	def Expand(self, actionList, forwardModel) -> None:
 
+		currentState = self.State.reshape(1, -1)
+		stateList = np.repeat(currentState, len(actionList), axis=0)
+
+		nextStates, rewards, terminateds, truncateds = forwardModel.Predict(stateList, actionList)
+
+		self.Children = []
+		for i in range(len(nextStates)):
+			done = terminateds[i] or truncateds[i]
+			expandedNode = TreeNode(
+				nextStates[i],
+				done=done,
+				parent=self,
+				actionIdxTaken=i)
+
+
+			if done:
+				expandedNode.BackPropagate(rewards[i], counts=1)
+
+			self.Children.append(expandedNode)
 
 		return
 
@@ -60,6 +87,9 @@ class TreeNode:
 		if self.Counts == 0:
 			return float('inf')
 
+		if self.Done:
+			return float('-inf')
+
 
 		parentCounts = self.Counts
 		if self.Parent is not None:
@@ -69,6 +99,20 @@ class TreeNode:
 
 		exploreValue = math.sqrt(math.log(parentCounts) / self.Counts)
 		return avgReward + exploreFactor * exploreValue
+
+	def GetActionValues(self) -> NDArray[np.float32]:
+
+		if self.Children is None:
+			return None
+
+		actionValues = []
+		for child in self.Children:
+			if child.Counts == 0:
+				actionValues.append(0)
+			else:
+				actionValues.append(child.TotalRewards / child.Counts)
+
+		return actionValues
 
 	def GetActionNode(self, action:SCT.Action) -> 'TreeNode':
 		for child in self.Children:
@@ -114,39 +158,31 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
 		super().GetActionValues(state)
 
+		if not self._ForwardModel.CanPredict():
+			return self._SubAgent.GetActionValues(state)
+
 		self._StopTime = time.process_time() + self.Config["MaxSecondsPerAction"]
 
 		rootNode = self._CachedTree
 		if rootNode is None or rootNode.State != state:
 			self._CachedTree = None
-			rootNode = TreeNode(state, self._SubAgent.GetActionValues(state), done=False)
+			rootNode = TreeNode(state, done=False)
 
 		# monte carlo tree search
 		for i in range(self.Config["MaxExpansions"]):
 			# 1. selection
-			selectedNode, selectedAction = rootNode.Selection()
+			selectedNode = rootNode.Selection(self.Config["ExploreFactor"])
 
 			# 2. expansion
-			nextState, reward, terminated, truncated = self._ForwardModel.Predict(selectedNode.State, selectedAction)
+			if selectedNode.Counts > 0 and selectedNode.Children is None:
+				selectedNode.Expand(self.DataManager.ActionList, self._ForwardModel)
+				selectedNode = selectedNode.Selection(self.Config["ExploreFactor"])
 
-			expandedNode = TreeNode(
-				nextState,
-				self._SubAgent.GetActionValues(state),
-				done=terminated or truncated,
-				parent=selectedNode,
-				actionTaken=selectedAction)
+			# 3. simulation
+			totalRewards = self._RollOut(selectedNode.State)
 
-
-			if expandedNode.Done:
-				expandedNode.BackPropagate(reward, counts=1)
-				continue
-
-
-			totalRewards = self._RollOut(expandedNode.State)
-			avgReward = totalRewards.mean()
-
-
-			expandedNode.BackPropagate(avgReward)
+			# 4. backpropagation
+			selectedNode.BackPropagate(totalRewards.sum(), len(totalRewards))
 
 			if time.process_time() >= self._StopTime:
 				break
@@ -154,7 +190,12 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		if self.Config["CacheTree"]:
 			self._CachedTree = rootNode
 
-		return rootNode
+		if rootNode.Children is None:
+			return self._SubAgent.GetActionValues(state)
+
+
+		actionValues = rootNode.GetActionValues()
+		return actionValues
 
 	def Reset(self) -> None:
 		super().Reset()
