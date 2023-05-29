@@ -3,6 +3,107 @@ import os
 import platform
 import keyboard
 import typing
+import argparse
+
+
+# region arg parser
+class ArgParser:
+
+	def __init__(self):
+		self.Parser = argparse.ArgumentParser()
+		self.Args = {}
+
+		return
+
+	def _AddOption(self, name:str, helpStr:str, uiLabel:Optional[str], typeStr:str) -> None:
+		self.Parser.add_argument(f"--{name}", type=str, default=None, help=helpStr)
+
+		self.Args[name] = {
+			"type": typeStr,
+			"help": helpStr,
+			"name": name,
+			"uiLabel": uiLabel
+		}
+		return
+
+	def AddFilePathOption(self, name:str, helpStr:str, folderPath:str, uiLabel:Optional[str]) -> None:
+		self._AddOption(name, helpStr, uiLabel, "file")
+		self.Args[name]["folderPath"] = folderPath
+		return
+
+	def AddBoolOption(self, name:str, helpStr:str, uiLabel:Optional[str]) -> None:
+		self._AddOption(name, helpStr, uiLabel, "bool")
+		return
+
+	def AddOptionsOption(self, name:str, helpStr:str, options:typing.List[str], uiLabel:Optional[str]) -> None:
+		self._AddOption(name, helpStr, uiLabel, "options")
+		self.Args[name]["options"] = options
+		return
+
+	def GetArgs(self) -> typing.Dict[str, object]:
+
+		args = self.Parser.parse_args()
+		argsDict = {}
+
+		for argName, argInfo in self.Args.items():
+			value = args.__getattribute__(argName)
+
+
+			value = self._ValidateValue(value, argInfo)
+
+			if value is None:
+				value = self._GetValue(argInfo)
+
+			argsDict[argName] = value
+
+		return argsDict
+
+	def _ValidateValue(self, value:object, argInfo:typing.Dict[str, object]) -> bool:
+		if value is None:# or value == "None" or value == "":
+			return None
+
+
+		if argInfo["type"] == "file":
+			# check if it is a file
+			if not os.path.isfile(value):
+				print(f"Invalid file path: {value}, for {argInfo['name']}")
+				return None
+
+			# check if it is in the correct folder
+			if not value.startswith(argInfo["folderPath"]):
+				print(f"File should be in {argInfo['folderPath']}, for {argInfo['name']}")
+				return None
+
+		elif argInfo["type"] == "bool":
+			value = value.lower()
+			if value == "true" or value == "t" or value == "false" or value == "f":
+				return value == "true" or value == "t"
+			else:
+				return None
+
+		elif argInfo["type"] == "options":
+			if value not in argInfo["options"]:
+				print(f"Invalid option: {value}, for {argInfo['name']}")
+				return None
+
+		return value
+
+	def _GetValue(self, argInfo:typing.Dict[str, object]) -> object:
+		uiLabel = argInfo["uiLabel"]
+		helpStr = argInfo["help"]
+
+		print()
+		print(helpStr)
+
+		if argInfo["type"] == "file":
+			return FilePicker(uiLabel, argInfo["folderPath"])
+		elif argInfo["type"] == "bool":
+			return BoolPicker(uiLabel)
+		elif argInfo["type"] == "options":
+			return OptionPicker(uiLabel, argInfo["options"])
+
+		return None
+# endregion
 
 # region console input
 def FilePicker(label:str, folderPath:str) -> str:

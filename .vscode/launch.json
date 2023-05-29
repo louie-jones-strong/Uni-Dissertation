@@ -10,7 +10,12 @@
 			"request": "launch",
 			"program": "Project//Main.py",
 			"console": "integratedTerminal",
-			"justMyCode": true
+			"justMyCode": true,
+			"args": [
+				"--wandb", "False",
+				"--play", "False",
+				"--load", "False"
+			]
 		}
 	]
 }

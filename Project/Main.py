@@ -14,15 +14,11 @@ import src.Runner as Runner
 import time
 
 
-def Main(envIdx:Optional[int],
-		isPlayMode:Optional[bool],
-		load:Optional[bool],
-		agentIdx:Optional[int],
-		wandbOn:Optional[bool]) -> None:
-
-	# find all environments in the configs folder
-	configPath = os.path.join(GetRootPath(), "Config", "Envs")
-	envConfigPath = UI.FilePicker("Environments", configPath)
+def Main(envConfigPath,
+		isPlayMode,
+		load,
+		agentType,
+		wandbOn) -> None:
 
 	# load config
 	with open(envConfigPath) as f:
@@ -30,11 +26,8 @@ def Main(envIdx:Optional[int],
 
 	# load agents
 	mode = BaseAgent.AgentMode.Train
-	if UI.BoolPicker("Play"):
+	if isPlayMode:
 		mode = BaseAgent.AgentMode.Play
-
-	load = UI.BoolPicker("Load")
-	agentType = UI.OptionPicker(f"Agent", BaseAgent.AgentList)
 
 	# load env
 	env = BaseEnv.GetEnv(config)
@@ -68,18 +61,30 @@ def Main(envIdx:Optional[int],
 	except KeyboardInterrupt:
 		if UI.BoolPicker("Save?"):
 			runner.Save()
-
-
 	return
 
 
 if __name__ == "__main__":
 
+	parser = UI.ArgParser()
+
+	envConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
+	parser.AddFilePathOption("env", "path to env config", envConfigFolder, "env")
+	parser.AddBoolOption("play", "run in play mode", "play")
+	parser.AddBoolOption("load", "load from previous run", "load")
+	parser.AddOptionsOption("agent", "agent to use", BaseAgent.AgentList, "agent")
+	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
+
+	args = parser.GetArgs()
+	print(args)
+
 	try:
 
-		Main(None, None, None, None, False)
+		Main(args["env"], args["play"], args["load"], args["agent"], args["wandb"])
 
 	except KeyboardInterrupt:
 		print("")
 		print("Interrupted")
 		os._exit(0)
+
+# py Main.py --wandb False --env C:\Users\louie\Documents\Git\Uni-Dissertation\Project\Config\Envs\CartPole.json --play False --load False --agent Random
