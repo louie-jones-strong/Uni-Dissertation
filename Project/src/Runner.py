@@ -23,7 +23,9 @@ class Runner:
 			env:BaseEnv.BaseEnv,
 			agents:typing.List[BaseAgent.BaseAgent],
 			load:bool,
-			forwardModel:ForwardModel.ForwardModel):
+			forwardModel:ForwardModel.ForwardModel,
+			maxEpisodesOverride:typing.Optional[int] = None,
+			maxStepsOverride:typing.Optional[int] = None):
 
 		self.ConfigPath = configPath
 		self._RunPath = runPath
@@ -31,6 +33,9 @@ class Runner:
 		self._DataManager = DataManager()
 		self._Logger = Logger()
 		self.Agents = agents
+
+		self._MaxEpisodesOverride = maxEpisodesOverride
+		self._MaxStepsOverride = maxStepsOverride
 
 		self.ForwardModel = forwardModel
 		self.LoadConfig()
@@ -61,7 +66,7 @@ class Runner:
 		lastTimes:typing.Deque[float] = deque(maxlen=10)
 
 		episode = 0
-		while episode < self.Config["MaxEpisodes"]:
+		while episode < self._GetMaxEpisodes():
 			startTime = time.process_time()
 
 			steps, reward = self.RunEpisode()
@@ -86,7 +91,7 @@ class Runner:
 
 		totalReward:float = 0.0
 		state = self.Env.Reset()
-		for step in range(self.Config["MaxSteps"]):
+		for step in range(self._GetMaxSteps()):
 
 			with self._Logger.Time("Step"):
 
@@ -95,7 +100,7 @@ class Runner:
 
 				with self._Logger.Time("Step"):
 					nextState, reward, terminated, truncated = self.Env.Step(action)
-					truncated = truncated or step >= self.Config["MaxSteps"] - 1
+					truncated = truncated or step >= self._GetMaxSteps() - 1
 
 				with self._Logger.Time("Remember"):
 					self.Remember(state, action, reward, nextState, terminated, truncated)
@@ -177,3 +182,14 @@ class Runner:
 		for agent in self.Agents:
 			agent.Load(path)
 		return
+
+
+	def _GetMaxEpisodes(self) -> int:
+		if self._MaxEpisodesOverride is not None:
+			return self._MaxEpisodesOverride
+		return self.Config["MaxEpisodes"]
+
+	def _GetMaxSteps(self) -> int:
+		if self._MaxStepsOverride is not None:
+			return self._MaxStepsOverride
+		return self.Config["MaxSteps"]

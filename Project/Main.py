@@ -9,6 +9,7 @@ from src.DataManager.DataManager import DataManager
 from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
 from typing import Optional
+import typing
 
 import src.Runner as Runner
 import time
@@ -18,7 +19,9 @@ def Main(envConfigPath,
 		isPlayMode,
 		load,
 		agentType,
-		wandbOn) -> None:
+		wandbOn,
+		maxEpisodesOverride:typing.Optional[int] = None,
+		maxStepsOverride:typing.Optional[int] = None) -> None:
 
 	# load config
 	with open(envConfigPath) as f:
@@ -54,7 +57,8 @@ def Main(envConfigPath,
 
 
 	# run
-	runner = Runner.Runner(envConfigPath, runPath, env, agents, load, forwardModel)
+	runner = Runner.Runner(envConfigPath, runPath, env, agents, load, forwardModel,
+			maxEpisodesOverride=maxEpisodesOverride, maxStepsOverride=maxStepsOverride)
 
 	try:
 		runner.RunEpisodes()

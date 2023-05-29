@@ -26,8 +26,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		self.TrainingModel = self.BuildModel()
 		self.TrainingModel.set_weights(self.RunModel.get_weights())
 
-		constructor = BaseAgent.GetAgent(self.Config["ExplorationAgent"])
-		self.ExplorationAgent = constructor(self.DataManager.ObservationSpace, self.DataManager.ActionSpace, envConfig)
+		self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"], envConfig, mode, None)
 		return
 
 	def BuildModel(self) -> tf.keras.Model:
