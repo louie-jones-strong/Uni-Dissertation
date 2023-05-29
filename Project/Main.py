@@ -86,5 +86,3 @@ if __name__ == "__main__":
 		print("")
 		print("Interrupted")
 		os._exit(0)
-
-# py Main.py --wandb False --env C:\Users\louie\Documents\Git\Uni-Dissertation\Project\Config\Envs\CartPole.json --play False --load False --agent Random
