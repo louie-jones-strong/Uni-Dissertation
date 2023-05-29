@@ -4,6 +4,7 @@ import os
 import src.Agents.BaseAgent as BaseAgent
 import src.Environments.BaseEnv as BaseEnv
 import src.Utils.UserInputHelper as UI
+import src.Agents.ForwardModel as ForwardModel
 from src.DataManager.DataManager import DataManager
 from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
@@ -38,27 +39,29 @@ def Main(envIdx:Optional[int],
 	# load env
 	env = BaseEnv.GetEnv(config)
 
-	agents = []
-	for i in range(1):
-		agents.append(BaseAgent.GetAgent(agentType)(env.ObservationSpace, env.ActionSpace, config, mode=mode))
-
 	timeStamp = int(time.time())
 	runId = f"{config['Name']}_{timeStamp}"
 	runPath = os.path.join(GetRootPath(), "data", config['Name'])#, runId)
-
-
-
 
 	# load data manager
 	dataManager = DataManager()
 	dataManager.Setup(config, env.ObservationSpace, env.ActionSpace, env.RewardRange)
 
+
+	forwardModel = ForwardModel.ForwardModel(None)
+
 	# load logger
 	logger = Logger()
-	logger.Setup(config, runPath, runId=runId)
+	logger.Setup(config, runPath, runId=runId, wandbOn=wandbOn)
+
+	agents = []
+	for i in range(1):
+		agent = BaseAgent.GetAgent(agentType, config, mode, forwardModel)
+		agents.append(agent)
+
 
 	# run
-	runner = Runner.Runner(envConfigPath, runPath, env, agents, load)
+	runner = Runner.Runner(envConfigPath, runPath, env, agents, load, forwardModel)
 
 	try:
 		runner.RunEpisodes()
@@ -74,7 +77,7 @@ if __name__ == "__main__":
 
 	try:
 
-		Main(None, None, None, None, None)
+		Main(None, None, None, None, False)
 
 	except KeyboardInterrupt:
 		print("")

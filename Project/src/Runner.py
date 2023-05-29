@@ -5,7 +5,7 @@ import typing
 from collections import deque
 
 import src.Agents.BaseAgent as BaseAgent
-import src.Agents.Predictors.MultiYPredictor as MultiYPredictor
+import src.Agents.ForwardModel as ForwardModel
 import src.DataManager.DataColumnTypes as DCT
 import src.Environments.BaseEnv as BaseEnv
 import src.Utils.SharedCoreTypes as SCT
@@ -22,7 +22,8 @@ class Runner:
 			runPath:str,
 			env:BaseEnv.BaseEnv,
 			agents:typing.List[BaseAgent.BaseAgent],
-			load:bool):
+			load:bool,
+			forwardModel:ForwardModel.ForwardModel):
 
 		self.ConfigPath = configPath
 		self._RunPath = runPath
@@ -31,19 +32,7 @@ class Runner:
 		self._Logger = Logger()
 		self.Agents = agents
 
-
-		xColumns = [
-			DCT.DataColumnTypes.CurrentState,
-			DCT.DataColumnTypes.Action]
-
-		yColumns = [
-			DCT.DataColumnTypes.NextState,
-			DCT.DataColumnTypes.Reward,
-			DCT.DataColumnTypes.Terminated,
-			DCT.DataColumnTypes.Truncated]
-
-		self.Predictor = MultiYPredictor.MultiYPredictor(xColumns, yColumns)
-
+		self.ForwardModel = forwardModel
 		self.LoadConfig()
 
 		if load:
@@ -154,8 +143,8 @@ class Runner:
 			for agent in self.Agents:
 				agent.Remember(state, action, reward, nextState, terminated, truncated)
 
-		with self._Logger.Time("Predictor"):
-			self.Predictor.Observe([[state], [action]], [[nextState], [reward], [terminated], [truncated]])
+		with self._Logger.Time("ForwardModel"):
+			self.ForwardModel.Remember(state, action, reward, nextState, terminated, truncated)
 		return
 
 	def Reset(self) -> None:

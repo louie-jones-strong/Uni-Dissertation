@@ -9,6 +9,7 @@ import src.Utils.Metrics.Logger as Logger
 import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 from src.Utils.PathHelper import GetRootPath
+import src.Agents.ForwardModel as ForwardModel
 
 
 class AgentMode(enum.Enum):
@@ -18,24 +19,29 @@ class AgentMode(enum.Enum):
 
 
 AgentList = ["Random", "DQN", "Human", "MonteCarlo", "Exploration"]
-def GetAgent(agentName:str) -> type:
+def GetAgent(agentName:str, envConfig:SCT.Config, mode:AgentMode, forwardModel:ForwardModel.ForwardModel) -> object:
 
 
 	if agentName == "Random":
 		from . import RandomAgent
-		return RandomAgent.RandomAgent
+		return RandomAgent.RandomAgent(envConfig, mode)
+
 	elif agentName == "DQN":
 		from . import DQNAgent
-		return DQNAgent.DQNAgent
+		return DQNAgent.DQNAgent(envConfig, mode)
+
 	elif agentName == "Human":
 		from . import HumanAgent
-		return HumanAgent.HumanAgent
+		return HumanAgent.HumanAgent(envConfig, mode)
+
 	elif agentName == "MonteCarlo":
 		from . import MonteCarloAgent
-		return MonteCarloAgent.MonteCarloAgent
+		return MonteCarloAgent.MonteCarloAgent(envConfig, mode, forwardModel)
+
 	elif agentName == "Exploration":
 		from . import ExplorationAgent
-		return ExplorationAgent.ExplorationAgent
+		return ExplorationAgent.ExplorationAgent(envConfig, mode)
+
 
 	raise Exception(f"Agent \"{agentName}\" not found")
 
@@ -44,13 +50,8 @@ def GetAgent(agentName:str) -> type:
 
 
 class BaseAgent:
-	def __init__(self,
-			observationSpace:SCT.StateSpace,
-			actionSpace:SCT.ActionSpace,
-			envConfig:SCT.Config, mode:AgentMode = AgentMode.Train):
+	def __init__(self, envConfig:SCT.Config, mode:AgentMode):
 
-		self._ObservationSpace = observationSpace
-		self._ActionSpace = actionSpace
 		self.Mode = mode
 		self.Name = self.__class__.__name__.replace("Agent", "")
 
@@ -115,7 +116,7 @@ EnvConfig: {self.EnvConfig}
 		return 0
 
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
-		shape = SCT.JoinTuples(self._ActionSpace.shape, None)
+		shape = SCT.JoinTuples(self.DataManager.ActionSpace.shape, None)
 		return np.ones(shape, dtype=np.float32)
 
 	def _GetMaxValues(self, values:NDArray[np.float32]) -> int:

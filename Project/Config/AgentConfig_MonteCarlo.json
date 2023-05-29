@@ -1,5 +1,12 @@
 {
-	"MaxDepth": 50,
-	"SubAgent": "Exploration",
-	"TopActionCount": 10
+	"SubAgent": "Random",
+	"MaxSecondsPerAction": 0.1,
+	"MaxExpansions": 3,
+	"CacheTree": true,
+	"RollOutConfig": {
+		"MaxRollOutCount": 10,
+		"MaxRollOutDepth": 3,
+		"ValueFinalStates": true,
+		"TimeOutAllowed": true
+	}
 }

@@ -11,12 +11,8 @@ from numpy.typing import NDArray
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self,
-			observationSpace:SCT.StateSpace,
-			actionSpace:SCT.ActionSpace,
-			envConfig:SCT.Config,
-			mode:BaseAgent.AgentMode = BaseAgent.AgentMode.Train):
-		super().__init__(observationSpace, actionSpace, envConfig, mode=mode)
+	def __init__(self, envConfig:SCT.Config, mode:BaseAgent.AgentMode):
+		super().__init__(envConfig, mode)
 
 		self.PriorityKey = "DQNAgent"
 
@@ -31,12 +27,12 @@ class DQNAgent(BaseAgent.BaseAgent):
 		self.TrainingModel.set_weights(self.RunModel.get_weights())
 
 		constructor = BaseAgent.GetAgent(self.Config["ExplorationAgent"])
-		self.ExplorationAgent = constructor(self._ObservationSpace, self._ActionSpace, envConfig)
+		self.ExplorationAgent = constructor(self.DataManager.ObservationSpace, self.DataManager.ActionSpace, envConfig)
 		return
 
 	def BuildModel(self) -> tf.keras.Model:
-		inputShape = SCT.JoinTuples(self._ObservationSpace.shape, None)
-		outputNumber = self._ActionSpace.n
+		inputShape = SCT.JoinTuples(self.DataManager.ObservationSpace.shape, None)
+		outputNumber = self.DataManager.ActionSpace.n
 
 
 		model = tf.keras.models.Sequential()
@@ -193,7 +189,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 			with tf.GradientTape() as tape:
 				qValues = self.TrainingModel(states)
 
-				actionMask = tf.keras.utils.to_categorical(actions, self._ActionSpace.n, dtype=np.float32)
+				actionMask = tf.keras.utils.to_categorical(actions, self.DataManager.ActionSpace.n, dtype=np.float32)
 				currentQ = tf.reduce_sum(tf.multiply(qValues, actionMask), axis=1)
 
 				absError = abs(targetQs - currentQ)
