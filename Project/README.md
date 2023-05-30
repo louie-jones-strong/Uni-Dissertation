@@ -6,3 +6,4 @@
 ### venv
 1. Install [Python 3.8.10](https://www.python.org/downloads/)
 2. Run `Setup.bat` in the root directory
+3. View Profiling `snakeviz profile.pstats`
