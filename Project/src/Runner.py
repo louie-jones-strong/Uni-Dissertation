@@ -1,4 +1,3 @@
-import json
 import os
 import time
 import typing
@@ -13,6 +12,7 @@ import src.Utils.UserInputHelper as UI
 from src.DataManager.DataManager import DataManager
 from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
+import src.Utils.ConfigHelper as ConfigHelper
 
 
 class Runner:
@@ -46,16 +46,15 @@ class Runner:
 
 	def LoadConfig(self) -> None:
 
-		# load environment config
-		with open(self.ConfigPath) as f:
-			self.Config = json.load(f)
+		self.Config = ConfigHelper.LoadConfig(self.ConfigPath)
 
 		self._DataManager.LoadConfig(self.Config)
 
 		self.Env.LoadConfig(self.Config)
 
+		agentConfig = self.Config.get("AgentConfig", {})
 		for agent in self.Agents:
-			agent.LoadConfig(self.Config)
+			agent.LoadConfig(agentConfig)
 
 		return
 

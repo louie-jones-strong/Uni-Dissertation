@@ -1,4 +1,3 @@
-import json
 import os
 
 import src.Agents.BaseAgent as BaseAgent
@@ -8,6 +7,7 @@ import src.Agents.ForwardModel as ForwardModel
 from src.DataManager.DataManager import DataManager
 from src.Utils.Metrics.Logger import Logger
 from src.Utils.PathHelper import GetRootPath
+import src.Utils.ConfigHelper as ConfigHelper
 from typing import Optional
 import typing
 
@@ -24,8 +24,7 @@ def Main(envConfigPath,
 		maxStepsOverride:typing.Optional[int] = None) -> None:
 
 	# load config
-	with open(envConfigPath) as f:
-		config = json.load(f)
+	config = ConfigHelper.LoadConfig(envConfigPath)
 
 	# load agents
 	mode = BaseAgent.AgentMode.Train
@@ -50,9 +49,10 @@ def Main(envConfigPath,
 	logger = Logger()
 	logger.Setup(config, runPath, runId=runId, wandbOn=wandbOn)
 
+	agentConfig = config.get("AgentConfig", {})
 	agents = []
 	for i in range(1):
-		agent = BaseAgent.GetAgent(agentType, config, mode, forwardModel)
+		agent = BaseAgent.GetAgent(agentType, agentConfig, mode, forwardModel)
 		agents.append(agent)
 
 

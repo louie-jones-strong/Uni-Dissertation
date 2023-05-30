@@ -10,6 +10,7 @@ import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 from src.Utils.PathHelper import GetRootPath
 import src.Agents.ForwardModel as ForwardModel
+import src.Utils.ConfigHelper as ConfigHelper
 
 
 class AgentMode(enum.Enum):
@@ -19,28 +20,27 @@ class AgentMode(enum.Enum):
 
 
 AgentList = ["Random", "DQN", "Human", "MonteCarlo", "Exploration"]
-def GetAgent(agentName:str, envConfig:SCT.Config, mode:AgentMode, forwardModel:ForwardModel.ForwardModel) -> object:
-
+def GetAgent(agentName:str, overrideConfig:SCT.Config, mode:AgentMode, forwardModel:ForwardModel.ForwardModel) -> object:
 
 	if agentName == "Random":
 		from . import RandomAgent
-		return RandomAgent.RandomAgent(envConfig, mode)
+		return RandomAgent.RandomAgent(overrideConfig, mode)
 
 	elif agentName == "DQN":
 		from . import DQNAgent
-		return DQNAgent.DQNAgent(envConfig, mode)
+		return DQNAgent.DQNAgent(overrideConfig, mode)
 
 	elif agentName == "Human":
 		from . import HumanAgent
-		return HumanAgent.HumanAgent(envConfig, mode)
+		return HumanAgent.HumanAgent(overrideConfig, mode)
 
 	elif agentName == "MonteCarlo":
 		from . import MonteCarloAgent
-		return MonteCarloAgent.MonteCarloAgent(envConfig, mode, forwardModel)
+		return MonteCarloAgent.MonteCarloAgent(overrideConfig, mode, forwardModel)
 
 	elif agentName == "Exploration":
 		from . import ExplorationAgent
-		return ExplorationAgent.ExplorationAgent(envConfig, mode)
+		return ExplorationAgent.ExplorationAgent(overrideConfig, mode)
 
 
 	raise Exception(f"Agent \"{agentName}\" not found")
@@ -50,12 +50,12 @@ def GetAgent(agentName:str, envConfig:SCT.Config, mode:AgentMode, forwardModel:F
 
 
 class BaseAgent:
-	def __init__(self, envConfig:SCT.Config, mode:AgentMode):
+	def __init__(self, overrideConfig:SCT.Config, mode:AgentMode):
 
 		self.Mode = mode
 		self.Name = self.__class__.__name__.replace("Agent", "")
 
-		self.LoadConfig(envConfig)
+		self.LoadConfig(overrideConfig)
 
 		self.DataManager = DataManager.DataManager()
 		self._Logger = Logger.Logger()
@@ -66,20 +66,13 @@ class BaseAgent:
 		self.EpisodeNum = 0
 		return
 
-	def LoadConfig(self, envConfig:SCT.Config) -> None:
-		self.Config = {}
+	def LoadConfig(self, overrideConfig:SCT.Config) -> None:
 
-		path = os.path.join(GetRootPath(), "Config", f"AgentConfig_{self.Name}.json")
-		if os.path.exists(path):
-			with open(path, "r") as f:
-				self.Config = json.load(f)
-
-		self.EnvConfig = envConfig.get("AgentConfig", {}).get(self.Name, None)
+		self.Config = ConfigHelper.LoadAndMergeConfig(self, overrideConfig)
 
 		print(f"""
 Agent {self.Name}
 Config: {self.Config}
-EnvConfig: {self.EnvConfig}
 """)
 		return
 

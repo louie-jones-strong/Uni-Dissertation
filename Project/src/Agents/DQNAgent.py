@@ -11,8 +11,8 @@ from numpy.typing import NDArray
 
 class DQNAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, envConfig:SCT.Config, mode:BaseAgent.AgentMode):
-		super().__init__(envConfig, mode)
+	def __init__(self, overrideConfig:SCT.Config, mode:BaseAgent.AgentMode):
+		super().__init__(overrideConfig, mode)
 
 		self.PriorityKey = "DQNAgent"
 
@@ -26,7 +26,7 @@ class DQNAgent(BaseAgent.BaseAgent):
 		self.TrainingModel = self.BuildModel()
 		self.TrainingModel.set_weights(self.RunModel.get_weights())
 
-		self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"], envConfig, mode, None)
+		self.ExplorationAgent = BaseAgent.GetAgent(self.Config["ExplorationAgent"], {}, mode, None)
 		return
 
 	def BuildModel(self) -> tf.keras.Model:
