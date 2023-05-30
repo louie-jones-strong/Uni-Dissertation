@@ -51,8 +51,7 @@ class TreeNode:
 
 	def Expand(self, actionList, forwardModel) -> None:
 
-		currentState = self.State.reshape(1, -1)
-		stateList = np.repeat(currentState, len(actionList), axis=0)
+		stateList = MonteCarloAgent.CloneState(self.State, len(actionList))
 
 		nextStates, rewards, terminateds, truncateds = forwardModel.Predict(stateList, actionList)
 
@@ -233,9 +232,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		timeOutAllowed = self.Config["RollOutConfig"]["TimeOutAllowed"]
 
 
-		# copy the state into a new array of states
-		currentState = state.reshape(1, -1)
-		states = np.repeat(currentState, numRollOuts, axis=0)
+		states = MonteCarloAgent.CloneState(state, numRollOuts)
 
 		isPlayingMask = np.ones(numRollOuts, dtype=np.bool_)
 		totalRewards = np.zeros(numRollOuts, dtype=np.float32)
@@ -271,6 +268,17 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 
 		return totalRewards
+
+	@staticmethod
+	def CloneState(state:SCT.State, count:int) -> SCT.State_List:
+
+		if isinstance(state, int):
+			return np.full(count, state, dtype=np.int_)
+
+
+		currentState = state.reshape(1, -1)
+		states = np.repeat(currentState, count, axis=0)
+		return states
 
 	def _SampleActions(self, actionSpace: SCT.ActionSpace, numActions:int) -> SCT.Action_List:
 
