@@ -20,7 +20,8 @@ class DecisionTreePredictor(BasePredictor.BasePredictor):
 	def _Predict(self, x:NDArray) -> NDArray:
 		super()._Predict(x)
 
-		predicted = self.Predictor.predict(xgb.DMatrix(x))
+		dmatrix = xgb.DMatrix(x)
+		predicted = self.Predictor.predict(dmatrix)
 
 		predicted = np.reshape(predicted, (len(predicted), -1))
 
@@ -31,15 +32,21 @@ class DecisionTreePredictor(BasePredictor.BasePredictor):
 
 		dtrain = xgb.DMatrix(x, label=y)
 
+		params = {
+			"max_depth": self.Config["max_depth"],
+			"gamma": self.Config["gamma"]
+		}
+
+
 		# regression problem
-		params = {'objective': 'reg:squarederror'}
+		params["objective"] = "reg:squarederror"
 
 		# classification problem
 		if self._IsDiscrete:
-			params = {'objective': 'binary:logistic'}
+			params["objective"] = "binary:logistic"
 
 		# Train the model
-		num_rounds = 100
+		num_rounds = self.Config["num_rounds"]
 		self.Predictor = xgb.train(params, dtrain, num_rounds)
 
 		return True

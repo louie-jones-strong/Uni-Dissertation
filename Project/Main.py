@@ -14,12 +14,16 @@ import typing
 import src.Runner as Runner
 import time
 
+import cProfile
+import pstats
+
 
 def Main(envConfigPath,
 		isPlayMode,
 		load,
 		agentType,
 		wandbOn,
+		profileOn,
 		maxEpisodesOverride:typing.Optional[int] = None,
 		maxStepsOverride:typing.Optional[int] = None) -> None:
 
@@ -61,10 +65,21 @@ def Main(envConfigPath,
 			maxEpisodesOverride=maxEpisodesOverride, maxStepsOverride=maxStepsOverride)
 
 	try:
-		runner.RunEpisodes()
+		if profileOn:
+			with cProfile.Profile() as pr:
+				runner.RunEpisodes()
+		else:
+			runner.RunEpisodes()
+
 	except KeyboardInterrupt:
 		if UI.BoolPicker("Save?"):
 			runner.Save()
+
+	if profileOn:
+		stats = pstats.Stats(pr)
+		stats.sort_stats(pstats.SortKey.TIME)
+		stats.dump_stats(os.path.join(GetRootPath(), "profile.pstats"))
+
 	return
 
 
@@ -78,13 +93,14 @@ if __name__ == "__main__":
 	parser.AddBoolOption("load", "load from previous run", "load")
 	parser.AddOptionsOption("agent", "agent to use", BaseAgent.AgentList, "agent")
 	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
+	parser.AddBoolOption("profile", "Should the runner be profiled", "profile")
 
 	args = parser.GetArgs()
 	print(args)
 
 	try:
 
-		Main(args["env"], args["play"], args["load"], args["agent"], args["wandb"])
+		Main(args["env"], args["play"], args["load"], args["agent"], args["wandb"], args["profile"])
 
 	except KeyboardInterrupt:
 		print("")

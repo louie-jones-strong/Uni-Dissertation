@@ -5,7 +5,6 @@ from collections import deque
 
 import src.Agents.BaseAgent as BaseAgent
 import src.Agents.ForwardModel as ForwardModel
-import src.DataManager.DataColumnTypes as DCT
 import src.Environments.BaseEnv as BaseEnv
 import src.Utils.SharedCoreTypes as SCT
 import src.Utils.UserInputHelper as UI

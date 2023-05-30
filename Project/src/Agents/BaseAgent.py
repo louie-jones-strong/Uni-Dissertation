@@ -1,6 +1,4 @@
 import enum
-import json
-import os
 import random
 
 import numpy as np
@@ -8,7 +6,6 @@ import src.DataManager.DataManager as DataManager
 import src.Utils.Metrics.Logger as Logger
 import src.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
-from src.Utils.PathHelper import GetRootPath
 import src.Agents.ForwardModel as ForwardModel
 import src.Utils.ConfigHelper as ConfigHelper
 
@@ -20,7 +17,10 @@ class AgentMode(enum.Enum):
 
 
 AgentList = ["Random", "DQN", "Human", "MonteCarlo", "Exploration"]
-def GetAgent(agentName:str, overrideConfig:SCT.Config, mode:AgentMode, forwardModel:ForwardModel.ForwardModel) -> object:
+def GetAgent(agentName:str,
+		overrideConfig:SCT.Config,
+		mode:AgentMode,
+		forwardModel:ForwardModel.ForwardModel) -> object:
 
 	if agentName == "Random":
 		from . import RandomAgent

@@ -142,6 +142,7 @@ class DataManager(Singleton.Singleton, ConfigHelper.ConfigurableClass):
 # region data sampling
 
 	def GetColumns(self, columns:typing.List[DCT.DataColumnTypes]) -> typing.List[NDArray]:
+
 		columnsData = self._ReplayBuffer.SampleAll()
 
 		columnsData = DCT.FilterColumns(columns, columnsData)

@@ -59,7 +59,8 @@ class ArgParser:
 		return argsDict
 
 	def _ValidateValue(self, value:object, argInfo:typing.Dict[str, object]) -> bool:
-		if value is None:# or value == "None" or value == "":
+
+		if value is None:
 			return None
 
 

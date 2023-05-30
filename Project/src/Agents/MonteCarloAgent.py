@@ -6,17 +6,17 @@ import time
 from gymnasium.spaces import Discrete, Box
 import src.Agents.ForwardModel as ForwardModel
 import typing
+from typing import Optional
 import math
-
-
 
 
 class TreeNode:
 	def __init__(self,
 			state:SCT.State,
 			done:bool,
-			parent:'TreeNode'=None,
-			actionIdxTaken=None):
+			parent:Optional['TreeNode'] = None,
+			actionIdxTaken:Optional[int] = None):
+
 		self.State = state
 		self.Done = done
 
@@ -35,9 +35,6 @@ class TreeNode:
 		if self.Done:
 			return self
 
-		if self.Counts == 0:
-			return self
-
 		if self.Children is None:
 			return self
 
@@ -49,7 +46,7 @@ class TreeNode:
 
 		return selectedNode.Selection(exploreFactor)
 
-	def Expand(self, actionList, forwardModel) -> None:
+	def Expand(self, actionList:SCT.Action_List, forwardModel:ForwardModel.ForwardModel) -> None:
 
 		stateList = MonteCarloAgent.CloneState(self.State, len(actionList))
 
@@ -120,7 +117,7 @@ class TreeNode:
 
 		return None
 
-	def DetachParent(self):
+	def DetachParent(self) -> None:
 		del self.Parent
 		self.Parent = None
 		self.ActionIdxTaken = None
@@ -168,8 +165,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			self._CachedTree = None
 			rootNode = TreeNode(state, done=False)
 
+		if rootNode.Children is None:
+			rootNode.Expand(self.DataManager.ActionList, self._ForwardModel)
+
 		# monte carlo tree search
-		for i in range(self.Config["MaxExpansions"]):
+		for i in range(self.Config["MaxSelections"]):
 			# 1. selection
 			selectedNode = rootNode.Selection(self.Config["ExploreFactor"])
 

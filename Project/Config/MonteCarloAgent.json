@@ -1,7 +1,7 @@
 {
 	"SubAgent": "Random",
-	"MaxSecondsPerAction": 10,
-	"MaxExpansions": 3,
+	"MaxSecondsPerAction": 60,
+	"MaxSelections": 4,
 	"CacheTree": false,
 	"ExploreFactor": 0.5,
 	"RollOutConfig": {
