@@ -49,12 +49,10 @@ def GetAgent(agentName:str, overrideConfig:SCT.Config, mode:AgentMode, forwardMo
 
 
 
-class BaseAgent:
+class BaseAgent(ConfigHelper.ConfigurableClass):
 	def __init__(self, overrideConfig:SCT.Config, mode:AgentMode):
 
 		self.Mode = mode
-		self.Name = self.__class__.__name__.replace("Agent", "")
-
 		self.LoadConfig(overrideConfig)
 
 		self.DataManager = DataManager.DataManager()
@@ -64,16 +62,6 @@ class BaseAgent:
 		self.TotalStepNum = 0
 		self.TotalRememberedStep = 0
 		self.EpisodeNum = 0
-		return
-
-	def LoadConfig(self, overrideConfig:SCT.Config) -> None:
-
-		self.Config = ConfigHelper.LoadAndMergeConfig(self, overrideConfig)
-
-		print(f"""
-Agent {self.Name}
-Config: {self.Config}
-""")
 		return
 
 	def Reset(self) -> None:

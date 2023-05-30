@@ -1,0 +1,5 @@
+{
+	"ReplayBufferMaxSize": 100000,
+	"TransitionAccumulatorSize": 1000,
+	"QFuncGamma": 0.99
+}

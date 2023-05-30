@@ -12,9 +12,10 @@ import src.Utils.Singleton as Singleton
 from numpy.typing import NDArray
 from tensorflow.keras.utils import to_categorical
 import gymnasium.spaces as spaces
+import src.Utils.ConfigHelper as ConfigHelper
 
 
-class DataManager(Singleton.Singleton):
+class DataManager(Singleton.Singleton, ConfigHelper.ConfigurableClass):
 
 	def Setup(self,
 			config:SCT.Config,
@@ -34,7 +35,7 @@ class DataManager(Singleton.Singleton):
 		self._QValueAccumulator:SCT.Reward = 0
 
 		self._ReplayBuffer = ReplayBuffer.ReplayBuffer(
-				self._Config["ReplayBufferMaxSize"],
+				self.Config["ReplayBufferMaxSize"],
 				self.ObservationSpace,
 				self.ActionSpace)
 
@@ -49,15 +50,6 @@ class DataManager(Singleton.Singleton):
 		elif isinstance(self.ActionSpace, spaces.Box):
 			raise NotImplementedError
 
-
-		return
-
-	def LoadConfig(self, config:SCT.Config) -> None:
-		self._Config = config
-
-		self._Config["ReplayBufferMaxSize"] = 100000
-		self._Config["TransitionAccumulatorSize"] = 1000
-		self._Config["QFuncGamma"] = 0.99
 
 		return
 
@@ -89,16 +81,16 @@ class DataManager(Singleton.Singleton):
 
 		# add transition to the transition accumulator
 		transition = (state, action, reward, nextState, terminated, truncated)
-		self._QValueAccumulator += reward * (self._Config["QFuncGamma"] ** len(self._TransitionAccumulator))
+		self._QValueAccumulator += reward * (self.Config["QFuncGamma"] ** len(self._TransitionAccumulator))
 		self._TransitionAccumulator.append(transition)
 
 
 		# if transition accumulator is full, remove the oldest
 		# transition and add it to the replay buffer
-		if len(self._TransitionAccumulator) > self._Config["TransitionAccumulatorSize"]:
+		if len(self._TransitionAccumulator) > self.Config["TransitionAccumulatorSize"]:
 			self._PopAccumulator()
 
-		assert len(self._TransitionAccumulator) <= self._Config["TransitionAccumulatorSize"], \
+		assert len(self._TransitionAccumulator) <= self.Config["TransitionAccumulatorSize"], \
 			f"Transition accumulator has size of: {len(self._TransitionAccumulator)}"
 
 		return
@@ -140,7 +132,7 @@ class DataManager(Singleton.Singleton):
 
 		# update the q value accumulator
 		self._QValueAccumulator -= reward
-		self._QValueAccumulator *= (1/self._Config["QFuncGamma"])
+		self._QValueAccumulator *= (1/self.Config["QFuncGamma"])
 		return
 
 

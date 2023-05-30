@@ -4,6 +4,19 @@ import json
 from src.Utils.PathHelper import GetRootPath
 import src.Utils.SharedCoreTypes as SCT
 
+
+
+class ConfigurableClass:
+
+	def __init__(self):
+		return
+
+	def LoadConfig(self, overrideConfig:SCT.Config) -> None:
+
+		self.Config = LoadAndMergeConfig(self, overrideConfig)
+		return
+
+
 def LoadAndMergeConfig(instance:object, overrideConfig:SCT.Config) -> SCT.Config:
 
 	configPath = GetClassConfigPath(instance)
