@@ -1,9 +1,6 @@
 {
 	"DuellingNetwork": true,
-	"PropagateFutureReward": true,
 	"PriorityScale": 0.7,
-
-	"MaxBufferSize": 1000000,
 	"MinBufferSize": 50000,
 
 	"BatchSize": 32,

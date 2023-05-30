@@ -16,8 +16,11 @@ class EnsemblePredictor(BasePredictor.BasePredictor):
 
 		subPredictorConfigs = self.Config["SubPredictors"]
 		self._SubPredictors = []
-		for key, config in subPredictorConfigs.items():
-			predictor = BasePredictor.GetPredictor(key, xLabels, yLabels, config)
+		for config in subPredictorConfigs:
+			predictorName = config["PredictorName"]
+			subConfig = config["PredictorConfig"]
+
+			predictor = BasePredictor.GetPredictor(predictorName, xLabels, yLabels, subConfig)
 			self._SubPredictors.append(predictor)
 
 		return

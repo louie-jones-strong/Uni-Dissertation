@@ -134,7 +134,8 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def __init__(self, overrideConfig:SCT.Config, mode:BaseAgent.AgentMode, forwardModel:ForwardModel.ForwardModel):
 		super().__init__(overrideConfig, mode=mode)
 
-		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"], {}, mode, forwardModel)
+		subAgentConfig = self.Config.get("SubAgentConfig", {})
+		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"], subAgentConfig, mode, forwardModel)
 		self._ForwardModel = forwardModel
 		self._CachedTree = None
 		self._StopTime = 0

@@ -1,0 +1,20 @@
+{
+	"YPredictors":{
+		"NextState": {
+			"PredictorName": "Ensemble",
+			"PredictorConfig": {}
+		},
+		"Reward": {
+			"PredictorName": "Ensemble",
+			"PredictorConfig": {}
+		},
+		"Terminated": {
+			"PredictorName": "Ensemble",
+			"PredictorConfig": {}
+		},
+		"Truncated": {
+			"PredictorName": "Ensemble",
+			"PredictorConfig": {}
+		}
+	}
+}

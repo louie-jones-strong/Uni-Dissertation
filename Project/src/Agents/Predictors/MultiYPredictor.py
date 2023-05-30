@@ -16,7 +16,10 @@ class MultiYPredictor(BasePredictor.BasePredictor):
 
 		self._Predictors = {}
 		for yLabel in yLabels:
-			self._Predictors[yLabel] = EnsemblePredictor.EnsemblePredictor(xLabels, [yLabel], overrideConfig)
+			subConfig = self.Config["YPredictors"][yLabel.name]
+			predictorName = subConfig["PredictorName"]
+
+			self._Predictors[yLabel] = BasePredictor.GetPredictor(predictorName, xLabels, [yLabel], subConfig["PredictorConfig"])
 
 		return
 
