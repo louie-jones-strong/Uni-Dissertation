@@ -4,13 +4,15 @@ import typing
 import src.DataManager.DataColumnTypes as DCT
 from numpy.typing import NDArray
 import numpy as np
+import src.Utils.SharedCoreTypes as SCT
 
-class DecisonTreePredictor(BasePredictor.BasePredictor):
+class DecisionTreePredictor(BasePredictor.BasePredictor):
 
 	def __init__(self,
 			xLabels:typing.List[DCT.DataColumnTypes],
-			yLabels:typing.List[DCT.DataColumnTypes]):
-		super().__init__(xLabels, yLabels)
+			yLabels:typing.List[DCT.DataColumnTypes],
+			overrideConfig:SCT.Config):
+		super().__init__(xLabels, yLabels, overrideConfig)
 
 		self.Predictor = None
 		return

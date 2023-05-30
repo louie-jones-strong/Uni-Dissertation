@@ -1,23 +1,32 @@
-from . import BasePredictor, DecisonTreePredictor, LinearPredictor
+from . import BasePredictor
 import numpy as np
 from numpy.typing import NDArray
+import typing
+import src.DataManager.DataColumnTypes as DCT
+import src.Utils.SharedCoreTypes as SCT
 
 class EnsemblePredictor(BasePredictor.BasePredictor):
 
-	def __init__(self, xLabels, yLabels):
-		super().__init__(xLabels, yLabels)
+	def __init__(self,
+			xLabels:typing.List[DCT.DataColumnTypes],
+			yLabels:typing.List[DCT.DataColumnTypes],
+			overrideConfig:SCT.Config):
+		super().__init__(xLabels, yLabels, overrideConfig)
 
-		self._Predictors = [
-			DecisonTreePredictor.DecisonTreePredictor(xLabels, yLabels),
-			LinearPredictor.LinearPredictor(xLabels, yLabels)
-		]
+
+		subPredictorConfigs = self.Config["SubPredictors"]
+		self._SubPredictors = []
+		for key, config in subPredictorConfigs.items():
+			predictor = BasePredictor.GetPredictor(key, xLabels, yLabels, config)
+			self._SubPredictors.append(predictor)
+
 		return
 
 
 	def Observe(self, x, y) -> None:
 		super().Observe(x, y)
 
-		for predictor in self._Predictors:
+		for predictor in self._SubPredictors:
 			predictor.Observe(x, y)
 
 		return
@@ -28,8 +37,8 @@ class EnsemblePredictor(BasePredictor.BasePredictor):
 
 		predictions = []
 
-		for i in range(len(self._Predictors)):
-			prediction = self._Predictors[i]._Predict(proccessedX)
+		for i in range(len(self._SubPredictors)):
+			prediction = self._SubPredictors[i]._Predict(proccessedX)
 			predictions.append(prediction)
 
 		predictions = np.array(predictions)
@@ -42,7 +51,7 @@ class EnsemblePredictor(BasePredictor.BasePredictor):
 		super()._Train(x, y)
 
 		wasTrained = False
-		for predictor in self._Predictors:
+		for predictor in self._SubPredictors:
 
 			if predictor.Train():
 				wasTrained = True

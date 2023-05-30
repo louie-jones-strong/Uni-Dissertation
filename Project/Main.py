@@ -43,7 +43,7 @@ def Main(envConfigPath,
 	dataManager.Setup(config, env.ObservationSpace, env.ActionSpace, env.RewardRange)
 
 
-	forwardModel = ForwardModel.ForwardModel(None)
+	forwardModel = ForwardModel.ForwardModel(None, config)
 
 	# load logger
 	logger = Logger()

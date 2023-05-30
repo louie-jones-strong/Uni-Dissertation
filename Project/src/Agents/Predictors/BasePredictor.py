@@ -8,13 +8,36 @@ from numpy.typing import NDArray
 from collections import deque
 import src.Utils.ConfigHelper as ConfigHelper
 
+def GetPredictor(predictorName:str,
+			xLabels:typing.List[DCT.DataColumnTypes],
+			yLabels:typing.List[DCT.DataColumnTypes],
+			overrideConfig:SCT.Config) -> object:
 
-class BasePredictor:
+	if predictorName == "DecisionTree":
+		from . import DecisionTreePredictor
+		return DecisionTreePredictor.DecisionTreePredictor(xLabels, yLabels, overrideConfig)
+
+	elif predictorName == "Linear":
+		from . import LinearPredictor
+		return LinearPredictor.LinearPredictor(xLabels, yLabels, overrideConfig)
+
+	elif predictorName == "Ensemble":
+		from . import EnsemblePredictor
+		return EnsemblePredictor.EnsemblePredictor(xLabels, yLabels, overrideConfig)
+
+
+	raise Exception(f"Predictor \"{predictorName}\" not found")
+
+
+
+
+class BasePredictor(ConfigHelper.ConfigurableClass):
 
 	def __init__(self,
 			xLabels:typing.List[DCT.DataColumnTypes],
-			yLabels:typing.List[DCT.DataColumnTypes]):
-		self.LoadConfig({})
+			yLabels:typing.List[DCT.DataColumnTypes],
+			overrideConfig:SCT.Config):
+		self.LoadConfig(overrideConfig)
 		assert len(xLabels) > 0, "xLabels must have at least one element"
 		assert len(yLabels) > 0, "yLabels must have at least one element"
 
@@ -33,14 +56,6 @@ class BasePredictor:
 		self._StepsSinceTrained = -1
 		self._ErrorQueue = deque()
 		self._AccuracyQueue = deque()
-		return
-
-	def LoadConfig(self, config:SCT.Config) -> None:
-		self._Config = config
-		self._Config["MinStepsBetweenTraining"] = 100
-		self._Config["MinAccuracy"] = 0.99
-		self._Config["MaxError"] = 0.1
-		self._Config["ValidationAverageWindow"] = 100
 		return
 
 	def Save(self, folderPath:str) -> None:
@@ -100,11 +115,11 @@ class BasePredictor:
 
 
 			self._ErrorQueue.append(error)
-			if len(self._ErrorQueue) > self._Config["ValidationAverageWindow"]:
+			if len(self._ErrorQueue) > self.Config["ValidationAverageWindow"]:
 				self._ErrorQueue.popleft()
 
 			self._AccuracyQueue.append(accuracy)
-			if len(self._AccuracyQueue) > self._Config["ValidationAverageWindow"]:
+			if len(self._AccuracyQueue) > self.Config["ValidationAverageWindow"]:
 				self._AccuracyQueue.popleft()
 
 			self._Logger.LogDict({
@@ -120,14 +135,14 @@ class BasePredictor:
 
 		# check if we have trained recently
 		if self._StepsSinceTrained >= 0 and \
-				self._StepsSinceTrained < self._Config["MinStepsBetweenTraining"]:
+				self._StepsSinceTrained < self.Config["MinStepsBetweenTraining"]:
 			return False
 
 		avgError = np.mean(self._ErrorQueue)
 		avgAccuracy = np.mean(self._AccuracyQueue)
 
-		modelInBounds = avgError < self._Config["MaxError"] and \
-			((not self._IsDiscrete) or avgAccuracy > self._Config["MinAccuracy"])
+		modelInBounds = avgError < self.Config["MaxError"] and \
+			((not self._IsDiscrete) or avgAccuracy > self.Config["MinAccuracy"])
 
 		if modelInBounds and self._StepsSinceTrained >= 0:
 			return False

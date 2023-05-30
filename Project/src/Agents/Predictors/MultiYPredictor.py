@@ -1,15 +1,22 @@
 from src.Agents.Predictors import BasePredictor, EnsemblePredictor
 import numpy as np
 from numpy.typing import NDArray
+import typing
+import src.DataManager.DataColumnTypes as DCT
+import src.Utils.SharedCoreTypes as SCT
 
 
 class MultiYPredictor(BasePredictor.BasePredictor):
 
-	def __init__(self, xLabels, yLabels):
-		super().__init__(xLabels, yLabels)
+	def __init__(self,
+			xLabels:typing.List[DCT.DataColumnTypes],
+			yLabels:typing.List[DCT.DataColumnTypes],
+			overrideConfig:SCT.Config):
+		super().__init__(xLabels, yLabels, overrideConfig)
+
 		self._Predictors = {}
 		for yLabel in yLabels:
-			self._Predictors[yLabel] = EnsemblePredictor.EnsemblePredictor(xLabels, [yLabel])
+			self._Predictors[yLabel] = EnsemblePredictor.EnsemblePredictor(xLabels, [yLabel], overrideConfig)
 
 		return
 

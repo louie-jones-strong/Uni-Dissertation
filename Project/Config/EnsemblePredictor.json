@@ -1,0 +1,6 @@
+{
+	"SubPredictors": {
+		"DecisionTree": {},
+		"Linear": {}
+	}
+}

@@ -12,32 +12,33 @@ class ConfigurableClass:
 		return
 
 	def LoadConfig(self, overrideConfig:SCT.Config) -> None:
+		self.Config = LoadAndMergeConfig(self.__class__.__name__, overrideConfig)
 
-		self.Config = LoadAndMergeConfig(self, overrideConfig)
+		# get base config from base classes
+		for b in self.__class__.__bases__:
+			if issubclass(b, ConfigurableClass) and b != ConfigurableClass:
+				self.Config = LoadAndMergeConfig(b.__name__, self.Config, allowJoining=True)
+
 		return
 
+def LoadAndMergeConfig(className:str, overrideConfig:SCT.Config, allowJoining:bool = False) -> SCT.Config:
 
-def LoadAndMergeConfig(instance:object, overrideConfig:SCT.Config) -> SCT.Config:
-
-	configPath = GetClassConfigPath(instance)
+	configPath = GetClassConfigPath(className)
 
 	baseConfig = {}
 	if os.path.exists(configPath):
 		baseConfig = LoadConfig(configPath)
 
-	if HasNoneBaseKeys(baseConfig, overrideConfig):
-		instanceName = instance.__class__.__name__
-		overrideConfig = overrideConfig.get(instanceName, {})
+	if HasNoneBaseKeys(baseConfig, overrideConfig) and className in overrideConfig:
+		overrideConfig = overrideConfig[className]
 
-	baseConfig = MergeConfig(baseConfig, overrideConfig)
+	baseConfig = MergeConfig(baseConfig, overrideConfig, allowJoining=allowJoining)
 
 	return baseConfig
 
 
-def GetClassConfigPath(instance:object) -> str:
-
-	name = instance.__class__.__name__
-	configPath = os.path.join(GetRootPath(), "Config", f"{name}.json")
+def GetClassConfigPath(className:str) -> str:
+	configPath = os.path.join(GetRootPath(), "Config", f"{className}.json")
 
 	return configPath
 
@@ -61,7 +62,8 @@ def LoadConfig(configPath:str) -> SCT.Config:
 
 def MergeConfig(
 		baseConfig:SCT.Config,
-		overrideConfig:SCT.Config) -> SCT.Config:
+		overrideConfig:SCT.Config,
+		allowJoining:bool = False) -> SCT.Config:
 
 	for key, value in baseConfig.items():
 
@@ -73,6 +75,10 @@ def MergeConfig(
 			else:
 				baseConfig[key] = overrideConfig[key]
 
+	if allowJoining:
+		for key, value in overrideConfig.items():
+			if key not in baseConfig:
+				baseConfig[key] = value
 
 
 

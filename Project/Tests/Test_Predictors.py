@@ -1,6 +1,6 @@
 import unittest
 import os
-from src.Agents.Predictors import DecisonTreePredictor, LinearPredictor, EnsemblePredictor, MultiYPredictor
+from src.Agents.Predictors import DecisionTreePredictor, LinearPredictor, EnsemblePredictor, MultiYPredictor
 import src.DataManager.DataColumnTypes as DCT
 import src.DataManager.DataManager as DataManager
 import gymnasium.spaces as spaces
@@ -10,7 +10,7 @@ class Test_Predictors(unittest.TestCase):
 
 	def setUp(self):
 		self.PredictorConstructors = [
-			DecisonTreePredictor.DecisonTreePredictor,
+			DecisionTreePredictor.DecisionTreePredictor,
 			LinearPredictor.LinearPredictor,
 			EnsemblePredictor.EnsemblePredictor,
 		]

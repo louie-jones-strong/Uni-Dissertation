@@ -6,7 +6,8 @@ from numpy.typing import NDArray
 import src.Agents.Predictors.MultiYPredictor as MultiYPredictor
 
 class ForwardModel:
-	def __init__(self, envSim):
+	def __init__(self, envSim,
+			overrideConfig:SCT.Config):
 		self._EnvSimulation = envSim
 
 		xColumns = [
@@ -20,7 +21,7 @@ class ForwardModel:
 			DCT.DataColumnTypes.Truncated]
 
 		if self._EnvSimulation is None:
-			self._PredictiveModel = MultiYPredictor.MultiYPredictor(xColumns, yColumns)
+			self._PredictiveModel = MultiYPredictor.MultiYPredictor(xColumns, yColumns, overrideConfig)
 
 		self._SimulatedStates = 0
 		return

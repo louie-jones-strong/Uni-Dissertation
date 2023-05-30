@@ -1,11 +1,18 @@
 from . import BasePredictor
 from sklearn.linear_model import LinearRegression
 from numpy.typing import NDArray
+import typing
+import src.DataManager.DataColumnTypes as DCT
+import src.Utils.SharedCoreTypes as SCT
 
 class LinearPredictor(BasePredictor.BasePredictor):
 
-	def __init__(self, xLabels, yLabels):
-		super().__init__(xLabels, yLabels)
+	def __init__(self,
+			xLabels:typing.List[DCT.DataColumnTypes],
+			yLabels:typing.List[DCT.DataColumnTypes],
+			overrideConfig:SCT.Config):
+		super().__init__(xLabels, yLabels, overrideConfig)
+
 		self.Predictor = LinearRegression()
 		return
 
