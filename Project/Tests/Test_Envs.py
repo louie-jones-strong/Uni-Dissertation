@@ -27,6 +27,7 @@ class Test_Envs(unittest.TestCase):
 				load=False,
 				agentType=self.AgentType,
 				wandbOn=False,
+				profileOn=False,
 				maxEpisodesOverride=self.MaxEpisodesOverride, maxStepsOverride=self.MaxStepsOverride)
 
 

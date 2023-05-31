@@ -9,9 +9,9 @@ import argparse
 # region arg parser
 class ArgParser:
 
-	def __init__(self):
+	def __init__(self) -> None:
 		self.Parser = argparse.ArgumentParser()
-		self.Args = {}
+		self.Args:typing.Dict[str, typing.Dict[str, object]] = {}
 
 		return
 
@@ -58,10 +58,13 @@ class ArgParser:
 
 		return argsDict
 
-	def _ValidateValue(self, value:object, argInfo:typing.Dict[str, object]) -> bool:
+	def _ValidateValue(self, value:Optional[str], argInfo:typing.Dict[str, object]) -> Optional[object]:
 
 		if value is None:
 			return None
+
+		assert isinstance(value, str), "value must be of type str"
+		assert isinstance(argInfo["folderPath"], str), "value must be of type str"
 
 
 		if argInfo["type"] == "file":
@@ -83,6 +86,9 @@ class ArgParser:
 				return None
 
 		elif argInfo["type"] == "options":
+			if not isinstance(argInfo["options"], list):
+				raise Exception("Options should be a list")
+
 			if value not in argInfo["options"]:
 				print(f"Invalid option: {value}, for {argInfo['name']}")
 				return None
@@ -92,6 +98,11 @@ class ArgParser:
 	def _GetValue(self, argInfo:typing.Dict[str, object]) -> object:
 		uiLabel = argInfo["uiLabel"]
 		helpStr = argInfo["help"]
+
+		assert isinstance(uiLabel, str), "uiLabel must be of type str"
+		assert isinstance(helpStr, str), "helpStr must be of type str"
+		assert isinstance(argInfo["folderPath"], str), "folderPath must be of type str"
+		assert isinstance(argInfo["options"], list), "options must be of type str"
 
 		print()
 		print(helpStr)

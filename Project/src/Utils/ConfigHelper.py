@@ -7,9 +7,6 @@ import src.Utils.SharedCoreTypes as SCT
 
 class ConfigurableClass:
 
-	def __init__(self):
-		return
-
 	def LoadConfig(self, overrideConfig:SCT.Config) -> None:
 		self.Config = LoadAndMergeConfig(self.__class__.__name__, overrideConfig)
 

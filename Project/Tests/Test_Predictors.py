@@ -44,7 +44,7 @@ class Test_Predictors(unittest.TestCase):
 
 
 		for predictor in self.PredictorConstructors:
-			predictorInstance = predictor(xLabels, yLabels)
+			predictorInstance = predictor(xLabels, yLabels, {})
 			self.assertIsNotNone(predictorInstance, f"{predictor} is None")
 
 			# check that the predictor has the correct name
@@ -90,7 +90,7 @@ class Test_Predictors(unittest.TestCase):
 		x = [[1]]
 		y = [[False], [False]]
 
-		predictorInstance = MultiYPredictor.MultiYPredictor(xLabels, yLabels)
+		predictorInstance = MultiYPredictor.MultiYPredictor(xLabels, yLabels, {})
 		self.assertIsNotNone(predictorInstance, f"{predictorInstance} is None")
 
 		self.CheckPredictorName(predictorInstance, yLabels)
@@ -143,7 +143,7 @@ class Test_Predictors(unittest.TestCase):
 			DCT.DataColumnTypes.Truncated,
 			DCT.DataColumnTypes.Reward]
 
-		predictor = MultiYPredictor.MultiYPredictor(xLabels, yLabels)
+		predictor = MultiYPredictor.MultiYPredictor(xLabels, yLabels, {})
 
 		self.assertTrue(os.path.exists(self.DataPath), f"Data path {self.DataPath} does not exist")
 		self.DataManager.Load(self.DataPath)

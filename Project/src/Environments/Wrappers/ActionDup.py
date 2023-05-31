@@ -20,7 +20,7 @@ class ActionDup(gym.Wrapper):
 	def step(self, action:SCT.Action) -> typing.Tuple[NDArray[Any], SupportsFloat, bool, bool, typing.Dict[str, Any]]:
 
 
-		totalReward = 0
+		totalReward:SupportsFloat = 0.0
 		for i in range(self.k):
 			nextState, reward, terminated, truncated, info = self.env.step(action)
 			totalReward += reward

@@ -20,13 +20,13 @@ class TreeNode:
 		self.State = state
 		self.Done = done
 
-		self.TotalRewards = 0
+		self.TotalRewards:SCT.Reward = 0
 		self.Counts = 0
 
 		self.Parent = parent
 		self.ActionIdxTaken = actionIdxTaken
 
-		self.Children = None
+		self.Children:Optional[typing.List['TreeNode']] = None
 
 		return
 
@@ -96,17 +96,16 @@ class TreeNode:
 		exploreValue = math.sqrt(math.log(parentCounts) / self.Counts)
 		return avgReward + exploreFactor * exploreValue
 
-	def GetActionValues(self) -> NDArray[np.float32]:
+	def GetActionValues(self) -> Optional[NDArray[np.float32]]:
 
 		if self.Children is None:
 			return None
 
-		actionValues = []
-		for child in self.Children:
-			if child.Counts == 0:
-				actionValues.append(0)
-			else:
-				actionValues.append(child.TotalRewards / child.Counts)
+		actionValues = np.zeros(len(self.Children), dtype=np.float32)
+		for i in range(len(self.Children)):
+			child = self.Children[i]
+			if child.Counts > 0:
+				actionValues[i] = child.TotalRewards / child.Counts
 
 		return actionValues
 
