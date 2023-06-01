@@ -19,6 +19,7 @@ keyboard==0.13.5
 mypy==1.2.0
 unittest-parallel==1.5.3
 flake8==6.0.0
+snakeviz==2.2.0
 
 
 # types
