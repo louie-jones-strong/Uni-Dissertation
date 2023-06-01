@@ -1,4 +1,5 @@
 import typing
+from typing import Optional
 import src.Utils.SharedCoreTypes as SCT
 import src.DataManager.DataColumnTypes as DCT
 import numpy as np
@@ -6,7 +7,7 @@ from numpy.typing import NDArray
 import src.Agents.Predictors.MultiYPredictor as MultiYPredictor
 
 class ForwardModel:
-	def __init__(self, envSim,
+	def __init__(self, envSim:Optional[object],
 			overrideConfig:SCT.Config):
 		self._EnvSimulation = envSim
 

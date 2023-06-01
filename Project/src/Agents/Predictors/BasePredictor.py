@@ -54,8 +54,8 @@ class BasePredictor(ConfigHelper.ConfigurableClass):
 		self._Name = f"{predictionName}_{className}"
 
 		self._StepsSinceTrained = -1
-		self._ErrorQueue = deque()
-		self._AccuracyQueue = deque()
+		self._ErrorQueue:typing.Deque[float] = deque()
+		self._AccuracyQueue:typing.Deque[float] = deque()
 		return
 
 	def Save(self, folderPath:str) -> None:
@@ -65,7 +65,7 @@ class BasePredictor(ConfigHelper.ConfigurableClass):
 		return
 
 	@staticmethod
-	def _ItemWiseEqual(prediction:NDArray, target:NDArray):
+	def _ItemWiseEqual(prediction:NDArray, target:NDArray) -> NDArray[np.bool_]:
 
 		itemsEqual = prediction == target
 		itemsEqual = np.squeeze(itemsEqual)
@@ -93,7 +93,7 @@ class BasePredictor(ConfigHelper.ConfigurableClass):
 
 	def CalRawPrediction(self, proccessedX):
 		if self._StepsSinceTrained < 0:
-			return None, 0.0
+			return None
 
 		rawPrediction = self._Predict(proccessedX)
 		return rawPrediction
@@ -177,7 +177,7 @@ class BasePredictor(ConfigHelper.ConfigurableClass):
 
 
 
-	def _Evaluate(self, rawPrediction, proccessedY, y):
+	def _Evaluate(self, rawPrediction, proccessedY, y) -> typing.Tuple[float, float]:
 
 		error = abs(np.mean(proccessedY - rawPrediction))
 

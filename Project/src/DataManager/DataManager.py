@@ -171,10 +171,10 @@ class DataManager(Singleton.Singleton, ConfigHelper.ConfigurableClass):
 		return self._ReplayBuffer.GetSampleIndexs(batchSize, priorityKey, priorityScale)
 
 	def SampleArrays(self,
-			arrays,
+			arrays:typing.List[NDArray],
 			batchSize:int,
 			priorityKey:Optional[str] = None,
-			priorityScale:float = 1.0):
+			priorityScale:float = 1.0) -> typing.Tuple[NDArray[np.int_], NDArray[np.float32], typing.List[NDArray]]:
 
 		indexs, priorities = self.GetSampleIndexs(batchSize, priorityKey, priorityScale)
 
@@ -194,7 +194,7 @@ class DataManager(Singleton.Singleton, ConfigHelper.ConfigurableClass):
 	def PreProcessColumns(self,
 			columnsData:typing.List[NDArray],
 			columnLabels:typing.List[DCT.DataColumnTypes]
-			) -> typing.List[NDArray]:
+			) -> NDArray:
 
 		data = self.PreProcessSingleColumn(columnsData[0], columnLabels[0])
 
