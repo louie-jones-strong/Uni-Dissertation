@@ -5,7 +5,6 @@ from typing import Optional
 
 import numpy as np
 import src.DataManager.DataColumnTypes as DCT
-import src.DataManager.MarkovModel as MarkovModel
 import src.DataManager.ReplayBuffer as ReplayBuffer
 import src.Utils.SharedCoreTypes as SCT
 import src.Utils.Singleton as Singleton
@@ -39,8 +38,6 @@ class DataManager(Singleton.Singleton, ConfigHelper.ConfigurableClass):
 				self.ObservationSpace,
 				self.ActionSpace)
 
-		self._MarkovModel = MarkovModel.MarkovModel(int(self.ActionSpace.n))
-
 		return
 
 	def _GetActionList(self) -> typing.List[SCT.Action]:
@@ -57,13 +54,11 @@ class DataManager(Singleton.Singleton, ConfigHelper.ConfigurableClass):
 		self._EmptyAccumulator()
 
 		self._ReplayBuffer.Save(os.path.join(path, "ReplayBuffer"))
-		self._MarkovModel.Save(os.path.join(path, "MarkovModel"))
 
 		return
 
 	def Load(self, path:str) -> None:
 		self._ReplayBuffer.Load(os.path.join(path, "ReplayBuffer"))
-		self._MarkovModel.Load(os.path.join(path, "MarkovModel"))
 		return
 
 
@@ -77,7 +72,6 @@ class DataManager(Singleton.Singleton, ConfigHelper.ConfigurableClass):
 			terminated:bool,
 			truncated:bool) -> None:
 
-		# self._MarkovModel.Remember(state, action, reward, nextState, terminated, truncated)
 
 		# add transition to the transition accumulator
 		transition = (state, action, reward, nextState, terminated, truncated)
@@ -125,7 +119,6 @@ class DataManager(Singleton.Singleton, ConfigHelper.ConfigurableClass):
 		state, action, reward, nextState, terminated, truncated = oldest
 		qValue = self._QValueAccumulator
 
-		# self._MarkovModel.OnEmptyTransAcc(state, action, reward, nextState, terminated, truncated, qValue)
 
 		# add to the replay buffer
 		self._ReplayBuffer.Add(state, action, reward, nextState, terminated, truncated, futureReward=qValue)
