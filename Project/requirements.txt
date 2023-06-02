@@ -23,3 +23,6 @@ flake8==6.0.0
 
 # types
 types-keyboard==0.13.2.7
+
+dm-reverb==2.0.1
+flask==2.3.2
