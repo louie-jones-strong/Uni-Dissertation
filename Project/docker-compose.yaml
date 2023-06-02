@@ -35,6 +35,21 @@ services:
             }
           }"
 
+  model-store:
+    image: redis
+
+    volumes:
+      - ML_Data:/app/data
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+    ports:
+      - "6000:6000"
+
+    entrypoint: redis-server --port 6000 --save 60 1
+
+
 
   web-server:
     image: project_image
