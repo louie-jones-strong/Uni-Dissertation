@@ -1,17 +1,17 @@
 import os
 
-import src.Agents.BaseAgent as BaseAgent
-import src.Environments.BaseEnv as BaseEnv
-import src.Utils.UserInputHelper as UI
-import src.Agents.ForwardModel as ForwardModel
-from src.DataManager.DataManager import DataManager
-from src.Utils.Metrics.Logger import Logger
-from src.Utils.PathHelper import GetRootPath
-import src.Utils.ConfigHelper as ConfigHelper
+import Agents.BaseAgent as BaseAgent
+import Environments.BaseEnv as BaseEnv
+import Utils.UserInputHelper as UI
+import Agents.ForwardModel as ForwardModel
+from DataManager.DataManager import DataManager
+from Utils.Metrics.Logger import Logger
+from Utils.PathHelper import GetRootPath
+import Utils.ConfigHelper as ConfigHelper
 from typing import Optional
 import typing
 
-import src.Runner as Runner
+import Runner as Runner
 import time
 
 import cProfile

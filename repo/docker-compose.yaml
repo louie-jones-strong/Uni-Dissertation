@@ -1,0 +1,85 @@
+services:
+
+  experience-store:
+    build:
+      context: ./src/ExperienceStore
+      dockerfile: Dockerfile
+    image: experience-store
+
+    volumes:
+      # add output dictionary for the learned data
+      - ML_Data:/app/Data
+
+      # dictionaries for dev
+      - ./src:/app/Source
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+    ports:
+      - "5001:5001"
+
+    entrypoint: python Source/ExperienceStore/RunServer.py
+
+  model-store:
+    image: redis
+
+    volumes:
+      - ML_Data:/data
+
+    networks:
+      - projectNetwork
+    ports:
+      - "5002:5002"
+
+    entrypoint: redis-server --port 5002 # --save 60 1
+
+  web-server:
+    build:
+      context: ./src/WebServer
+      dockerfile: Dockerfile
+    image: web-server
+
+    volumes:
+      # dictionaries for dev
+      - ./src:/app/Source
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+    ports:
+      - "5000:5000"
+
+    entrypoint: python Source/WebServer/app.py
+
+  worker:
+    build:
+      context: ./src/Worker
+      dockerfile: Dockerfile
+    image: worker
+
+    volumes:
+      # add output dictionary for the learned data
+      - ML_Data:/app/Data
+
+      # dictionaries for dev
+      - ./src:/app/Source
+      - ./Config:/app/Config
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+    tty: true
+
+volumes:
+  ML_Data:
+  ML_Config:
+networks:
+  projectNetwork:

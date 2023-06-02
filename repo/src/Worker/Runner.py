@@ -3,15 +3,15 @@ import time
 import typing
 from collections import deque
 
-import src.Agents.BaseAgent as BaseAgent
-import src.Agents.ForwardModel as ForwardModel
-import src.Environments.BaseEnv as BaseEnv
-import src.Utils.SharedCoreTypes as SCT
-import src.Utils.UserInputHelper as UI
-from src.DataManager.DataManager import DataManager
-from src.Utils.Metrics.Logger import Logger
-from src.Utils.PathHelper import GetRootPath
-import src.Utils.ConfigHelper as ConfigHelper
+import Agents.BaseAgent as BaseAgent
+import Agents.ForwardModel as ForwardModel
+import Environments.BaseEnv as BaseEnv
+import Utils.SharedCoreTypes as SCT
+import Utils.UserInputHelper as UI
+from DataManager.DataManager import DataManager
+from Utils.Metrics.Logger import Logger
+from Utils.PathHelper import GetRootPath
+import Utils.ConfigHelper as ConfigHelper
 
 
 class Runner:
