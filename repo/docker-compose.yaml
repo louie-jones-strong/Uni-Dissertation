@@ -65,6 +65,35 @@ services:
       # dictionaries for dev
       - ./src:/app/Source
       - ./Config:/app/Config
+
+
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    entrypoint: python Source/Worker/Worker.py --env /app/Config/Envs/FrozenLake.json
+
+  learner:
+    build:
+      context: ./src/Worker
+      dockerfile: Dockerfile
+    image: worker
+
+    volumes:
+      # add output dictionary for the learned data
+      - ML_Data:/app/Data
+
+      # dictionaries for dev
+      - ./src:/app/Source
+      - ./Config:/app/Config
     deploy:
       resources:
         reservations:
@@ -76,7 +105,11 @@ services:
     working_dir: /app
     networks:
       - projectNetwork
-    tty: true
+
+
+    entrypoint: python Source/Worker/learner.py --model policy --env /app/Config/Envs/FrozenLake.json
+    # tty: true
+
 
 volumes:
   ML_Data:

@@ -8,7 +8,7 @@ print()
 print("Connected to Reverb Server!")
 
 # Creates a single item and data element [0, 1].
-client.insert([0, 1], priorities={'my_table': 1.0})
+client.insert([0, 1], priorities={'Trajectories': 1.0})
 
 
-print(list(client.sample('my_table', num_samples=2)))
+print(list(client.sample('Trajectories', num_samples=2)))

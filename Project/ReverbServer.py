@@ -4,7 +4,7 @@ import reverb
 simple_server = reverb.Server(
 	tables=[
 		reverb.Table(
-			name='my_table',
+			name='Trajectories',
 			sampler=reverb.selectors.Prioritized(priority_exponent=0.8),
 			remover=reverb.selectors.Fifo(),
 			max_size=int(1e6),
