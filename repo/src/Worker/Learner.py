@@ -7,7 +7,7 @@ import numpy as np
 import ModelHelper
 
 BatchSize = 32
-EpochsPerUpdate = 10
+ItetationsPerUpdate = 100
 
 
 
@@ -29,21 +29,34 @@ if __name__ == "__main__":
 	print("modelType:", modelType)
 	print()
 
-	model = ModelHelper.GetModel(modelType, (1,), (1), {})
+	print("build model")
+	model = ModelHelper.BuildModel(modelType, (2,), (2), {})
+	print("built model")
 
+	print("fetching newest weights")
+	didFetch = ModelHelper.FetchNewestWeights(modelType, model)
+	print("fetched newest weights", didFetch)
 
-
+	print("Connecting to experience store")
 	dataset = reverb.TrajectoryDataset.from_table_signature(
 		server_address=f'experience-store:{5001}',
 		table='Trajectories',
 		max_in_flight_samples_per_worker=10)
 
+	print("Connected to experience store")
+
 	batched_dataset = dataset.batch(BatchSize)
 
 
+	print("Starting training")
+	for batch in batched_dataset.take(ItetationsPerUpdate):
+		x = batch.data["State"]
+		y = batch.data["Action"]
+		print(x.shape)
+		model.fit(x, y, epochs=1)
 
-	# for epoch in range(EpochsPerUpdate):
-	# 	batched_dataset.take(1)
+	print("Finished training")
 
-	model.fit(batched_dataset, epochs=1)
+	print("Saving model")
+	ModelHelper.PushModel(modelType, model)
 
