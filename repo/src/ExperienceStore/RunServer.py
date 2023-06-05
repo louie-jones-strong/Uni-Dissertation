@@ -3,7 +3,7 @@ import tensorflow as tf
 import time
 
 
-TragetoryStepCount = 2
+TragetoryStepCount = 1
 MaxSize = 1_000_000
 
 State_Spec = tf.TensorSpec([TragetoryStepCount], tf.int64)

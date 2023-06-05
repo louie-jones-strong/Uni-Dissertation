@@ -22,7 +22,7 @@ class Runner:
 		self.Env = env
 		self.MaxSteps = maxSteps
 		self.Client = client
-		self.TragetoryStepCount = 2
+		self.TragetoryStepCount = 1
 
 		self.State = self.Env.Reset()
 		self.StepCount = 0

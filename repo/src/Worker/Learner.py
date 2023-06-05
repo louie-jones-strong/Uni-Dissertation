@@ -30,7 +30,7 @@ if __name__ == "__main__":
 	print()
 
 	print("build model")
-	model = ModelHelper.BuildModel(modelType, (2,), (2), {})
+	model = ModelHelper.BuildModel(modelType, (1,), (1), {})
 	print("built model")
 
 	print("fetching newest weights")
