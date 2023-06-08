@@ -4,15 +4,10 @@ import reverb
 # import Common.Agents.BaseAgent as BaseAgent
 import Common.Environments.BaseEnv as BaseEnv
 import Common.Utils.ConfigHelper as ConfigHelper
-import Common.Utils.SharedCoreTypes as SCT
-
-import Common.Agents.RandomAgent as RandomAgent
 import Common.Utils.UserInputHelper as UI
 import os
 from Common.Utils.PathHelper import GetRootPath
 from collections import deque
-import tensorflow as tf
-import numpy as np
 
 
 
@@ -187,6 +182,7 @@ class Worker:
 			stateList.append(state)
 
 		return stateList
+
 
 if __name__ == "__main__":
 	parser = UI.ArgParser()
