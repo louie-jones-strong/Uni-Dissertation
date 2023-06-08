@@ -16,10 +16,10 @@ services:
     working_dir: /app
     networks:
       - projectNetwork
-    ports:
-      - "5001:5001"
+    expose:
+      - 5001
 
-    entrypoint: python Source/ExperienceStore/RunServer.py
+    entrypoint: python Source/ExperienceStore.py
 
   model-store:
     image: redis
@@ -29,8 +29,8 @@ services:
 
     networks:
       - projectNetwork
-    ports:
-      - "5002:5002"
+    expose:
+      - 5002
 
     entrypoint: redis-server --port 5002 # --save 60 1
 
@@ -50,7 +50,7 @@ services:
     ports:
       - "5000:5000"
 
-    entrypoint: python Source/WebServer/app.py
+    entrypoint: python Source/WebServer.py
 
   worker:
     build:
@@ -79,13 +79,13 @@ services:
     networks:
       - projectNetwork
 
-    entrypoint: python Source/Worker/Worker.py --env /app/Config/Envs/FrozenLake.json
+    entrypoint: python Source/Worker.py --env /app/Config/Envs/FrozenLake.json
 
   learner:
     build:
-      context: ./src/Worker
+      context: ./src/Learner
       dockerfile: Dockerfile
-    image: worker
+    image: learner
 
     volumes:
       # add output dictionary for the learned data
@@ -107,8 +107,7 @@ services:
       - projectNetwork
 
 
-    entrypoint: python Source/Worker/learner.py --model policy --env /app/Config/Envs/FrozenLake.json
-    # tty: true
+    entrypoint: python Source/learner.py --model policy --env /app/Config/Envs/FrozenLake.json
 
 
 volumes:

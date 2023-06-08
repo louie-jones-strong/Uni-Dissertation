@@ -4,7 +4,7 @@ import os
 from Common.Utils.PathHelper import GetRootPath
 import tensorflow as tf
 import numpy as np
-import ModelHelper
+import Common.Utils.ModelHelper as ModelHelper
 
 BatchSize = 32
 ItetationsPerUpdate = 100
