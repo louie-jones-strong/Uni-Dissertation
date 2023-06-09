@@ -20,7 +20,7 @@ def Convert(csv_file):
 
 	# add caption and label
 	latex_code += "\\caption{Insert Caption Here.}\n"
-	latex_code += "\\label{tab:InsertLabelHere}\n"
+	latex_code += "\\label{tab:InsertLabelHere} \\\\\n"
 
 	latex_code += headerCode
 	latex_code += "\endfirsthead\n\n"
@@ -30,7 +30,7 @@ def Convert(csv_file):
 	latex_code += headerCode
 	latex_code += "\endhead\n\n"
 
-	latex_code += "\hline \multicolumn{" + str(len(columns)) + "}{|r|}{{Continued on next page}} \\\\ \hline\n\n"
+	latex_code += "\hline \multicolumn{" + str(len(columns)) + "}{|c|}{{Continued on next page}} \\\\ \hline\n\n"
 	latex_code += "\endfoot\n"
 
 	latex_code += "\hline\n"
@@ -57,9 +57,18 @@ def Preproccess(df):
 		if choice == "y":
 			df = df.drop(column, axis=1)
 
+	print()
 	# remove rows with NaN values
-	df = df.dropna()
+	# choice what columns to remove nan values from
+	columns = df.columns.tolist()
+	for column in columns:
+		choice = input(f"Drop NaN values from {column}? (y/n):")
+		if choice == "y":
+			df = df.dropna(subset=[column])
 
+	print()
+	# convert all nans to empty strings
+	df = df.fillna("")
 	return df
 
 # Provide the path to your CSV file
