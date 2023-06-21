@@ -10,7 +10,8 @@ def BuildModel(modeType:ModelType, observationSpace, actionSpace, config):
 
 	if modeType == ModelType.Policy:
 		model = _Build_Policy(observationSpace, actionSpace, config)
-	# elif modeType == "value":
+	elif modeType == ModelType.Forward:
+		model = _Build_Forward(observationSpace, actionSpace, config)
 
 
 
@@ -79,6 +80,27 @@ def _Build_Policy(observationSpace, actionSpace, config):
 	# optimizer
 	optimizer = tf.keras.optimizers.Adam()
 
+	# compile the network
+	model.compile(optimizer=optimizer, loss=tf.keras.losses.Huber())
+
+
+	return model
+
+def _Build_Forward(observationSpace, actionSpace, config):
+	model = tf.keras.models.Sequential()
+
+	# input layer
+	model.add(tf.keras.layers.Input(shape=observationSpace))
+	model.add(tf.keras.layers.Flatten())
+	model.add(tf.keras.layers.Dense(512, activation="relu"))
+
+	# output layer
+	model.add(tf.keras.layers.Dense(observationSpace))
+
+
+
+	# optimizer
+	optimizer = tf.keras.optimizers.Adam()
 	# compile the network
 	model.compile(optimizer=optimizer, loss=tf.keras.losses.Huber())
 

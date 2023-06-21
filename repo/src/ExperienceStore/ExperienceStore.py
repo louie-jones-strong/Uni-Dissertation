@@ -13,6 +13,8 @@ def Run() -> None:
 
 	EndFlag_Spec = tf.TensorSpec([TragetoryStepCount], tf.bool)
 
+
+
 	server = reverb.Server(
 		tables=[
 			reverb.Table(

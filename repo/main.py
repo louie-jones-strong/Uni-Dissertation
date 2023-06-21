@@ -1,7 +1,6 @@
 import os
 
 import src.Common.Utils.ArgParser as ArgParser
-from src.Common.Enums.PlayMode import PlayMode
 from src.Common.Enums.AgentType import AgentType
 from src.Common.Enums.ModelType import ModelType
 from src.Common.Enums.SubSystemType import SubSystemType
@@ -19,12 +18,12 @@ def Main():
 	parser.AddFilePathOption("env", "path to env config", envConfigFolder, "env")
 
 	parser.AddEnumOption("model", "The type of model to train", ModelType, "ModelType")
-	parser.AddEnumOption("play", "The type of model to train", PlayMode, "playmode")
 	parser.AddEnumOption("agent", "agent to use", AgentType, "agent")
 
-	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
-	parser.AddBoolOption("profile", "Should the runner be profiled", "profile")
-	parser.AddBoolOption("load", "load from previous run", "load")
+	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "playmode")
+	# parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
+	# parser.AddBoolOption("profile", "Should the runner be profiled", "profile")
+	# parser.AddBoolOption("load", "load from previous run", "load")
 
 
 	# start the subsystem
@@ -39,7 +38,8 @@ def Main():
 
 	elif subSystem == SubSystemType.Worker:
 		import src.Worker.Worker as Worker
-		Worker.Run(envConfig)
+		worker = Worker.Worker(envConfig, parser.Get("agent"), not parser.Get("play"))
+		worker.Run()
 
 	elif subSystem == SubSystemType.Webserver:
 		import src.WebServer.app as app

@@ -1,30 +1,28 @@
 
-import src.Common.Utils.ConfigHelper as ConfigHelper
-import src.Common.Utils.SharedCoreTypes as SCT
-import src.Common.Utils.ModelHelper as ModelHelper
-import src.Common.Enums.ModelType as ModelType
 import reverb
+import src.Common.Enums.ModelType as ModelType
+import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.ModelHelper as ModelHelper
+import src.Common.Utils.SharedCoreTypes as SCT
 
-class Learner(ConfigHelper.ConfigurableClass):
+
+class Learner:
 
 	def __init__(self, envConfig:SCT.Config, modelType:ModelType):
-		self.LoadConfig(envConfig)
-
+		self.Config = envConfig
 		self.ModelType = modelType
 
 
-		self._SetupModel()
-		self._ConnectToExperienceStore()
-		return
-
-	def _SetupModel(self) -> None:
 		print("build model")
-		self.Model = ModelHelper.BuildModel(self.ModelType, (1,), (1), {}) # todo make this driven by the env config
+		self.Model = ModelHelper.BuildModel(self.ModelType, (1,), (1), self.Config) # todo make this driven by the env config
 		print("built model")
 
 		print("fetching newest weights")
 		didFetch = ModelHelper.FetchNewestWeights(self.ModelType, self.Model)
 		print("fetched newest weights", didFetch)
+
+
+		self._ConnectToExperienceStore()
 		return
 
 	def _ConnectToExperienceStore(self) -> None:

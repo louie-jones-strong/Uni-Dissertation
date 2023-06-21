@@ -8,49 +8,58 @@ import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 import src.Common.Agents.ForwardModel as ForwardModel
 import src.Common.Utils.ConfigHelper as ConfigHelper
+from src.Common.Enums.AgentType import AgentType
+from src.Common.Enums.PlayMode import PlayMode
+from gymnasium.spaces import Discrete, Box
+from typing import Union
 
 
-class AgentMode(enum.Enum):
-	Play = 0
-	Train = 1
-	Eval = 2
-
-
-AgentList = ["Random", "DQN", "Human", "MonteCarlo"]
-def GetAgent(agentName:str,
+def GetAgent(agentType:AgentType,
 		overrideConfig:SCT.Config,
-		mode:AgentMode,
-		forwardModel:ForwardModel.ForwardModel) -> object:
+		isTrainingMode:bool) -> object:
 
-	if agentName == "Random":
+	if agentType == AgentType.Random:
 		from . import RandomAgent
-		return RandomAgent.RandomAgent(overrideConfig, mode)
+		return RandomAgent.RandomAgent(overrideConfig, isTrainingMode)
 
-	elif agentName == "DQN":
-		from . import DQNAgent
-		return DQNAgent.DQNAgent(overrideConfig, mode)
-
-	elif agentName == "Human":
+	elif agentType == AgentType.Human:
 		from . import HumanAgent
-		return HumanAgent.HumanAgent(overrideConfig, mode)
+		return HumanAgent.HumanAgent(overrideConfig, isTrainingMode)
 
-	elif agentName == "MonteCarlo":
-		from . import MonteCarloAgent
-		return MonteCarloAgent.MonteCarloAgent(overrideConfig, mode, forwardModel)
-
-	raise Exception(f"Agent \"{agentName}\" not found")
+	# elif agentType == "DQN":
+	# 	from . import DQNAgent
+	# 	return DQNAgent.DQNAgent(overrideConfig, isTrainingMode)
 
 
+	# elif agentType == "MonteCarlo":
+	# 	from . import MonteCarloAgent
+	# 	return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel)
+
+	raise Exception(f"Agent \"{agentType}\" not found")
+
+def ConfigToSpace(config:SCT.Config) -> Union[Discrete, Box]:
+
+	if config["Type"] == "Discrete":
+		space = Discrete(config["Shape"])
+	elif config["Type"] == "Box":
+		space = Box(config["Low"], config["High"], config["Shape"], config["Dtype"])
+
+	return space
 
 
 
 class BaseAgent(ConfigHelper.ConfigurableClass):
-	def __init__(self, overrideConfig:SCT.Config, mode:AgentMode):
+	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
+		self.LoadConfig(envConfig)
+		self.Mode = PlayMode.Train if isTrainingMode else PlayMode.Play
 
-		self.Mode = mode
-		self.LoadConfig(overrideConfig)
+		self.ObservationSpace = ConfigToSpace(envConfig["ObservationSpace"])
+		self.ActionSpace = ConfigToSpace(envConfig["ActionSpace"])
+		self.StepRewardRange = envConfig["StepRewardRange"]
+		self.EpisodeRewardRange = envConfig["EpisodeRewardRange"]
+		self.IsDeterministic = envConfig["IsDeterministic"]
 
-		self.DataManager = DataManager.DataManager()
+
 		self._Logger = Logger.Logger()
 
 		self.StepNum = 0
@@ -59,18 +68,20 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		self.EpisodeNum = 0
 		return
 
+
+
 	def Reset(self) -> None:
 		self.StepNum = 0
 		self.EpisodeNum += 1
 
 
-		if self.Mode == AgentMode.Eval:
-			self.Mode = AgentMode.Train
-		elif self.Mode == AgentMode.Train:
+		if self.Mode == PlayMode.Eval:
+			self.Mode = PlayMode.Train
+		elif self.Mode == PlayMode.Train:
 
 			episodesBetweenEval = self.Config.get("EpisodesBetweenEval", -1)
 			if episodesBetweenEval > 0 and self.EpisodeNum % episodesBetweenEval == 0:
-				self.Mode = AgentMode.Eval
+				self.Mode = PlayMode.Eval
 		return
 
 	def Remember(self,
@@ -92,7 +103,7 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		return 0
 
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
-		shape = SCT.JoinTuples(self.DataManager.ActionSpace.shape, None)
+		shape = SCT.JoinTuples(self.ActionSpace.shape, None)
 		return np.ones(shape, dtype=np.float32)
 
 	def _GetMaxValues(self, values:NDArray[np.float32]) -> int:
