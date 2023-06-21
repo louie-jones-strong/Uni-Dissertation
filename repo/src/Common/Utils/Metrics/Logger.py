@@ -1,9 +1,9 @@
 from typing import Optional
 import typing
-import Common.Utils.SharedCoreTypes as SCT
-import Common.Utils.Singleton as Singleton
+import src.Common.Utils.SharedCoreTypes as SCT
+import src.Common.Utils.Singleton as Singleton
 import wandb
-import Common.Utils.Metrics.Timer as Timer
+import src.Common.Utils.Metrics.Timer as Timer
 
 class Logger(Singleton.Singleton):
 	# config

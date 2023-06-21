@@ -1,10 +1,10 @@
 from . import BasePredictor
 import xgboost as xgb
 import typing
-import Common.DataManager.DataColumnTypes as DCT
+import src.Common.DataManager.DataColumnTypes as DCT
 from numpy.typing import NDArray
 import numpy as np
-import Common.Utils.SharedCoreTypes as SCT
+import src.Common.Utils.SharedCoreTypes as SCT
 
 class DecisionTreePredictor(BasePredictor.BasePredictor):
 

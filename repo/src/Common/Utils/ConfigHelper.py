@@ -1,7 +1,7 @@
 import os
 import json
-from Common.Utils.PathHelper import GetRootPath
-import Common.Utils.SharedCoreTypes as SCT
+from src.Common.Utils.PathHelper import GetRootPath
+import src.Common.Utils.SharedCoreTypes as SCT
 
 
 

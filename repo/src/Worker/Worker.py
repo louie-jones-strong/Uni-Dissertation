@@ -1,12 +1,12 @@
 import typing
 import reverb
 
-# import Common.Agents.BaseAgent as BaseAgent
-import Common.Environments.BaseEnv as BaseEnv
-import Common.Utils.ConfigHelper as ConfigHelper
-import Common.Utils.UserInputHelper as UI
+# import src.Common.Agents.BaseAgent as BaseAgent
+import src.Common.Environments.BaseEnv as BaseEnv
+import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.UserInputHelper as UI
 import os
-from Common.Utils.PathHelper import GetRootPath
+from src.Common.Utils.PathHelper import GetRootPath
 from collections import deque
 
 
@@ -116,34 +116,25 @@ class Runner:
 
 class Worker:
 
-	def __init__(self, configPath:str, numEnvs:int):#, agents:typing.List[BaseAgent.BaseAgent]):
+	def __init__(self, envConfig, numEnvs:int):#, agents:typing.List[BaseAgent.BaseAgent]):
 
-		self.ConfigPath = configPath
-		self.Agents = agents
+		self.Config = envConfig
+		# self.Agents = agents
 
 		client = reverb.Client(f'experience-store:{5001}')
 
-		config = ConfigHelper.LoadConfig(configPath)
 
 		self.Envs = []
 		for i in range(numEnvs):
-			env = BaseEnv.GetEnv(config)
+			env = BaseEnv.GetEnv(self.Config )
 
-			runnner = Runner(env, config["MaxSteps"], client)
+			runnner = Runner(env, self.Config ["MaxSteps"], client)
 			self.Envs.append(runnner)
 
 			self.ActionSpace = env.ActionSpace
 
 
 		self.EpisodeCount = 0
-		self.LoadConfig()
-		return
-
-	def LoadConfig(self) -> None:
-
-		self.Config = ConfigHelper.LoadConfig(self.ConfigPath)
-
-
 		return
 
 	def Run(self) -> None:
@@ -184,15 +175,8 @@ class Worker:
 		return stateList
 
 
-if __name__ == "__main__":
-	parser = UI.ArgParser()
 
-	envConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
-	parser.AddFilePathOption("env", "path to env config", envConfigFolder, "env")
-	args = parser.GetArgs()
-
-	envConfigPath = args["env"]
-	print("envConfigPath:", envConfigPath)
+def Run(envConfig) -> None:
 	numEnvs = 1
 	numAgents = 1
 
@@ -203,5 +187,6 @@ if __name__ == "__main__":
 	# 	agents.append(agent)
 
 
-	worker = Worker(envConfigPath, numEnvs)#, agents)
+	worker = Worker(envConfig, numEnvs)#, agents)
 	worker.Run()
+	return

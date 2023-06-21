@@ -4,8 +4,8 @@ from os import makedirs, path
 from typing import Optional
 
 import numpy as np
-import Common.DataManager.PrioritiesHolder as PrioritiesHolder
-import Common.Utils.SharedCoreTypes as SCT
+import src.Common.DataManager.PrioritiesHolder as PrioritiesHolder
+import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 import typing
 

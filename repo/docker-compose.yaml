@@ -2,8 +2,7 @@ services:
 
   experience-store:
     build:
-      context: ./src/ExperienceStore
-      dockerfile: Dockerfile
+      dockerfile: ./src/ExperienceStore/Dockerfile
     image: experience-store
 
     volumes:
@@ -11,7 +10,8 @@ services:
       - ML_Data:/app/Data
 
       # dictionaries for dev
-      - ./src:/app/Source
+      - ./src:/app/src
+      - ./Config:/app/Config
 
     working_dir: /app
     networks:
@@ -19,7 +19,7 @@ services:
     expose:
       - 5001
 
-    entrypoint: python Source/ExperienceStore.py
+    entrypoint: python main.py --subsystem ExperienceStore --env /app/Config/Envs/FrozenLake.json
 
   model-store:
     image: redis
@@ -36,13 +36,13 @@ services:
 
   web-server:
     build:
-      context: ./src/WebServer
-      dockerfile: Dockerfile
+      dockerfile: ./src/WebServer/Dockerfile
     image: web-server
 
     volumes:
       # dictionaries for dev
-      - ./src:/app/Source
+      - ./src:/app/src
+      - ./Config:/app/Config
 
     working_dir: /app
     networks:
@@ -50,12 +50,11 @@ services:
     ports:
       - "5000:5000"
 
-    entrypoint: python Source/WebServer.py
+    entrypoint: python main.py --subsystem Webserver --env /app/Config/Envs/FrozenLake.json
 
   worker:
     build:
-      context: ./src/Worker
-      dockerfile: Dockerfile
+      dockerfile: ./src/Worker/Dockerfile
     image: worker
 
     volumes:
@@ -63,7 +62,7 @@ services:
       - ML_Data:/app/Data
 
       # dictionaries for dev
-      - ./src:/app/Source
+      - ./src:/app/src
       - ./Config:/app/Config
 
 
@@ -79,12 +78,11 @@ services:
     networks:
       - projectNetwork
 
-    entrypoint: python Source/Worker.py --env /app/Config/Envs/FrozenLake.json
+    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json
 
   learner:
     build:
-      context: ./src/Learner
-      dockerfile: Dockerfile
+      dockerfile: ./src/Learner/Dockerfile
     image: learner
 
     volumes:
@@ -92,8 +90,10 @@ services:
       - ML_Data:/app/Data
 
       # dictionaries for dev
-      - ./src:/app/Source
+      - ./src:/app/src
       - ./Config:/app/Config
+
+
     deploy:
       resources:
         reservations:
@@ -106,12 +106,10 @@ services:
     networks:
       - projectNetwork
 
-
-    entrypoint: python Source/learner.py --model policy --env /app/Config/Envs/FrozenLake.json
+    entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/FrozenLake.json
 
 
 volumes:
   ML_Data:
-  ML_Config:
 networks:
   projectNetwork:

@@ -1,9 +1,9 @@
-from Common.Agents.Predictors import BasePredictor
+from src.Common.Agents.Predictors import BasePredictor
 import numpy as np
 from numpy.typing import NDArray
 import typing
-import Common.DataManager.DataColumnTypes as DCT
-import Common.Utils.SharedCoreTypes as SCT
+import src.Common.DataManager.DataColumnTypes as DCT
+import src.Common.Utils.SharedCoreTypes as SCT
 
 
 class MultiYPredictor(BasePredictor.BasePredictor):

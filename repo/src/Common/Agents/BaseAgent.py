@@ -2,12 +2,12 @@ import enum
 import random
 
 import numpy as np
-import Common.DataManager.DataManager as DataManager
-import Common.Utils.Metrics.Logger as Logger
-import Common.Utils.SharedCoreTypes as SCT
+import src.Common.DataManager.DataManager as DataManager
+import src.Common.Utils.Metrics.Logger as Logger
+import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
-import Common.Agents.ForwardModel as ForwardModel
-import Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Agents.ForwardModel as ForwardModel
+import src.Common.Utils.ConfigHelper as ConfigHelper
 
 
 class AgentMode(enum.Enum):

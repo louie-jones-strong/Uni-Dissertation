@@ -1,9 +1,9 @@
 # code was modified from
-# https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
+# https://github.com/openai/baselines/blob/master/baselines/src.Common/atari_wrappers.py
 
 
 from typing import Any, SupportsFloat, TYPE_CHECKING
-import Common.Utils.SharedCoreTypes as SCT
+import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 
 # other file dependencies

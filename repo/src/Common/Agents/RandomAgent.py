@@ -1,9 +1,9 @@
 from typing import Any
 
 import numpy as np
-import Common.Utils.SharedCoreTypes as SCT
+import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
-from Common.Agents.BaseAgent import BaseAgent
+from src.Common.Agents.BaseAgent import BaseAgent
 
 
 class RandomAgent(BaseAgent):

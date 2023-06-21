@@ -1,8 +1,8 @@
 # code was modified from
-# https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
+# https://github.com/openai/baselines/blob/master/baselines/src.Common/atari_wrappers.py
 
 from typing import Any, SupportsFloat
-import Common.Utils.SharedCoreTypes as SCT
+import src.Common.Utils.SharedCoreTypes as SCT
 import typing
 
 # other file dependencies

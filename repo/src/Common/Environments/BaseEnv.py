@@ -1,4 +1,4 @@
-import Common.Utils.SharedCoreTypes as SCT
+import src.Common.Utils.SharedCoreTypes as SCT
 
 import gymnasium as gym
 import numpy as np
@@ -10,7 +10,7 @@ def GetEnv(envConfig:SCT.Config) -> 'BaseEnv':
 
 	if envType == "Gym":
 
-		import Common.Environments.GymEnv as GymEnv
+		import src.Common.Environments.GymEnv as GymEnv
 		return GymEnv.GymEnv(envConfig)
 
 	raise Exception(f"EnvType \"{envType}\" not found")

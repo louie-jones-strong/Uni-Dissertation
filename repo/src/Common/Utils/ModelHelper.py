@@ -1,16 +1,14 @@
 import tensorflow as tf
 import redis
 import numpy as np
-
-
-ModelTypes = ["policy", "value", "forward"]
+from src.Common.Enums.ModelType import ModelType
 
 RedisClient = redis.Redis(host='model-store', port=5002, db=0)
 
 
-def BuildModel(modeType, observationSpace, actionSpace, config):
+def BuildModel(modeType:ModelType, observationSpace, actionSpace, config):
 
-	if modeType == "policy":
+	if modeType == ModelType.Policy:
 		model = _Build_Policy(observationSpace, actionSpace, config)
 	# elif modeType == "value":
 
@@ -19,8 +17,11 @@ def BuildModel(modeType, observationSpace, actionSpace, config):
 	return model
 
 
-def FetchNewestWeights(modelType, model):
-	flatWeightBytes = RedisClient.get(modelType)
+def FetchNewestWeights(modelType:ModelType, model):
+
+	key = modelType.name
+
+	flatWeightBytes = RedisClient.get(key)
 	if flatWeightBytes is None:
 		return False
 
@@ -42,12 +43,15 @@ def FetchNewestWeights(modelType, model):
 
 	return True
 
-def PushModel(modelType, model):
+def PushModel(modelType:ModelType, model):
+
+	key = modelType.name
+
 	weights = model.get_weights()
 	flatWeights = np.concatenate([w.flatten() for w in weights])
 
 	flatWeightBytes = flatWeights.tobytes()
-	RedisClient.set(modelType, flatWeightBytes)
+	RedisClient.set(key, flatWeightBytes)
 	return
 
 
@@ -64,14 +68,15 @@ def _Build_Policy(observationSpace, actionSpace, config):
 
 	# input layer
 	model.add(tf.keras.layers.Input(shape=observationSpace))
-
 	model.add(tf.keras.layers.Flatten())
-
 	model.add(tf.keras.layers.Dense(512, activation="relu"))
 
 	# output layer
 	model.add(tf.keras.layers.Dense(actionSpace))
 
+
+
+	# optimizer
 	optimizer = tf.keras.optimizers.Adam()
 
 	# compile the network

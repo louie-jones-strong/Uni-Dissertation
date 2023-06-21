@@ -3,11 +3,11 @@ from copy import deepcopy
 from typing import Any, Optional
 
 import gymnasium as gym
-import Common.Utils.SharedCoreTypes as SCT
-import Common.Environments.BaseEnv as BaseEnv
+import src.Common.Utils.SharedCoreTypes as SCT
+import src.Common.Environments.BaseEnv as BaseEnv
 import typing
 
-from Common.Environments.Wrappers import FireResetEnv, FrameStack, ActionDup
+from src.Common.Environments.Wrappers import FireResetEnv, FrameStack, ActionDup
 
 
 def WrapGym(wrappers:typing.List[str], gymEnv:gym.Env, renderEnv:gym.Env) -> typing.Tuple[gym.Env, gym.Env]:
