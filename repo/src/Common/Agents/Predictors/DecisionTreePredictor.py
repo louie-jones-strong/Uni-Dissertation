@@ -1,7 +1,7 @@
 from . import BasePredictor
 import xgboost as xgb
 import typing
-import src.Common.DataManager.DataColumnTypes as DCT
+import src.Common.Enums.DataColumnTypes as DCT
 from numpy.typing import NDArray
 import numpy as np
 import src.Common.Utils.SharedCoreTypes as SCT

@@ -126,24 +126,12 @@ class TreeNode:
 
 class MonteCarloAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, overrideConfig:SCT.Config, mode:BaseAgent.AgentMode, forwardModel:ForwardModel.ForwardModel):
-		super().__init__(overrideConfig, mode=mode)
+	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool, forwardModel:ForwardModel.ForwardModel):
+		super().__init__(envConfig, isTrainingMode)
 
-		subAgentConfig = self.Config.get("SubAgentConfig", {})
-		self._SubAgent = BaseAgent.GetAgent(self.Config["SubAgent"], subAgentConfig, mode, forwardModel)
 		self._ForwardModel = forwardModel
 		self._CachedTree = None
 		self._StopTime = 0
-		return
-
-	def Save(self, path:str) -> None:
-		super().Save(path)
-		self._SubAgent.Save(path)
-		return
-
-	def Load(self, path:str) -> None:
-		super().Load(path)
-		self._SubAgent.Load(path)
 		return
 
 	def GetAction(self, state:SCT.State) -> SCT.Action:
@@ -155,7 +143,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		super().GetActionValues(state)
 
 		if not self._ForwardModel.CanPredict():
-			return self._SubAgent.GetActionValues(state)
+			return self.ActionSpace.sample()
 
 		self._StopTime = time.process_time() + self.Config["MaxSecondsPerAction"]
 
@@ -165,7 +153,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			rootNode = TreeNode(state, done=False)
 
 		if rootNode.Children is None:
-			rootNode.Expand(self.DataManager.ActionList, self._ForwardModel)
+			rootNode.Expand(self.ActionList, self._ForwardModel)
 
 		# monte carlo tree search
 		for i in range(self.Config["MaxSelections"]):
@@ -174,7 +162,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			# 2. expansion
 			if selectedNode.Counts > 0 and selectedNode.Children is None:
-				selectedNode.Expand(self.DataManager.ActionList, self._ForwardModel)
+				selectedNode.Expand(self.ActionList, self._ForwardModel)
 				selectedNode = selectedNode.Selection(self.Config["ExploreFactor"])
 
 			# 3. simulation
@@ -190,16 +178,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			self._CachedTree = rootNode
 
 		if rootNode.Children is None:
-			return self._SubAgent.GetActionValues(state)
+			return self.ActionSpace.sample()
 
 
 		actionValues = rootNode.GetActionValues()
 		return actionValues
-
-	def Reset(self) -> None:
-		super().Reset()
-		self._SubAgent.Reset()
-		return
 
 	def Remember(self,
 			state:SCT.State,
@@ -210,7 +193,6 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			truncated:bool) -> None:
 
 		super().Remember(state, action, reward, nextState, terminated, truncated)
-		self._SubAgent.Remember(state, action, reward, nextState, terminated, truncated)
 
 		# trim the tree
 		if self._CachedTree is not None:
@@ -239,7 +221,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		for d in range(maxDepth):
 
 			# get the actions
-			actions = self._SampleActions(self.DataManager.ActionSpace, numRollOuts)
+			actions = self._SampleActions(self.ActionSpace, numRollOuts)
 
 			# predict the next states and rewards
 			nextStates, rewards, terminateds, truncateds = self._ForwardModel.Predict(states, actions)
@@ -254,16 +236,17 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			if timeOutAllowed and time.process_time() < self._StopTime:
 				break
 
+		# todo
 		# add the predicted rewards to the total rewards if the game is still playing
-		if self.Config["RollOutConfig"]["ValueFinalStates"] and np.any(isPlayingMask):
+		# if self.Config["RollOutConfig"]["ValueFinalStates"] and np.any(isPlayingMask):
 
-			for i in range(len(isPlayingMask)):
-				if not isPlayingMask[i]:
-					continue
+		# 	for i in range(len(isPlayingMask)):
+		# 		if not isPlayingMask[i]:
+		# 			continue
 
-				stateValue = self._SubAgent.GetActionValues(states[i]).max(axis=0)
+		# 		stateValue = self._SubAgent.GetActionValues(states[i]).max(axis=0)
 
-				totalRewards[i] += stateValue
+		# 		totalRewards[i] += stateValue
 
 
 		return totalRewards
@@ -294,4 +277,3 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			raise NotImplementedError("Unknown action space type: " + str(type(actionSpace)))
 
 		return
-

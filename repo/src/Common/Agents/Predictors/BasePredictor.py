@@ -1,6 +1,6 @@
 import src.Common.DataManager.DataManager as DataManager
 import src.Common.Utils.Metrics.Logger as Logger
-import src.Common.DataManager.DataColumnTypes as DCT
+import src.Common.Enums.DataColumnTypes as DCT
 import typing
 import src.Common.Utils.SharedCoreTypes as SCT
 import numpy as np

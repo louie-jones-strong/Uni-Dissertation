@@ -4,6 +4,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Utils.Singleton as Singleton
 import wandb
 import src.Common.Utils.Metrics.Timer as Timer
+from wandb.keras import WandbCallback
 
 class Logger(Singleton.Singleton):
 	# config
@@ -93,6 +94,11 @@ class Logger(Singleton.Singleton):
 
 		return
 
+	def GetFitCallback(self):
+		if self._WandbOn:
+			return WandbCallback()
+
+		return None
 
 	def Time(self, label:str) -> Timer.Timer:
 

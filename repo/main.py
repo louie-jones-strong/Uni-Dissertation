@@ -7,6 +7,8 @@ from src.Common.Enums.SubSystemType import SubSystemType
 from src.Common.Utils.PathHelper import GetRootPath
 import src.Common.Utils.ConfigHelper as ConfigHelper
 
+import time
+
 
 def Main():
 
@@ -21,33 +23,61 @@ def Main():
 	parser.AddEnumOption("agent", "agent to use", AgentType, "agent")
 
 	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "playmode")
-	# parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
+	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
 	# parser.AddBoolOption("profile", "Should the runner be profiled", "profile")
 	# parser.AddBoolOption("load", "load from previous run", "load")
 
 
-	# start the subsystem
+	# get the subsystem settings
 	subSystem = parser.Get("subsystem")
 	envConfigPath = parser.Get("env")
 	envConfig = ConfigHelper.LoadConfig(envConfigPath)
 
+	loggerSubSystemName = None
+
+
 	if subSystem == SubSystemType.Learner:
 		import src.Learner.Learner as Learner
-		learner = Learner.Learner(envConfig, parser.Get("model"))
-		learner.Run()
+		model = parser.Get("model")
+		learner = Learner.Learner(envConfig, model)
+		loggerSubSystemName = f"Learner_{model.name}"
+		subSystem = learner
 
 	elif subSystem == SubSystemType.Worker:
 		import src.Worker.Worker as Worker
-		worker = Worker.Worker(envConfig, parser.Get("agent"), not parser.Get("play"))
-		worker.Run()
+
+		agent = parser.Get("agent")
+		isTrainingMode = not parser.Get("play")
+
+		worker = Worker.Worker(envConfig, agent, isTrainingMode)
+		loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
+
+		subSystem = worker
 
 	elif subSystem == SubSystemType.Webserver:
 		import src.WebServer.app as app
-		app.Run()
+		subSystem = app
 
 	elif subSystem == SubSystemType.ExperienceStore:
 		import src.ExperienceStore.ExperienceStore as ExperienceStore
-		ExperienceStore.Run()
+		subSystem = ExperienceStore
+
+
+
+	if loggerSubSystemName is not None:
+		envConfig["SubSystemName"] = loggerSubSystemName
+		# setup logger
+		import src.Common.Utils.Metrics.Logger as Logger
+		timeStamp = int(time.time())
+		runId = f"{envConfig['Name']}_{loggerSubSystemName}_{timeStamp}"
+		runPath = os.path.join(GetRootPath(), "Data", envConfig['Name'])#, runId)
+
+		logger = Logger.Logger()
+		logger.Setup(envConfig, runPath, runId=runId, wandbOn=True)#parser.Get("wandb"))
+
+
+	# run the subsystem
+	subSystem.Run()
 
 	return
 

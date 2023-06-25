@@ -4,6 +4,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Enums.DataColumnTypes as DCT
 import numpy as np
 from numpy.typing import NDArray
+import src.Common.Agents.Predictors.MultiYPredictor as MultiYPredictor
 
 class ForwardModel:
 	def __init__(self, envSim:Optional[object],
@@ -20,14 +21,29 @@ class ForwardModel:
 			DCT.DataColumnTypes.Terminated,
 			DCT.DataColumnTypes.Truncated]
 
+		if self._EnvSimulation is None:
+			self._PredictiveModel = MultiYPredictor.MultiYPredictor(xColumns, yColumns, overrideConfig)
+
 		self._SimulatedStates = 0
+		return
+
+	def Remember(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool) -> None:
+
+		if self._EnvSimulation is None:
+			self._PredictiveModel.Observe([[state], [action]], [[nextState], [reward], [terminated], [truncated]])
 		return
 
 	def CanPredict(self) -> bool:
 		if self._EnvSimulation is not None:
 			return True
 
-		return True # todo if no model loaded return false
+		return self._PredictiveModel._StepsSinceTrained > 0
 
 
 	def Predict(self,

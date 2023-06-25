@@ -2,7 +2,7 @@ from . import BasePredictor
 from sklearn.linear_model import LinearRegression
 from numpy.typing import NDArray
 import typing
-import src.Common.DataManager.DataColumnTypes as DCT
+import src.Common.Enums.DataColumnTypes as DCT
 import src.Common.Utils.SharedCoreTypes as SCT
 
 class LinearPredictor(BasePredictor.BasePredictor):

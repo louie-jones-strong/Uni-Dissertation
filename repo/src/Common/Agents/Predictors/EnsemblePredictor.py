@@ -2,7 +2,7 @@ from . import BasePredictor
 import numpy as np
 from numpy.typing import NDArray
 import typing
-import src.Common.DataManager.DataColumnTypes as DCT
+import src.Common.Enums.DataColumnTypes as DCT
 import src.Common.Utils.SharedCoreTypes as SCT
 
 class EnsemblePredictor(BasePredictor.BasePredictor):

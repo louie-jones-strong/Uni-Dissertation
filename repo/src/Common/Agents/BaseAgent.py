@@ -1,22 +1,23 @@
-import enum
 import random
 
 import numpy as np
-import src.Common.DataManager.DataManager as DataManager
 import src.Common.Utils.Metrics.Logger as Logger
 import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
-import src.Common.Agents.ForwardModel as ForwardModel
 import src.Common.Utils.ConfigHelper as ConfigHelper
 from src.Common.Enums.AgentType import AgentType
 from src.Common.Enums.PlayMode import PlayMode
 from gymnasium.spaces import Discrete, Box
 from typing import Union
+import typing
+import src.Common.Agents.ForwardModel as ForwardModel
+
 
 
 def GetAgent(agentType:AgentType,
 		overrideConfig:SCT.Config,
-		isTrainingMode:bool) -> object:
+		isTrainingMode:bool,
+		forwardModel:ForwardModel.ForwardModel) -> object:
 
 	if agentType == AgentType.Random:
 		from . import RandomAgent
@@ -26,16 +27,16 @@ def GetAgent(agentType:AgentType,
 		from . import HumanAgent
 		return HumanAgent.HumanAgent(overrideConfig, isTrainingMode)
 
+	elif agentType == AgentType.ML:
+		from . import MonteCarloAgent
+		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel)
+
 	# elif agentType == "DQN":
 	# 	from . import DQNAgent
 	# 	return DQNAgent.DQNAgent(overrideConfig, isTrainingMode)
 
-
-	# elif agentType == "MonteCarlo":
-	# 	from . import MonteCarloAgent
-	# 	return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel)
-
 	raise Exception(f"Agent \"{agentType}\" not found")
+	return
 
 def ConfigToSpace(config:SCT.Config) -> Union[Discrete, Box]:
 
@@ -58,6 +59,8 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		self.StepRewardRange = envConfig["StepRewardRange"]
 		self.EpisodeRewardRange = envConfig["EpisodeRewardRange"]
 		self.IsDeterministic = envConfig["IsDeterministic"]
+
+		self.ActionList = self._GetActionList()
 
 
 		self._Logger = Logger.Logger()
@@ -117,4 +120,14 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		return
 
 	def Load(self, path:str) -> None:
+		return
+
+	def _GetActionList(self) -> typing.List[SCT.Action]:
+		if isinstance(self.ActionSpace, Discrete):
+			return [i for i in range(self.ActionSpace.n)]
+
+		elif isinstance(self.ActionSpace, Box):
+			raise NotImplementedError
+
+
 		return

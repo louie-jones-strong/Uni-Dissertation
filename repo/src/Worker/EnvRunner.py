@@ -1,9 +1,9 @@
 from collections import deque
-import src.Common.Environments.BaseEnv as BaseEnv
+import src.Worker.Environments.BaseEnv as BaseEnv
 
 class EnvRunner:
 
-	def __init__(self, env, maxSteps, experienceStore) -> None:
+	def __init__(self, env:BaseEnv.BaseEnv, maxSteps, experienceStore) -> None:
 		self.Env = env
 		self.MaxSteps = maxSteps
 		self.ExperienceStore = experienceStore

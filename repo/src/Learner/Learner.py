@@ -1,10 +1,11 @@
 
 import reverb
 import src.Common.Enums.ModelType as ModelType
-import src.Common.Utils.ConfigHelper as ConfigHelper
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Utils.SharedCoreTypes as SCT
-
+import src.Common.Enums.DataColumnTypes as DCT
+import numpy as np
+import src.Common.Utils.Metrics.Logger as Logger
 
 class Learner:
 
@@ -14,7 +15,8 @@ class Learner:
 
 
 		print("build model")
-		self.Model = ModelHelper.BuildModel(self.ModelType, (1,), (1), self.Config) # todo make this driven by the env config
+		# todo make this driven by the env config
+		self.Model = ModelHelper.BuildModel(self.ModelType, (2,), (1), self.Config)
 		print("built model")
 
 		print("fetching newest weights")
@@ -42,6 +44,9 @@ class Learner:
 	def Run(self) -> None:
 		print("Starting learner")
 
+		logger = Logger.Logger()
+		logCallback = logger.GetFitCallback()
+
 		while True:
 
 			# todo make this configurable
@@ -54,10 +59,13 @@ class Learner:
 
 			print("Starting training")
 			for batch in batchDataset.take(ItetationsPerUpdate):
-				x = batch.data["State"]
-				y = batch.data["Action"]
-				print(x.shape)
-				self.Model.fit(x, y, epochs=1)
+				state = batch.data["State"]
+				action = batch.data["Action"]
+				x = np.concatenate([state, action], axis=1)
+
+				y = batch.data["NextState"]
+
+				self.Model.fit(x, y, epochs=1, callbacks=[logCallback])
 
 			print("Finished training")
 

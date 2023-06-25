@@ -86,6 +86,9 @@ services:
               count: 1
               capabilities: [gpu]
 
+    env_file:
+      - secrets.env
+
     entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/FrozenLake.json
 
   learner-value:
@@ -110,6 +113,9 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+
+    env_file:
+      - secrets.env
 
     entrypoint: python main.py --subsystem Learner --model Value --env /app/Config/Envs/FrozenLake.json
 
@@ -136,6 +142,9 @@ services:
               count: 1
               capabilities: [gpu]
 
+    env_file:
+      - secrets.env
+
     entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/FrozenLake.json
 
 # ===== Workers =====
@@ -156,7 +165,10 @@ services:
     deploy:
       replicas: 3
 
-    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json --agent Random --play Train
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json --agent Random --play False
 
 
   worker-eval:
@@ -176,9 +188,14 @@ services:
     deploy:
       replicas: 1
 
-    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json --agent Random --play Play
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json --agent Random --play True
+
 
 volumes:
   ML_Data:
+
 networks:
   projectNetwork:

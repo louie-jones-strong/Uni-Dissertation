@@ -2,11 +2,11 @@ import typing
 
 import reverb
 import src.Common.Agents.BaseAgent as BaseAgent
-import src.Common.Environments.BaseEnv as BaseEnv
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.EnvRunner as EnvRunner
 from src.Common.Enums.AgentType import AgentType
+import src.Common.Agents.ForwardModel as ForwardModel
 
 
 class Worker:
@@ -14,8 +14,10 @@ class Worker:
 	def __init__(self, envConfig:SCT.Config, agentType:AgentType, isTrainingMode:bool) -> None:
 		self.Config = envConfig
 
+		forwardModel = ForwardModel.ForwardModel(None, envConfig)
+
 		self.Agents = []
-		self.Agents.append(BaseAgent.GetAgent(agentType, envConfig, isTrainingMode))
+		self.Agents.append(BaseAgent.GetAgent(agentType, envConfig, isTrainingMode, forwardModel))
 
 		experienceStore = reverb.Client(f'experience-store:{5001}')
 

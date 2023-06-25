@@ -15,7 +15,7 @@ def Run() -> None:
 
 
 
-	server = reverb.Server(
+	_ = reverb.Server(
 		tables=[
 			reverb.Table(
 				name='Trajectories',
