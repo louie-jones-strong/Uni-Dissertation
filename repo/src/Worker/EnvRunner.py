@@ -1,5 +1,6 @@
 from collections import deque
 import src.Worker.Environments.BaseEnv as BaseEnv
+import src.Common.Utils.Metrics.Logger as Logger
 
 class EnvRunner:
 
@@ -15,6 +16,7 @@ class EnvRunner:
 
 
 		self.TransitionBuffer = deque()
+		self._Logger = Logger.Logger()
 		return
 
 	def GetState(self):
@@ -33,6 +35,16 @@ class EnvRunner:
 		self.State = nextState
 
 		if terminated or truncated:
+
+			# log the episode
+			self._Logger.LogDict({
+				"Terminated": float(terminated),
+				"Truncated": float(truncated),
+				"EpisodeTotalReward": self.TotalReward,
+				"EpisodeSteps": self.StepCount},
+				commit=True)
+
+
 			self.Reset()
 
 		return nextState, terminated or truncated

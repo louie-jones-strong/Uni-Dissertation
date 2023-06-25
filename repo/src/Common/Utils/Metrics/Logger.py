@@ -8,7 +8,7 @@ from wandb.keras import WandbCallback
 
 class Logger(Singleton.Singleton):
 	# config
-	_ProjectName = "Dissertation"
+	_ProjectName = "Dissertation-v2"
 	_TimeStackSeparator = "."
 
 	# state
@@ -19,10 +19,6 @@ class Logger(Singleton.Singleton):
 		self._RunId = runId
 		self._Config = config
 
-		self._CurrentStep = 0
-		self._CurrentEpisode = 0
-		self._TotalSteps = 0
-		self._EpisodeCumulativeReward = 0.0
 		self._TotalTimePerStep:typing.Dict[str, float] = {}
 		self._TotalTimePerEpisode:typing.Dict[str, float] = {}
 		self._Setup = True
@@ -35,64 +31,15 @@ class Logger(Singleton.Singleton):
 			wandb.init(project=self._ProjectName, config=self._Config, id=self._RunId, resume="allow", dir=runPath)
 		return
 
-	def LogDict(self, dict:typing.Dict[str, float]) -> None:
+	def LogDict(self, dict:typing.Dict[str, float], commit:bool=True) -> None:
 		if not self._Setup:
 			return
 
 
 		if self._WandbOn:
-			wandb.log(dict, self._TotalSteps, commit=False)
+			wandb.log(dict, commit=commit)
 		return
 
-
-	def StepEnd(self, StepReward:SCT.Reward, terminated:bool, truncated:bool) -> None:
-		if not self._Setup:
-			return
-
-
-		self._EpisodeCumulativeReward += StepReward
-
-		logDict = {
-			"TotalSteps": self._TotalSteps,
-			"TotalEpisodes": self._CurrentEpisode,
-			"CurrentStep": self._CurrentStep,
-			"StepReward": StepReward,
-			"EpisodeCumulativeReward": self._EpisodeCumulativeReward,
-		}
-
-		logDict.update(self._TotalTimePerStep)
-		self._TotalTimePerStep.clear()
-
-
-
-
-		if terminated or truncated:
-			logDict["Terminated"] = float(terminated)
-			logDict["Truncated"] = float(truncated)
-			logDict["EpisodeTotalReward"] = self._EpisodeCumulativeReward
-
-			logDict.update(self._TotalTimePerEpisode)
-			self._TotalTimePerEpisode.clear()
-
-			self._EpisodeEnd()
-
-		if self._WandbOn:
-			self.LogDict(logDict)
-			wandb.log({}, commit=True)
-
-		self._CurrentStep += 1
-		self._TotalSteps += 1
-		return
-
-	def _EpisodeEnd(self) -> None:
-		if not self._Setup:
-			return
-
-		self._CurrentStep = 0
-		self._CurrentEpisode += 1
-		self._EpisodeCumulativeReward = 0
-
-		return
 
 	def GetFitCallback(self):
 		if self._WandbOn:

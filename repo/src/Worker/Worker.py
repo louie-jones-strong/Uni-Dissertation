@@ -13,6 +13,7 @@ class Worker:
 
 	def __init__(self, envConfig:SCT.Config, agentType:AgentType, isTrainingMode:bool) -> None:
 		self.Config = envConfig
+		self.IsEvaluting = not isTrainingMode
 
 		forwardModel = ForwardModel.ForwardModel(None, envConfig)
 
@@ -21,9 +22,12 @@ class Worker:
 
 		experienceStore = reverb.Client(f'experience-store:{5001}')
 
+		numEnvs = self.Config["NumEnvsPerWorker"]
+		if self.IsEvaluting:
+			numEnvs = 1
 
 		self.Envs = []
-		for i in range(self.Config["NumEnvsPerWorker"]):
+		for i in range(numEnvs):
 			env = BaseEnv.GetEnv(self.Config)
 
 			runnner = EnvRunner.EnvRunner(env, self.Config["MaxSteps"], experienceStore)

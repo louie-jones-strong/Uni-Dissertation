@@ -73,7 +73,7 @@ def Main():
 		runPath = os.path.join(GetRootPath(), "Data", envConfig['Name'])#, runId)
 
 		logger = Logger.Logger()
-		logger.Setup(envConfig, runPath, runId=runId, wandbOn=True)#parser.Get("wandb"))
+		logger.Setup(envConfig, runPath, runId=runId, wandbOn=parser.Get("wandb"))
 
 
 	# run the subsystem
