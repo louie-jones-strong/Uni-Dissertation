@@ -1,6 +1,7 @@
 from collections import deque
 import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.Metrics.Logger as Logger
+import src.Common.Enums.DataColumnTypes as DCT
 
 class EnvRunner:
 
@@ -62,13 +63,13 @@ class EnvRunner:
 				self.TotalReward -= reward # todo discount factor
 
 				writer.append({
-					"State": state,
-					"NextState": nextState,
-					"Action": action,
-					"Reward": reward,
-					"FutureReward": self.TotalReward,
-					"Terminated": terminated,
-					"Truncated": truncated
+					DCT.DataColumnTypes.CurrentState.name: state,
+					DCT.DataColumnTypes.NextState.name: nextState,
+					DCT.DataColumnTypes.Action.name: action,
+					DCT.DataColumnTypes.Reward.name: reward,
+					DCT.DataColumnTypes.MaxFutureRewards.name: self.TotalReward,
+					DCT.DataColumnTypes.Terminated.name: terminated,
+					DCT.DataColumnTypes.Truncated.name: truncated
 				})
 
 				if i >= self.TragetoryStepCount:
@@ -77,13 +78,13 @@ class EnvRunner:
 						table="Trajectories",
 						priority=1.5,
 						trajectory={
-							"State": writer.history["State"][-self.TragetoryStepCount:],
-							"NextState": writer.history["NextState"][-self.TragetoryStepCount:],
-							"Action": writer.history["Action"][-self.TragetoryStepCount:],
-							"Reward": writer.history["Reward"][-self.TragetoryStepCount:],
-							"FutureReward": writer.history["FutureReward"][-self.TragetoryStepCount:],
-							"Terminated": writer.history["Terminated"][-self.TragetoryStepCount:],
-							"Truncated": writer.history["Truncated"][-self.TragetoryStepCount:],
+							DCT.DataColumnTypes.CurrentState.name: writer.history[DCT.DataColumnTypes.CurrentState.name][-self.TragetoryStepCount:],
+							DCT.DataColumnTypes.NextState.name: writer.history[DCT.DataColumnTypes.NextState.name][-self.TragetoryStepCount:],
+							DCT.DataColumnTypes.Action.name: writer.history[DCT.DataColumnTypes.Action.name][-self.TragetoryStepCount:],
+							DCT.DataColumnTypes.Reward.name: writer.history[DCT.DataColumnTypes.Reward.name][-self.TragetoryStepCount:],
+							DCT.DataColumnTypes.MaxFutureRewards.name: writer.history[DCT.DataColumnTypes.MaxFutureRewards.name][-self.TragetoryStepCount:],
+							DCT.DataColumnTypes.Terminated.name: writer.history[DCT.DataColumnTypes.Terminated.name][-self.TragetoryStepCount:],
+							DCT.DataColumnTypes.Truncated.name: writer.history[DCT.DataColumnTypes.Truncated.name][-self.TragetoryStepCount:],
 						})
 
 			# This call blocks until all the items (in this case only one) have been
@@ -93,13 +94,13 @@ class EnvRunner:
 
 			# Ending the episode also clears the history property which is why we are
 			# able to use `[:]` in when defining the trajectory above.
-			assert len(writer.history["State"]) == 0
-			assert len(writer.history["NextState"]) == 0
-			assert len(writer.history["Action"]) == 0
-			assert len(writer.history["Reward"]) == 0
-			assert len(writer.history["FutureReward"]) == 0
-			assert len(writer.history["Terminated"]) == 0
-			assert len(writer.history["Truncated"]) == 0
+			assert len(writer.history[DCT.DataColumnTypes.CurrentState.name]) == 0
+			assert len(writer.history[DCT.DataColumnTypes.NextState.name]) == 0
+			assert len(writer.history[DCT.DataColumnTypes.Action.name]) == 0
+			assert len(writer.history[DCT.DataColumnTypes.Reward.name]) == 0
+			assert len(writer.history[DCT.DataColumnTypes.MaxFutureRewards.name]) == 0
+			assert len(writer.history[DCT.DataColumnTypes.Terminated.name]) == 0
+			assert len(writer.history[DCT.DataColumnTypes.Truncated.name]) == 0
 
 			assert len(self.TransitionBuffer) == 0
 

@@ -1,8 +1,11 @@
 import reverb
 import tensorflow as tf
 import time
+import src.Common.Enums.DataColumnTypes as DCT
 
 def Run() -> None:
+
+	# todo make this configurable
 	TragetoryStepCount = 1
 	MaxSize = 1_000_000
 
@@ -12,7 +15,6 @@ def Run() -> None:
 	Reward_Spec = tf.TensorSpec([TragetoryStepCount], tf.double)
 
 	EndFlag_Spec = tf.TensorSpec([TragetoryStepCount], tf.bool)
-
 
 
 	_ = reverb.Server(
@@ -26,13 +28,13 @@ def Run() -> None:
 				# Read the Rate Limiters section for usage info.
 				rate_limiter=reverb.rate_limiters.MinSize(2),
 				signature={
-					"State": State_Spec,
-					"NextState": State_Spec,
-					"Action": Action_Spec,
-					"Reward": Reward_Spec,
-					"FutureReward": Reward_Spec,
-					"Terminated": EndFlag_Spec,
-					"Truncated": EndFlag_Spec
+					DCT.DataColumnTypes.CurrentState.name: State_Spec,
+					DCT.DataColumnTypes.NextState.name: State_Spec,
+					DCT.DataColumnTypes.Action.name: Action_Spec,
+					DCT.DataColumnTypes.Reward.name: Reward_Spec,
+					DCT.DataColumnTypes.MaxFutureRewards.name: Reward_Spec,
+					DCT.DataColumnTypes.Terminated.name: EndFlag_Spec,
+					DCT.DataColumnTypes.Truncated.name: EndFlag_Spec
 				},
 			)
 		],

@@ -27,5 +27,10 @@ def FilterColumns(columnFilter:typing.List[DataColumnTypes], rows:typing.Tuple[A
 	return columns
 
 
+def FilterDict(columnFilter:typing.List[DataColumnTypes], rowsDict) -> typing.List[Any]:
+	columns = []
+	for col in columnFilter:
 
+		columns.append(rowsDict[col.name])
+	return columns
 
