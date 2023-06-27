@@ -1,0 +1,12 @@
+{
+	"SubPredictors": [
+		{
+			"PredictorName": "DecisionTree",
+			"PredictorConfig": {}
+		},
+		{
+			"PredictorName": "Linear",
+			"PredictorConfig": {}
+		}
+	]
+}

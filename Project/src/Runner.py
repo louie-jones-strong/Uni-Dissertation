@@ -160,7 +160,7 @@ class Runner:
 		return
 
 	def Save(self) -> None:
-		path = os.path.join(GetRootPath(), "data", self.Config["Name"])
+		path = os.path.join(GetRootPath(), "Data", self.Config["Name"])
 		if not os.path.exists(path):
 			os.makedirs(path)
 
@@ -171,7 +171,7 @@ class Runner:
 		return
 
 	def Load(self) -> None:
-		path = os.path.join(GetRootPath(), "data", self.Config["Name"])
+		path = os.path.join(GetRootPath(), "Data", self.Config["Name"])
 		if not os.path.exists(path):
 			return
 

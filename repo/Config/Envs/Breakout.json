@@ -1,0 +1,17 @@
+{
+	"Name": "Breakout",
+	"EnvType": "Gym",
+	"GymConfig": {
+		"GymID": "BreakoutNoFrameskip-v4",
+		"RenderMode": "rgb_array",
+		"Wrappers": ["Atari", "FrameStack", "FireResetEnv", "ActionDup"]
+	},
+
+	"IsDeterministic": true,
+	"MaxAgents": 1,
+	"MaxSteps": 1000000,
+	"MaxEpisodes": 100000,
+	"NumEnvsPerWorker": 10,
+	"AgentConfig": {
+	}
+}

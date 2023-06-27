@@ -1,2 +1,3 @@
 ﻿*.pyc
 Project/data
+repo/secrets.env

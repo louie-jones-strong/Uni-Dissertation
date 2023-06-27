@@ -1,0 +1,215 @@
+services:
+
+  web-server:
+    build:
+      dockerfile: ./src/WebServer/Dockerfile
+    image: web-server
+
+    volumes:
+      # dictionaries for dev
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+    ports:
+      - "5000:5000"
+
+    deploy:
+      replicas: 1
+
+    entrypoint: python main.py --subsystem Webserver --env /app/Config/Envs/FrozenLake.json
+
+# ===== Stores =====
+  experience-store:
+    build:
+      dockerfile: ./src/ExperienceStore/Dockerfile
+    image: experience-store
+
+    volumes:
+      # add output dictionary for the learned data
+      - ML_Data:/app/Data
+
+      # dictionaries for dev
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+    expose:
+      - 5001
+
+    deploy:
+      replicas: 1
+
+    entrypoint: python main.py --subsystem ExperienceStore --env /app/Config/Envs/FrozenLake.json
+
+  model-store:
+    image: redis
+
+    volumes:
+      - ML_Data:/data
+
+    networks:
+      - projectNetwork
+    expose:
+      - 5002
+
+    deploy:
+      replicas: 1
+
+    entrypoint: redis-server --port 5002 # --save 60 1
+
+# ===== Learners =====
+  learner-policy:
+    build:
+      dockerfile: ./src/Learner/Dockerfile
+    image: learner
+
+    volumes:
+      - ML_Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/FrozenLake.json --wandb True --load False
+
+  learner-value:
+    build:
+      dockerfile: ./src/Learner/Dockerfile
+    image: learner
+
+    volumes:
+      - ML_Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model Value --env /app/Config/Envs/FrozenLake.json --wandb True --load False
+
+  learner-forward:
+    build:
+      dockerfile: ./src/Learner/Dockerfile
+    image: learner
+
+    volumes:
+      - ML_Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/FrozenLake.json --wandb True --load False
+
+# ===== Workers =====
+  worker-explore:
+    build:
+      dockerfile: ./src/Worker/Dockerfile
+    image: worker
+
+    volumes:
+      - ML_Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 3
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json --agent Random --play False --wandb True
+
+
+  worker-eval:
+    build:
+      dockerfile: ./src/Worker/Dockerfile
+    image: worker
+
+    volumes:
+      - ML_Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json --agent ML --play True --wandb True
+    # tty: true
+
+
+volumes:
+  ML_Data:
+
+networks:
+  projectNetwork:
+

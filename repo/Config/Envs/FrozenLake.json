@@ -1,0 +1,42 @@
+{
+	"Name": "FrozenLake",
+	"EnvType": "Gym",
+	"GymConfig": {
+		"GymID": "FrozenLake-v1",
+		"RenderMode": "human",
+		"kwargs": {
+			"is_slippery": false
+		}
+	},
+
+	"ObservationSpace":{
+		"Type": "Discrete",
+		"Shape": 16
+	},
+	"ActionSpace": {
+		"Type": "Discrete",
+		"Shape": 4
+	},
+	"StepRewardRange": [-1, 1],
+	"EpisodeRewardRange": [-1, 1],
+	"IsDeterministic": true,
+	"ClipRewards": true,
+
+
+
+	"MaxSteps": 50,
+	"MaxEpisodes": 1000,
+	"NumEnvsPerWorker": 10,
+
+	"AgentConfig": {
+		"Human": {
+			"FPS": 10,
+			"Controls": {
+				"left": 0,
+				"down": 1,
+				"right": 2,
+				"up": 3
+			}
+		}
+	}
+}

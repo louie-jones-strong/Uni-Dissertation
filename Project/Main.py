@@ -40,7 +40,7 @@ def Main(envConfigPath,
 
 	timeStamp = int(time.time())
 	runId = f"{config['Name']}_{timeStamp}"
-	runPath = os.path.join(GetRootPath(), "data", config['Name'])#, runId)
+	runPath = os.path.join(GetRootPath(), "Data", config['Name'])#, runId)
 
 	# load data manager
 	dataManager = DataManager()

@@ -1,0 +1,18 @@
+{
+	"DuellingNetwork": true,
+	"PriorityScale": 0.7,
+	"MinBufferSize": 50000,
+
+	"BatchSize": 32,
+	"LearningRate": 0.00001,
+
+	"FutureRewardDiscount": 0.99,
+	"StepsPerTrain": 4,
+	"StepsPerUpdateRunningNetwork": 1000,
+	"EpisodesBetweenEval": 100,
+
+	"ExplorationAgent": "Random",
+	"ExplorationDelta": 0.0001,
+	"MaxExplorationRate": 1.0,
+	"MinExplorationRate": 0.01
+}

@@ -16,7 +16,7 @@ class AgentMode(enum.Enum):
 	Eval = 2
 
 
-AgentList = ["Random", "DQN", "Human", "MonteCarlo", "Exploration"]
+AgentList = ["Random", "DQN", "Human", "MonteCarlo"]
 def GetAgent(agentName:str,
 		overrideConfig:SCT.Config,
 		mode:AgentMode,
@@ -37,11 +37,6 @@ def GetAgent(agentName:str,
 	elif agentName == "MonteCarlo":
 		from . import MonteCarloAgent
 		return MonteCarloAgent.MonteCarloAgent(overrideConfig, mode, forwardModel)
-
-	elif agentName == "Exploration":
-		from . import ExplorationAgent
-		return ExplorationAgent.ExplorationAgent(overrideConfig, mode)
-
 
 	raise Exception(f"Agent \"{agentName}\" not found")
 

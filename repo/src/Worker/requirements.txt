@@ -1,4 +1,3 @@
-# tensorflow
 tensorflow==2.12.0
 tensorboard==2.12.0
 
@@ -15,16 +14,5 @@ pygame==2.4.0
 wandb==0.15.2
 keyboard==0.13.5
 
-# dev tests
-mypy==1.2.0
-unittest-parallel==1.5.3
-flake8==6.0.0
-snakeviz==2.2.0
-
-
-# types
-types-keyboard==0.13.2.7
-
 dm-reverb
-flask
 redis

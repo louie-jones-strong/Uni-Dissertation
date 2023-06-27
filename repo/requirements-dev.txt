@@ -1,0 +1,8 @@
+# dev tests
+mypy==1.2.0
+unittest-parallel==1.5.3
+flake8==6.0.0
+
+
+# types
+types-keyboard==0.13.2.7
