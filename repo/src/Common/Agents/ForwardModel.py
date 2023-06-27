@@ -1,7 +1,6 @@
 import typing
 from typing import Optional
 import src.Common.Utils.SharedCoreTypes as SCT
-import src.Common.Enums.DataColumnTypes as DCT
 from src.Common.Enums.ModelType import ModelType
 import numpy as np
 from numpy.typing import NDArray
@@ -28,8 +27,7 @@ class ForwardModel:
 		if self._EnvSimulation is not None:
 			return True
 
-		return True # todo if no model loaded return false
-
+		return True  # todo if no model loaded return false
 
 	def Predict(self,
 			states:SCT.State_List,

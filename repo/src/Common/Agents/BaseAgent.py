@@ -8,7 +8,6 @@ import src.Common.Utils.ConfigHelper as ConfigHelper
 from src.Common.Enums.AgentType import AgentType
 from src.Common.Enums.PlayMode import PlayMode
 from gymnasium.spaces import Discrete, Box
-from typing import Union
 import typing
 import src.Common.Agents.ForwardModel as ForwardModel
 

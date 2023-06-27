@@ -31,7 +31,7 @@ class Logger(Singleton.Singleton):
 			wandb.init(project=self._ProjectName, config=self._Config, id=self._RunId, resume="allow", dir=runPath)
 		return
 
-	def LogDict(self, dict:typing.Dict[str, float], commit:bool=True) -> None:
+	def LogDict(self, dict:typing.Dict[str, float], commit:bool = True) -> None:
 		if not self._Setup:
 			return
 

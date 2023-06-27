@@ -4,13 +4,7 @@ import src.Common.Enums.ModelType as ModelType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Enums.DataColumnTypes as DCT
-import numpy as np
 import src.Common.Utils.Metrics.Logger as Logger
-import typing
-from numpy.typing import NDArray
-from gymnasium import spaces
-from tensorflow.keras.utils import to_categorical
-import src.Common.Utils.ConfigHelper as ConfigHelper
 
 
 class Learner:
@@ -58,7 +52,7 @@ class Learner:
 
 			# todo make this configurable
 			BatchSize = 256
-			ItetationsPerUpdate = 1000 # should this be time based?
+			ItetationsPerUpdate = 1000  # should this be time based?
 			epochs = 1
 
 

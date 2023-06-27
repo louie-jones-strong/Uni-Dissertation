@@ -52,7 +52,13 @@ class EnvRunner:
 
 
 	def Reset(self):
-
+		currentState_Name = DCT.DataColumnTypes.CurrentState.name
+		nextState_Name = DCT.DataColumnTypes.NextState.name
+		action_Name = DCT.DataColumnTypes.Action.name
+		reward_Name = DCT.DataColumnTypes.Reward.name
+		maxFutureRewards_Name = DCT.DataColumnTypes.MaxFutureRewards.name
+		terminated_Name = DCT.DataColumnTypes.Terminated.name
+		truncated_Name = DCT.DataColumnTypes.Truncated.name
 
 		# empty the transition buffer
 		numTransitions = len(self.TransitionBuffer)
@@ -60,16 +66,16 @@ class EnvRunner:
 			for i in range(numTransitions):
 				transition = self.TransitionBuffer.pop()
 				state, action, reward, nextState, terminated, truncated = transition
-				self.TotalReward -= reward # todo discount factor
+				self.TotalReward -= reward  # todo discount factor
 
 				writer.append({
-					DCT.DataColumnTypes.CurrentState.name: state,
-					DCT.DataColumnTypes.NextState.name: nextState,
-					DCT.DataColumnTypes.Action.name: action,
-					DCT.DataColumnTypes.Reward.name: reward,
-					DCT.DataColumnTypes.MaxFutureRewards.name: self.TotalReward,
-					DCT.DataColumnTypes.Terminated.name: terminated,
-					DCT.DataColumnTypes.Truncated.name: truncated
+					currentState_Name: state,
+					nextState_Name: nextState,
+					action_Name: action,
+					reward_Name: reward,
+					maxFutureRewards_Name: self.TotalReward,
+					terminated_Name: terminated,
+					truncated_Name: truncated
 				})
 
 				if i >= self.TragetoryStepCount:
@@ -78,13 +84,13 @@ class EnvRunner:
 						table="Trajectories",
 						priority=1.5,
 						trajectory={
-							DCT.DataColumnTypes.CurrentState.name: writer.history[DCT.DataColumnTypes.CurrentState.name][-self.TragetoryStepCount:],
-							DCT.DataColumnTypes.NextState.name: writer.history[DCT.DataColumnTypes.NextState.name][-self.TragetoryStepCount:],
-							DCT.DataColumnTypes.Action.name: writer.history[DCT.DataColumnTypes.Action.name][-self.TragetoryStepCount:],
-							DCT.DataColumnTypes.Reward.name: writer.history[DCT.DataColumnTypes.Reward.name][-self.TragetoryStepCount:],
-							DCT.DataColumnTypes.MaxFutureRewards.name: writer.history[DCT.DataColumnTypes.MaxFutureRewards.name][-self.TragetoryStepCount:],
-							DCT.DataColumnTypes.Terminated.name: writer.history[DCT.DataColumnTypes.Terminated.name][-self.TragetoryStepCount:],
-							DCT.DataColumnTypes.Truncated.name: writer.history[DCT.DataColumnTypes.Truncated.name][-self.TragetoryStepCount:],
+							currentState_Name: writer.history[currentState_Name][-self.TragetoryStepCount:],
+							nextState_Name: writer.history[nextState_Name][-self.TragetoryStepCount:],
+							action_Name: writer.history[action_Name][-self.TragetoryStepCount:],
+							reward_Name: writer.history[reward_Name][-self.TragetoryStepCount:],
+							maxFutureRewards_Name: writer.history[maxFutureRewards_Name][-self.TragetoryStepCount:],
+							terminated_Name: writer.history[terminated_Name][-self.TragetoryStepCount:],
+							truncated_Name: writer.history[truncated_Name][-self.TragetoryStepCount:],
 						})
 
 			# This call blocks until all the items (in this case only one) have been
@@ -94,13 +100,13 @@ class EnvRunner:
 
 			# Ending the episode also clears the history property which is why we are
 			# able to use `[:]` in when defining the trajectory above.
-			assert len(writer.history[DCT.DataColumnTypes.CurrentState.name]) == 0
-			assert len(writer.history[DCT.DataColumnTypes.NextState.name]) == 0
-			assert len(writer.history[DCT.DataColumnTypes.Action.name]) == 0
-			assert len(writer.history[DCT.DataColumnTypes.Reward.name]) == 0
-			assert len(writer.history[DCT.DataColumnTypes.MaxFutureRewards.name]) == 0
-			assert len(writer.history[DCT.DataColumnTypes.Terminated.name]) == 0
-			assert len(writer.history[DCT.DataColumnTypes.Truncated.name]) == 0
+			assert len(writer.history[currentState_Name]) == 0
+			assert len(writer.history[nextState_Name]) == 0
+			assert len(writer.history[action_Name]) == 0
+			assert len(writer.history[reward_Name]) == 0
+			assert len(writer.history[maxFutureRewards_Name]) == 0
+			assert len(writer.history[terminated_Name]) == 0
+			assert len(writer.history[truncated_Name]) == 0
 
 			assert len(self.TransitionBuffer) == 0
 
