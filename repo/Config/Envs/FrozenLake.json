@@ -20,6 +20,7 @@
 	"StepRewardRange": [-1, 1],
 	"EpisodeRewardRange": [-1, 1],
 	"IsDeterministic": true,
+	"ClipRewards": true,
 
 
 

@@ -15,7 +15,7 @@ class Worker:
 		self.Config = envConfig
 		self.IsEvaluting = not isTrainingMode
 
-		forwardModel = ForwardModel.ForwardModel(None, envConfig)
+		forwardModel = ForwardModel.ForwardModel(None)
 
 		self.Agents = []
 		self.Agents.append(BaseAgent.GetAgent(agentType, envConfig, isTrainingMode, forwardModel))

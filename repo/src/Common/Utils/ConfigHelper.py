@@ -2,6 +2,8 @@ import os
 import json
 from src.Common.Utils.PathHelper import GetRootPath
 import src.Common.Utils.SharedCoreTypes as SCT
+from gymnasium.spaces import Discrete, Box
+from typing import Union
 
 
 
@@ -90,3 +92,13 @@ def HasNoneBaseKeys(baseConfig:SCT.Config, overrideConfig:SCT.Config) -> bool:
 
 	return hasNoneBaseKeys
 
+
+
+def ConfigToSpace(config:SCT.Config) -> Union[Discrete, Box]:
+
+	if config["Type"] == "Discrete":
+		space = Discrete(config["Shape"])
+	elif config["Type"] == "Box":
+		space = Box(config["Low"], config["High"], config["Shape"], config["Dtype"])
+
+	return space

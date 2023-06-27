@@ -25,7 +25,7 @@ def Main():
 	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "playmode")
 	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
 	# parser.AddBoolOption("profile", "Should the runner be profiled", "profile")
-	# parser.AddBoolOption("load", "load from previous run", "load")
+	parser.AddBoolOption("load", "load from previous run", "load")
 
 
 	# get the subsystem settings
@@ -33,18 +33,29 @@ def Main():
 	envConfigPath = parser.Get("env")
 	envConfig = ConfigHelper.LoadConfig(envConfigPath)
 
+
 	loggerSubSystemName = None
 
 
 	if subSystem == SubSystemType.Learner:
 		import src.Learner.Learner as Learner
+
+		import src.Common.Utils.ModelHelper as ModelHelper
+		modelHelper = ModelHelper.ModelHelper()
+		modelHelper.Setup(envConfig)
+
 		model = parser.Get("model")
-		learner = Learner.Learner(envConfig, model)
+		load = parser.Get("load")
+		learner = Learner.Learner(envConfig, model, load)
 		loggerSubSystemName = f"Learner_{model.name}"
 		subSystem = learner
 
 	elif subSystem == SubSystemType.Worker:
 		import src.Worker.Worker as Worker
+
+		import src.Common.Utils.ModelHelper as ModelHelper
+		modelHelper = ModelHelper.ModelHelper()
+		modelHelper.Setup(envConfig)
 
 		agent = parser.Get("agent")
 		isTrainingMode = not parser.Get("play")

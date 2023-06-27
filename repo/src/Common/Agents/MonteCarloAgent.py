@@ -50,17 +50,17 @@ class TreeNode:
 
 		stateList = MonteCarloAgent.CloneState(self.State, len(actionList))
 
-		nextStates, rewards, terminateds, truncateds = forwardModel.Predict(stateList, actionList)
+		nextStates, rewards, terminateds = forwardModel.Predict(stateList, actionList)
+
 
 		self.Children = []
 		for i in range(len(nextStates)):
-			done = terminateds[i] or truncateds[i]
+			done = terminateds[i]
 			expandedNode = TreeNode(
 				nextStates[i],
 				done=done,
 				parent=self,
 				actionIdxTaken=i)
-
 
 			if done:
 				expandedNode.BackPropagate(rewards[i], counts=1)
@@ -122,6 +122,17 @@ class TreeNode:
 		self.ActionIdxTaken = None
 		return
 
+	def AllExplored(self) -> bool:
+
+		if self.Children is None:
+			return False
+
+		for child in self.Children:
+			if child.Counts == 0:
+				return False
+
+		return True
+
 
 
 class MonteCarloAgent(BaseAgent.BaseAgent):
@@ -157,6 +168,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		# monte carlo tree search
 		for i in range(self.Config["MaxSelections"]):
+
 			# 1. selection
 			selectedNode = rootNode.Selection(self.Config["ExploreFactor"])
 
@@ -171,7 +183,10 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			# 4. backpropagation
 			selectedNode.BackPropagate(totalRewards.sum(), len(totalRewards))
 
-			if time.process_time() >= self._StopTime:
+
+
+			if time.process_time() >= self._StopTime and \
+				rootNode.AllExplored():
 				break
 
 		if self.Config["CacheTree"]:
@@ -224,30 +239,17 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			actions = self._SampleActions(self.ActionSpace, numRollOuts)
 
 			# predict the next states and rewards
-			nextStates, rewards, terminateds, truncateds = self._ForwardModel.Predict(states, actions)
+			nextStates, rewards, terminateds = self._ForwardModel.Predict(states, actions)
 
 
 			totalRewards += rewards * isPlayingMask
-			isPlayingMask = np.logical_or(isPlayingMask, terminateds, truncateds)
+			isPlayingMask = np.logical_or(isPlayingMask, terminateds)
 
 			# update the states
 			states = nextStates
 
 			if timeOutAllowed and time.process_time() < self._StopTime:
 				break
-
-		# todo
-		# add the predicted rewards to the total rewards if the game is still playing
-		# if self.Config["RollOutConfig"]["ValueFinalStates"] and np.any(isPlayingMask):
-
-		# 	for i in range(len(isPlayingMask)):
-		# 		if not isPlayingMask[i]:
-		# 			continue
-
-		# 		stateValue = self._SubAgent.GetActionValues(states[i]).max(axis=0)
-
-		# 		totalRewards[i] += stateValue
-
 
 		return totalRewards
 

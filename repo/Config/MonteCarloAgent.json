@@ -1,11 +1,10 @@
 {
-	"SubAgent": "Random",
-	"MaxSecondsPerAction": 60,
+	"MaxSecondsPerAction": 1,
 	"MaxSelections": 4,
 	"CacheTree": false,
 	"ExploreFactor": 0.5,
 	"RollOutConfig": {
-		"MaxRollOutCount": 100,
+		"MaxRollOutCount": 128,
 		"MaxRollOutDepth": 10,
 		"ValueFinalStates": false,
 		"TimeOutAllowed": false

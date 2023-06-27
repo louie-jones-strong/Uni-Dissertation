@@ -38,24 +38,13 @@ def GetAgent(agentType:AgentType,
 	raise Exception(f"Agent \"{agentType}\" not found")
 	return
 
-def ConfigToSpace(config:SCT.Config) -> Union[Discrete, Box]:
-
-	if config["Type"] == "Discrete":
-		space = Discrete(config["Shape"])
-	elif config["Type"] == "Box":
-		space = Box(config["Low"], config["High"], config["Shape"], config["Dtype"])
-
-	return space
-
-
-
 class BaseAgent(ConfigHelper.ConfigurableClass):
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
 		self.LoadConfig(envConfig)
 		self.Mode = PlayMode.Train if isTrainingMode else PlayMode.Play
 
-		self.ObservationSpace = ConfigToSpace(envConfig["ObservationSpace"])
-		self.ActionSpace = ConfigToSpace(envConfig["ActionSpace"])
+		self.ObservationSpace = ConfigHelper.ConfigToSpace(envConfig["ObservationSpace"])
+		self.ActionSpace = ConfigHelper.ConfigToSpace(envConfig["ActionSpace"])
 		self.StepRewardRange = envConfig["StepRewardRange"]
 		self.EpisodeRewardRange = envConfig["EpisodeRewardRange"]
 		self.IsDeterministic = envConfig["IsDeterministic"]

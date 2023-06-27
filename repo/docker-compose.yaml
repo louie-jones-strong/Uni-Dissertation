@@ -89,7 +89,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/FrozenLake.json --wandb True
+    entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/FrozenLake.json --wandb True --load False
 
   learner-value:
     build:
@@ -117,7 +117,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Learner --model Value --env /app/Config/Envs/FrozenLake.json --wandb True
+    entrypoint: python main.py --subsystem Learner --model Value --env /app/Config/Envs/FrozenLake.json --wandb True --load False
 
   learner-forward:
     build:
@@ -145,7 +145,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/FrozenLake.json --wandb True
+    entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/FrozenLake.json --wandb True --load False
 
 # ===== Workers =====
   worker-explore:
@@ -164,6 +164,12 @@ services:
 
     deploy:
       replicas: 3
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
     env_file:
       - secrets.env
@@ -187,11 +193,18 @@ services:
 
     deploy:
       replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json --agent Random --play True --wandb True
+    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/FrozenLake.json --agent ML --play True --wandb True
+    # tty: true
 
 
 volumes:
