@@ -3,10 +3,6 @@ name: Lint Checks
 on:
   - push
 
-defaults:
-  run:
-    working-directory: Project
-
 jobs:
   Setup:
     runs-on: ubuntu-latest
