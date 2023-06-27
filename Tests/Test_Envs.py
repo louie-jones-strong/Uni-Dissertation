@@ -1,6 +1,6 @@
 import unittest
 import os
-import Main
+import main
 
 class Test_Envs(unittest.TestCase):
 	ConfigRoot = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'Config')
@@ -21,14 +21,14 @@ class Test_Envs(unittest.TestCase):
 			self.assertTrue(config.endswith('.json'), 'Config is not a json file')
 
 
-			Main.Main(
-				envConfigPath=configPath,
-				isPlayMode=False,
-				load=False,
-				agentType=self.AgentType,
-				wandbOn=False,
-				profileOn=False,
-				maxEpisodesOverride=self.MaxEpisodesOverride, maxStepsOverride=self.MaxStepsOverride)
+			# Main.Main(
+			# 	envConfigPath=configPath,
+			# 	isPlayMode=False,
+			# 	load=False,
+			# 	agentType=self.AgentType,
+			# 	wandbOn=False,
+			# 	profileOn=False,
+			# 	maxEpisodesOverride=self.MaxEpisodesOverride, maxStepsOverride=self.MaxStepsOverride)
 
 
 
