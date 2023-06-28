@@ -6,7 +6,6 @@ from src.Common.Enums.ModelType import ModelType
 from src.Common.Enums.SubSystemType import SubSystemType
 from src.Common.Utils.PathHelper import GetRootPath
 import src.Common.Utils.ConfigHelper as ConfigHelper
-import src.Common.Store.ExperienceStore.EsReverb as EsReverb
 
 import time
 
@@ -61,6 +60,8 @@ def Main():
 		agent = parser.Get("agent")
 		isTrainingMode = not parser.Get("play")
 
+
+		import src.Common.Store.ExperienceStore.EsReverb as EsReverb
 
 		experienceStore = EsReverb.EsReverb()
 

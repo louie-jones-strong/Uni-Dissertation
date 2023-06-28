@@ -128,7 +128,6 @@ class ArgParser:
 
 			if not isinstance(argInfo["enumType"], enum.Enum):
 				enumType = argInfo["enumType"]
-				assert isinstance(enumType, enum.Enum), f"enumType({argInfo}) must be of type enum.Enum"
 
 				members = enumType.__members__
 
