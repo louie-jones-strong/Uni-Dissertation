@@ -15,8 +15,7 @@ import src.Common.Agents.ForwardModel as ForwardModel
 
 def GetAgent(agentType:AgentType,
 		overrideConfig:SCT.Config,
-		isTrainingMode:bool,
-		forwardModel:ForwardModel.ForwardModel) -> object:
+		isTrainingMode:bool) -> object:
 
 	if agentType == AgentType.Random:
 		from . import RandomAgent
@@ -28,6 +27,8 @@ def GetAgent(agentType:AgentType,
 
 	elif agentType == AgentType.ML:
 		from . import MonteCarloAgent
+
+		forwardModel = ForwardModel.ForwardModel(None)
 		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel)
 
 	# elif agentType == "DQN":

@@ -19,7 +19,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: LintChecks
-        run: flake8 src/ --config=config.ini
+        run: flake8 src --config=config.ini
 
       - name: LintChecks-Tests
-        run: flake8 Tests/ --config=config.ini
+        run: flake8 Tests --config=config.ini

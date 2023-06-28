@@ -19,4 +19,4 @@ jobs:
           pip install -r requirements.txt
 
       - name: UnitTest
-        run: unittest-parallel -q
+        run: unittest-parallel -p *Test*.py

@@ -1,5 +1,5 @@
 numpy==1.23.5
 opencv-python-headless==4.7.0.72
-gymnasium==0.28.1
+Gymnasium==0.26.3
 
-flask
+flask==2.3.2

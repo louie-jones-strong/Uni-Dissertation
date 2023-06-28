@@ -19,4 +19,4 @@ jobs:
           pip install -r requirements.txt
 
       - name: Check Type Hints
-        run: python -m mypy Main.py --config-file config.ini
+        run: python -m mypy src/ --config-file config.ini

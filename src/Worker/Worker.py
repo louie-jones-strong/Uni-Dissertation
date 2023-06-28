@@ -1,25 +1,21 @@
-import reverb
 import src.Common.Agents.BaseAgent as BaseAgent
 import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.EnvRunner as EnvRunner
 from src.Common.Enums.AgentType import AgentType
-import src.Common.Agents.ForwardModel as ForwardModel
 import typing
 
 
 class Worker:
 
-	def __init__(self, envConfig:SCT.Config, agentType:AgentType, isTrainingMode:bool) -> None:
+	def __init__(self, envConfig:SCT.Config, agentType:AgentType, isTrainingMode:bool, experienceStore) -> None:
 		self.Config = envConfig
 		self.IsEvaluting = not isTrainingMode
 
-		forwardModel = ForwardModel.ForwardModel(None)
 
 		self.Agents = []
-		self.Agents.append(BaseAgent.GetAgent(agentType, envConfig, isTrainingMode, forwardModel))
+		self.Agents.append(BaseAgent.GetAgent(agentType, envConfig, isTrainingMode))
 
-		experienceStore = reverb.Client(f'experience-store:{5001}')
 
 		numEnvs = self.Config["NumEnvsPerWorker"]
 		if self.IsEvaluting:

@@ -7,7 +7,22 @@
 		"Wrappers": ["Atari", "FrameStack", "FireResetEnv", "ActionDup"]
 	},
 
+	"ObservationSpace":{
+		"Type": "Box",
+		"Low": [0],
+		"High": [1],
+		"Shape": [84, 84],
+		"Dtype": "float32"
+	},
+	"ActionSpace": {
+		"Type": "Discrete",
+		"Shape": 3
+	},
+	"StepRewardRange": [-1, 1],
+	"EpisodeRewardRange": [-1, 1],
 	"IsDeterministic": true,
+	"ClipRewards": true,
+
 	"MaxAgents": 1,
 	"MaxSteps": 1000000,
 	"MaxEpisodes": 100000,

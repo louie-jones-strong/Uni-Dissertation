@@ -6,13 +6,14 @@ xgboost==1.7.5
 
 numpy==1.23.5
 opencv-python-headless==4.7.0.72
-gymnasium==0.28.1
+Gymnasium==0.26.3
 gymnasium[other]
 gymnasium[accept-rom-license]
 gymnasium[atari]
+gymnasium[classic-control]
 pygame==2.4.0
 wandb==0.15.2
 keyboard==0.13.5
+redis==4.6.0
 
-dm-reverb
-redis
+dm-reverb==0.11.0; sys_platform=="linux"

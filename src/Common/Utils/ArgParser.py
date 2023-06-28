@@ -17,7 +17,7 @@ class ArgParser:
 	def __init__(self) -> None:
 		self.Parser = argparse.ArgumentParser()
 		self.ArgSettings:typing.Dict[str, typing.Dict[str, object]] = {}
-		self.ParsedArgs:typing.Dict[str, object] = {}
+		self.ParsedArgs:typing.Dict[str, typing.Tuple[str, bool]] = {}
 
 		return
 
@@ -51,7 +51,7 @@ class ArgParser:
 		self.ArgSettings[name]["enumType"] = enumType
 		return
 
-	def _GetArgs(self) -> typing.Dict[str, object]:
+	def _GetArgs(self) -> typing.Dict[str, typing.Tuple[str, bool]]:
 
 
 		if len(self.ParsedArgs) > 0:
@@ -67,7 +67,7 @@ class ArgParser:
 
 		return self.ParsedArgs
 
-	def Get(self, key) -> object:
+	def Get(self, key:str) -> object:
 		args = self._GetArgs()
 
 		if key not in args:
@@ -77,9 +77,9 @@ class ArgParser:
 
 		argSettings = self.ArgSettings[key]
 
-		value, validated = args[key]
+		valueStr, validated = args[key]
 		if not validated:
-			value = self._ValidateValue(value, argSettings)
+			value = self._ValidateValue(valueStr, argSettings)
 
 			if value is None:
 				value = self._GetValue(argSettings)
@@ -127,7 +127,10 @@ class ArgParser:
 		elif argInfo["type"] == ArgParser.ArgType.Enum:
 
 			if not isinstance(argInfo["enumType"], enum.Enum):
-				members = argInfo["enumType"].__members__
+				enumType = argInfo["enumType"]
+				assert isinstance(enumType, enum.Enum), f"enumType({argInfo}) must be of type enum.Enum"
+
+				members = enumType.__members__
 
 				for key, member in members.items():
 					if value == key:
@@ -161,8 +164,10 @@ class ArgParser:
 			return UI.OptionPicker(uiLabel, argInfo["options"])
 
 		elif argInfo["type"] == ArgParser.ArgType.Enum:
+			enumType = argInfo["enumType"]
+			assert isinstance(enumType, enum.Enum), f"enumType({argInfo}) must be of type enum.Enum"
 
-			members = argInfo["enumType"].__members__
+			members = enumType.__members__
 			key = UI.OptionPicker(uiLabel, list(members.keys()))
 			return members[key]
 

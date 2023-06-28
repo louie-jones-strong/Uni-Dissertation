@@ -6,6 +6,7 @@ from src.Common.Enums.ModelType import ModelType
 from src.Common.Enums.SubSystemType import SubSystemType
 from src.Common.Utils.PathHelper import GetRootPath
 import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Store.ExperienceStore.EsReverb as EsReverb
 
 import time
 
@@ -60,7 +61,10 @@ def Main():
 		agent = parser.Get("agent")
 		isTrainingMode = not parser.Get("play")
 
-		worker = Worker.Worker(envConfig, agent, isTrainingMode)
+
+		experienceStore = EsReverb.EsReverb()
+
+		worker = Worker.Worker(envConfig, agent, isTrainingMode, experienceStore)
 		loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
 
 		subSystem = worker
@@ -70,8 +74,8 @@ def Main():
 		subSystem = app
 
 	elif subSystem == SubSystemType.ExperienceStore:
-		import src.ExperienceStore.ExperienceStore as ExperienceStore
-		subSystem = ExperienceStore
+		import src.ExperienceStore.ExperienceStoreSever as ExperienceStoreSever
+		subSystem = ExperienceStoreSever
 
 
 

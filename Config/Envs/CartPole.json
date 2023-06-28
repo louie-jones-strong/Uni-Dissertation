@@ -6,8 +6,23 @@
 		"RenderMode": "human"
 	},
 
-
+	"ObservationSpace":{
+		"Type": "Box",
+		"Low": [-4.8000002e+00, -3.4028235e+38, -4.1887903e-01, -3.4028235e+38],
+		"High": [4.8000002e+00, 3.4028235e+38, 4.1887903e-01, 3.4028235e+38],
+		"Shape": [4],
+		"Dtype": "float32"
+	},
+	"ActionSpace": {
+		"Type": "Discrete",
+		"Shape": 2
+	},
+	"StepRewardRange": [-1, 1],
+	"EpisodeRewardRange": [-1, 1],
 	"IsDeterministic": true,
+	"ClipRewards": true,
+
+
 	"MaxAgents": 1,
 	"MaxSteps": 1000,
 	"MaxEpisodes": 100000,

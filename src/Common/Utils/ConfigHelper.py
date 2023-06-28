@@ -4,7 +4,7 @@ from src.Common.Utils.PathHelper import GetRootPath
 import src.Common.Utils.SharedCoreTypes as SCT
 from gymnasium.spaces import Discrete, Box
 from typing import Union
-
+import numpy as np
 
 
 class ConfigurableClass:
@@ -93,12 +93,31 @@ def HasNoneBaseKeys(baseConfig:SCT.Config, overrideConfig:SCT.Config) -> bool:
 	return hasNoneBaseKeys
 
 
+def ConfigToDType(typeStr:str) -> np.dtype:
+
+	if typeStr == "float32":
+		return np.float32
+
+	raise Exception(f"Unknown dtype: {typeStr}")
 
 def ConfigToSpace(config:SCT.Config) -> Union[Discrete, Box]:
 
 	if config["Type"] == "Discrete":
 		space = Discrete(config["Shape"])
 	elif config["Type"] == "Box":
-		space = Box(config["Low"], config["High"], config["Shape"], config["Dtype"])
+
+		dType = ConfigToDType(config["Dtype"])
+
+		low = np.array(config["Low"], dtype=dType)
+		high = np.array(config["High"], dtype=dType)
+		shape = tuple(config["Shape"])
+
+		if low.shape != shape:
+			low = np.full(shape, low, dtype=dType)
+
+		if high.shape != shape:
+			high = np.full(shape, high, dtype=dType)
+
+		space = Box(low, high, shape, np.float32)
 
 	return space

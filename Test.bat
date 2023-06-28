@@ -8,5 +8,5 @@ py -m mypy src/ --config-file config.ini
 unittest-parallel -p *Test*.py
 
 @REM Linting
-flake8 src --config=config.ini
-flake8 Tests --config=config.ini
+py -m flake8 src --config=config.ini
+py -m flake8 Tests --config=config.ini
