@@ -41,13 +41,14 @@ def GetAgent(agentType:AgentType,
 class BaseAgent(ConfigHelper.ConfigurableClass):
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
 		self.LoadConfig(envConfig)
+		self.EnvConfig = envConfig
 		self.Mode = PlayMode.Train if isTrainingMode else PlayMode.Play
 
-		self.ObservationSpace = ConfigHelper.ConfigToSpace(envConfig["ObservationSpace"])
-		self.ActionSpace = ConfigHelper.ConfigToSpace(envConfig["ActionSpace"])
-		self.StepRewardRange = envConfig["StepRewardRange"]
-		self.EpisodeRewardRange = envConfig["EpisodeRewardRange"]
-		self.IsDeterministic = envConfig["IsDeterministic"]
+		self.ObservationSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ObservationSpace"])
+		self.ActionSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ActionSpace"])
+		self.StepRewardRange = self.EnvConfig["StepRewardRange"]
+		self.EpisodeRewardRange = self.EnvConfig["EpisodeRewardRange"]
+		self.IsDeterministic = self.EnvConfig["IsDeterministic"]
 
 		self.ActionList = self._GetActionList()
 
@@ -58,6 +59,10 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		self.TotalStepNum = 0
 		self.TotalRememberedStep = 0
 		self.EpisodeNum = 0
+		return
+
+	def UpdateModels(self) -> None:
+
 		return
 
 

@@ -22,9 +22,11 @@
 	"IsDeterministic": true,
 	"ClipRewards": true,
 
+	"SecsPerModelFetch": 30,
+	"SecsPerModelPush": 60,
 
 
-	"MaxSteps": 50,
+	"MaxSteps": 10,
 	"MaxEpisodes": 1000,
 	"NumEnvsPerWorker": 10,
 

@@ -261,7 +261,7 @@ class ModelHelper(Singleton.Singleton):
 		elif label == DCT.DataColumnTypes.Reward:
 			if self.Config["ClipRewards"]:
 				data = np.sign(data)
-				proccessed = to_categorical(data, num_classes=3)
+				proccessed = to_categorical(data+1, num_classes=3)
 
 		elif label == DCT.DataColumnTypes.Action and \
 				isinstance(self.ActionSpace, spaces.Discrete):
@@ -290,11 +290,6 @@ class ModelHelper(Singleton.Singleton):
 			proccessed = np.array([bool(i) for i in intBools])
 
 		elif label == DCT.DataColumnTypes.Reward:
-			# we know that the reward has to be in the rewardRange
-			proccessed = np.clip(proccessed, self.StepRewardRange[0], self.StepRewardRange[1])
-
-			# todo if reward is clipped then we can one hot encode it
-
 			if self.Config["ClipRewards"]:
 				proccessed = np.argmax(data, axis=1)
 				proccessed = proccessed - 1

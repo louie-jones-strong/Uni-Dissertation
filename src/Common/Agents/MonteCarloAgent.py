@@ -13,11 +13,13 @@ import math
 class TreeNode:
 	def __init__(self,
 			state:SCT.State,
+			episodeStep:int,
 			done:bool,
 			parent:Optional['TreeNode'] = None,
 			actionIdxTaken:Optional[int] = None):
 
 		self.State = state
+		self.EpisodeStep = episodeStep
 		self.Done = done
 
 		self.TotalRewards:SCT.Reward = 0
@@ -58,6 +60,7 @@ class TreeNode:
 			done = terminateds[i]
 			expandedNode = TreeNode(
 				nextStates[i],
+				episodeStep=self.EpisodeStep + 1,
 				done=done,
 				parent=self,
 				actionIdxTaken=i)
@@ -145,6 +148,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		self._StopTime = 0
 		return
 
+	def UpdateModels(self) -> None:
+		super().UpdateModels()
+		self._ForwardModel.UpdateModels()
+		return
+
 	def GetAction(self, state:SCT.State) -> SCT.Action:
 		super().GetAction(state)
 		actionValues = self.GetActionValues(state)
@@ -161,7 +169,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		rootNode = self._CachedTree
 		if rootNode is None or rootNode.State != state:
 			self._CachedTree = None
-			rootNode = TreeNode(state, done=False)
+			rootNode = TreeNode(state, self.StepNum, done=False)
 
 		if rootNode.Children is None:
 			rootNode.Expand(self.ActionList, self._ForwardModel)
@@ -178,7 +186,10 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 				selectedNode = selectedNode.Selection(self.Config["ExploreFactor"])
 
 			# 3. simulation
-			totalRewards = self._RollOut(selectedNode.State)
+			rolloutMaxDepth = self.EnvConfig["MaxSteps"] - selectedNode.EpisodeStep
+			rolloutMaxDepth = min(rolloutMaxDepth, self.Config["RollOutConfig"]["MaxRollOutDepth"])
+
+			totalRewards = self._RollOut(selectedNode.State, rolloutMaxDepth)
 
 			# 4. backpropagation
 			selectedNode.BackPropagate(totalRewards.sum(), len(totalRewards))
@@ -221,10 +232,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		return
 
 
-	def _RollOut(self, state:SCT.State) -> SCT.Reward_List:
+	def _RollOut(self, state:SCT.State, maxDepth:int) -> SCT.Reward_List:
 
 		numRollOuts = self.Config["RollOutConfig"]["MaxRollOutCount"]
-		maxDepth = self.Config["RollOutConfig"]["MaxRollOutDepth"]
 		timeOutAllowed = self.Config["RollOutConfig"]["TimeOutAllowed"]
 
 

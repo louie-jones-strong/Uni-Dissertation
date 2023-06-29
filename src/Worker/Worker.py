@@ -4,6 +4,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.EnvRunner as EnvRunner
 from src.Common.Enums.AgentType import AgentType
 import typing
+import time
 
 
 class Worker:
@@ -30,6 +31,8 @@ class Worker:
 
 
 		self.EpisodeCount = 0
+
+		self._ModelUpdateTime  = time.time() + self.Config["SecsPerModelFetch"]
 		return
 
 	def _GetActions(self, stateList:typing.List[SCT.State]) -> typing.List[SCT.Action]:
@@ -49,6 +52,7 @@ class Worker:
 				maxEpisodes = self.Config["MaxEpisodes"]
 				print(f"{self.EpisodeCount+1} / {maxEpisodes}")
 				self.EpisodeCount += 1
+				self.CheckForUpdates()
 
 			stateList.append(state)
 
@@ -64,4 +68,17 @@ class Worker:
 			actions = self._GetActions(stateList)
 			# step the envirements
 			self._StepEnvs(actions)
+
+			# if we evaluting then wait until the env done
+			if not self.IsEvaluting:
+				self.CheckForUpdates()
+		return
+
+	def CheckForUpdates(self) -> None:
+
+		if time.time() >= self._ModelUpdateTime:
+			for agent in self.Agents:
+				agent.UpdateModels()
+
+			self._ModelUpdateTime = time.time() + self.Config["SecsPerModelFetch"]
 		return

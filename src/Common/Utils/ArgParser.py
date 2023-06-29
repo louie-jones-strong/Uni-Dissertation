@@ -164,7 +164,6 @@ class ArgParser:
 
 		elif argInfo["type"] == ArgParser.ArgType.Enum:
 			enumType = argInfo["enumType"]
-			assert isinstance(enumType, enum.Enum), f"enumType({argInfo}) must be of type enum.Enum"
 
 			members = enumType.__members__
 			key = UI.OptionPicker(uiLabel, list(members.keys()))

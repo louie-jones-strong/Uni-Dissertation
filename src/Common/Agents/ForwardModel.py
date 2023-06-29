@@ -14,13 +14,16 @@ class ForwardModel:
 		self._ModelHelper = ModelHelper.ModelHelper()
 		self._Model, self._InputColumns, self._OutputColumns = self._ModelHelper.BuildModel(ModelType.Forward)
 
+		self._SimulatedStates = 0
+
+		self.UpdateModels()
+		return
+
+	def UpdateModels(self) -> None:
 		print("fetching newest weights")
 		didFetch = self._ModelHelper.FetchNewestWeights(ModelType.Forward, self._Model)
 		print("fetched newest weights", didFetch)
 
-
-
-		self._SimulatedStates = 0
 		return
 
 	def CanPredict(self) -> bool:

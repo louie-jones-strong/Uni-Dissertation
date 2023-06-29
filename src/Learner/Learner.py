@@ -1,10 +1,10 @@
-
 import reverb
 import src.Common.Enums.ModelType as ModelType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Enums.DataColumnTypes as DCT
 import src.Common.Utils.Metrics.Logger as Logger
+import time
 
 
 class Learner:
@@ -26,6 +26,8 @@ class Learner:
 			print("fetched newest weights", didFetch)
 
 		self._ConnectToExperienceStore()
+
+		self._ModelUpdateTime  = time.time() + self.Config["SecsPerModelPush"]
 		return
 
 	def _ConnectToExperienceStore(self) -> None:
@@ -48,38 +50,33 @@ class Learner:
 		logger = Logger.Logger()
 		logCallback = logger.GetFitCallback()
 
+		# todo make this configurable
+		BatchSize = 256
+		DataCollectionMultiplier = 100
+		batchDataset = self.Store.batch(BatchSize * DataCollectionMultiplier)
+
 		while True:
 
-			# todo make this configurable
-			BatchSize = 256
-			ItetationsPerUpdate = 1000  # should this be time based?
-			epochs = 1
-
-
-			batchDataset = self.Store.batch(BatchSize)
-
-
-			print("Starting training")
-			for batch in batchDataset.take(ItetationsPerUpdate):
-
+			for batch in batchDataset.take(1):
+				# get x data
 				raw_x = DCT.FilterDict(self.InputColumns, batch.data)
 				x = self.ModelHelper.PreProcessColumns(raw_x, self.InputColumns)
 
-				# raw_y = DCT.FilterDict(self.OutputColumns, batch.data)
-				# y = self.ModelHelper.PreProcessColumns(raw_y, self.OutputColumns)
-
-
+				# get y data
 				y = []
 				for col in self.OutputColumns:
 					raw_column = batch.data[col.name]
 					column = self.ModelHelper.PreProcessSingleColumn(raw_column, col)
 					y.append(column)
 
-				self.Model.fit(x, y, epochs=epochs, callbacks=[logCallback], batch_size=BatchSize)
 
-			print("Finished training")
+				self.Model.fit(x, y, epochs=1, callbacks=[logCallback], batch_size=BatchSize)
 
-			print("Saving model")
-			self.ModelHelper.PushModel(self.ModelType, self.Model)
+			# should we save the model?
+			if time.time() >= self._ModelUpdateTime:
+				self._ModelUpdateTime = time.time() + self.Config["SecsPerModelPush"]
+
+				print("Saving model")
+				self.ModelHelper.PushModel(self.ModelType, self.Model)
 
 		return
