@@ -2,7 +2,7 @@
 mypy==1.2.0
 unittest-parallel==1.5.3
 flake8==6.0.0
-
+flake8-docstrings==1.7.0
 
 # types
 types-keyboard==0.13.2.7
@@ -10,3 +10,4 @@ types-keyboard==0.13.2.7
 # docs
 Sphinx==6.2.1
 sphinx-rtd-theme==1.2.2
+sphinx-autodoc-typehints==1.23.3

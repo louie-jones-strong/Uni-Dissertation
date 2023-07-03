@@ -97,7 +97,7 @@
 <span id="src-worker-envrunner-module"></span><h2>src.Worker.EnvRunner module<a class="headerlink" href="#module-src.Worker.EnvRunner" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.Worker.EnvRunner.EnvRunner">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.Worker.EnvRunner.</span></span><span class="sig-name descname"><span class="pre">EnvRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseEnv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxSteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experienceStore</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/Worker/EnvRunner.html#EnvRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.Worker.EnvRunner.EnvRunner" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.Worker.EnvRunner.</span></span><span class="sig-name descname"><span class="pre">EnvRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxSteps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experienceStore</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/Worker/EnvRunner.html#EnvRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.Worker.EnvRunner.EnvRunner" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Worker.EnvRunner.EnvRunner.GetState">
@@ -121,17 +121,27 @@
 <span id="src-worker-worker-module"></span><h2>src.Worker.Worker module<a class="headerlink" href="#module-src.Worker.Worker" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.Worker.Worker.Worker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.Worker.Worker.</span></span><span class="sig-name descname"><span class="pre">Worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">envConfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agentType</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AgentType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isTrainingMode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experienceStore</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/Worker/Worker.html#Worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.Worker.Worker.Worker" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.Worker.Worker.</span></span><span class="sig-name descname"><span class="pre">Worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">envConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agentType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isTrainingMode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experienceStore</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/Worker/Worker.html#Worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.Worker.Worker.Worker" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Worker.Worker.Worker.CheckForUpdates">
-<span class="sig-name descname"><span class="pre">CheckForUpdates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/Worker/Worker.html#Worker.CheckForUpdates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.Worker.Worker.Worker.CheckForUpdates" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">CheckForUpdates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/Worker/Worker.html#Worker.CheckForUpdates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.Worker.Worker.Worker.CheckForUpdates" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.Worker.Worker.Worker.Run">
-<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/Worker/Worker.html#Worker.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.Worker.Worker.Worker.Run" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/Worker/Worker.html#Worker.Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.Worker.Worker.Worker.Run" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
