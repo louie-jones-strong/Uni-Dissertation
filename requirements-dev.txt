@@ -6,3 +6,7 @@ flake8==6.0.0
 
 # types
 types-keyboard==0.13.2.7
+
+# docs
+Sphinx==6.2.1
+sphinx-rtd-theme==1.2.2

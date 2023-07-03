@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.Common.Utils.ModelHelper &mdash; FinalProject  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            FinalProject
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">Uni-Dissertation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">FinalProject</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.Common.Utils.ModelHelper</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.Common.Utils.ModelHelper</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">redis</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">src.Common.Enums.ModelType</span> <span class="kn">import</span> <span class="n">ModelType</span>
+<span class="kn">import</span> <span class="nn">src.Common.Enums.DataColumnTypes</span> <span class="k">as</span> <span class="nn">DCT</span>
+<span class="kn">import</span> <span class="nn">src.Common.Utils.SharedCoreTypes</span> <span class="k">as</span> <span class="nn">SCT</span>
+<span class="kn">import</span> <span class="nn">src.Common.Utils.ConfigHelper</span> <span class="k">as</span> <span class="nn">ConfigHelper</span>
+<span class="kn">import</span> <span class="nn">src.Common.Utils.Singleton</span> <span class="k">as</span> <span class="nn">Singleton</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">NDArray</span>
+<span class="kn">from</span> <span class="nn">gymnasium</span> <span class="kn">import</span> <span class="n">spaces</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras.utils</span> <span class="kn">import</span> <span class="n">to_categorical</span>
+
+
+<div class="viewcode-block" id="ModelHelper"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper">[docs]</a><span class="k">class</span> <span class="nc">ModelHelper</span><span class="p">(</span><span class="n">Singleton</span><span class="o">.</span><span class="n">Singleton</span><span class="p">):</span>
+
+
+<div class="viewcode-block" id="ModelHelper.Setup"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.Setup">[docs]</a>	<span class="k">def</span> <span class="nf">Setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">envConfig</span><span class="p">:</span><span class="n">SCT</span><span class="o">.</span><span class="n">Config</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">Config</span> <span class="o">=</span> <span class="n">envConfig</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">ActionSpace</span> <span class="o">=</span> <span class="n">ConfigHelper</span><span class="o">.</span><span class="n">ConfigToSpace</span><span class="p">(</span><span class="n">envConfig</span><span class="p">[</span><span class="s2">&quot;ActionSpace&quot;</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ObservationSpace</span> <span class="o">=</span> <span class="n">ConfigHelper</span><span class="o">.</span><span class="n">ConfigToSpace</span><span class="p">(</span><span class="n">envConfig</span><span class="p">[</span><span class="s2">&quot;ObservationSpace&quot;</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">StepRewardRange</span> <span class="o">=</span> <span class="n">envConfig</span><span class="p">[</span><span class="s2">&quot;StepRewardRange&quot;</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">EpisodeRewardRange</span> <span class="o">=</span> <span class="n">envConfig</span><span class="p">[</span><span class="s2">&quot;EpisodeRewardRange&quot;</span><span class="p">]</span>
+
+
+		<span class="c1"># connect to the model store</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">RedisClient</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;model-store&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5002</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+		<span class="k">return</span></div>
+
+<div class="viewcode-block" id="ModelHelper.BuildModel"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.BuildModel">[docs]</a>	<span class="k">def</span> <span class="nf">BuildModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modeType</span><span class="p">:</span><span class="n">ModelType</span><span class="p">):</span>
+
+		<span class="n">inputColumns</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">outputColumns</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+		<span class="k">if</span> <span class="n">modeType</span> <span class="o">==</span> <span class="n">ModelType</span><span class="o">.</span><span class="n">Forward</span><span class="p">:</span>
+			<span class="n">inputColumns</span> <span class="o">=</span> <span class="p">[</span><span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">CurrentState</span><span class="p">,</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Action</span><span class="p">]</span>
+			<span class="n">outputColumns</span> <span class="o">=</span> <span class="p">[</span><span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">NextState</span><span class="p">,</span>
+							<span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Reward</span><span class="p">,</span>
+							<span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Terminated</span><span class="p">]</span>
+
+			<span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Build_Model</span><span class="p">(</span><span class="n">inputColumns</span><span class="p">,</span> <span class="n">outputColumns</span><span class="p">)</span>
+
+
+		<span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">inputColumns</span><span class="p">,</span> <span class="n">outputColumns</span></div>
+
+
+<div class="viewcode-block" id="ModelHelper.FetchNewestWeights"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.FetchNewestWeights">[docs]</a>	<span class="k">def</span> <span class="nf">FetchNewestWeights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modelType</span><span class="p">:</span><span class="n">ModelType</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+
+		<span class="n">key</span> <span class="o">=</span> <span class="n">modelType</span><span class="o">.</span><span class="n">name</span>
+
+		<span class="n">flatWeightBytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RedisClient</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">flatWeightBytes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">False</span>
+
+		<span class="n">flatWeights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">flatWeightBytes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+		<span class="n">currentWeights</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
+
+		<span class="n">newWeights</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">currentWeights</span><span class="p">:</span>
+			<span class="n">shape</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">shape</span>
+			<span class="n">count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+			<span class="n">layerWeights</span> <span class="o">=</span> <span class="n">flatWeights</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span><span class="o">+</span><span class="n">count</span><span class="p">]</span>
+			<span class="n">layerWeights</span> <span class="o">=</span> <span class="n">layerWeights</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+			<span class="n">idx</span> <span class="o">+=</span> <span class="n">count</span>
+			<span class="n">newWeights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layerWeights</span><span class="p">)</span>
+
+		<span class="n">model</span><span class="o">.</span><span class="n">set_weights</span><span class="p">(</span><span class="n">newWeights</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ModelHelper.PushModel"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.PushModel">[docs]</a>	<span class="k">def</span> <span class="nf">PushModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modelType</span><span class="p">:</span><span class="n">ModelType</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+
+		<span class="n">key</span> <span class="o">=</span> <span class="n">modelType</span><span class="o">.</span><span class="n">name</span>
+
+		<span class="n">weights</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_weights</span><span class="p">()</span>
+		<span class="n">flatWeights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">w</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">])</span>
+
+		<span class="n">flatWeightBytes</span> <span class="o">=</span> <span class="n">flatWeights</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">RedisClient</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">flatWeightBytes</span><span class="p">)</span>
+		<span class="k">return</span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="c1"># region Build Models</span>
+	<span class="k">def</span> <span class="nf">_Build_Model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputColumns</span><span class="p">,</span> <span class="n">outputColumns</span><span class="p">):</span>
+
+		<span class="n">inputShape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetColumnsShape</span><span class="p">(</span><span class="n">inputColumns</span><span class="p">)</span>
+
+
+
+		<span class="n">inputLayer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">inputShape</span><span class="p">)</span>
+		<span class="n">flattenLayer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">inputLayer</span><span class="p">)</span>
+
+
+		<span class="c1"># hidden layers</span>
+		<span class="n">hiddenLayer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">flattenLayer</span><span class="p">)</span>
+		<span class="n">hiddenLayer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s2">&quot;relu&quot;</span><span class="p">)(</span><span class="n">hiddenLayer</span><span class="p">)</span>
+
+
+		<span class="c1"># output layers</span>
+		<span class="n">outputLayers</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">losses</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">metrics</span> <span class="o">=</span> <span class="p">{}</span>
+
+		<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">outputColumns</span><span class="p">:</span>
+
+			<span class="n">activation</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span>
+			<span class="n">layerName</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">name</span>
+
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IsColumnDiscrete</span><span class="p">(</span><span class="n">column</span><span class="p">):</span>
+				<span class="n">losses</span><span class="p">[</span><span class="n">layerName</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;categorical_crossentropy&quot;</span>
+				<span class="n">metrics</span><span class="p">[</span><span class="n">layerName</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+				<span class="n">activation</span> <span class="o">=</span> <span class="s2">&quot;softmax&quot;</span>
+
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">losses</span><span class="p">[</span><span class="n">layerName</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mse&quot;</span>
+				<span class="n">metrics</span><span class="p">[</span><span class="n">layerName</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mae&quot;</span><span class="p">]</span>
+
+			<span class="n">outputShape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GetColumnsShape</span><span class="p">([</span><span class="n">column</span><span class="p">])</span>
+			<span class="n">outputLayer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">outputShape</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">layerName</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">)(</span><span class="n">hiddenLayer</span><span class="p">)</span>
+			<span class="n">outputLayers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outputLayer</span><span class="p">)</span>
+
+		<span class="c1"># create model</span>
+		<span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputLayer</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputLayers</span><span class="p">)</span>
+
+
+		<span class="c1"># optimizer</span>
+		<span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">)</span>
+
+		<span class="c1"># compile the network</span>
+		<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">losses</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">model</span>
+<span class="c1"># endregion</span>
+
+
+
+
+
+
+
+
+
+
+<span class="c1"># region pre and post process columns</span>
+
+<div class="viewcode-block" id="ModelHelper.GetColumnsShape"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.GetColumnsShape">[docs]</a>	<span class="k">def</span> <span class="nf">GetColumnsShape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+		<span class="n">shapes</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+
+			<span class="k">if</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Terminated</span> <span class="ow">or</span>
+				<span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Truncated</span><span class="p">):</span>
+				<span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">2</span><span class="p">))</span>
+
+
+			<span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Reward</span><span class="p">:</span>
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Config</span><span class="p">[</span><span class="s2">&quot;ClipRewards&quot;</span><span class="p">]:</span>
+					<span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">3</span><span class="p">))</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">1</span><span class="p">))</span>
+
+
+			<span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Action</span><span class="p">:</span>
+				<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ActionSpace</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+					<span class="c1"># one hot encoded action</span>
+					<span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ActionSpace</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ActionSpace</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+
+			<span class="k">elif</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">CurrentState</span> <span class="ow">or</span>
+					<span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">NextState</span><span class="p">):</span>
+				<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ObservationSpace</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+					<span class="c1"># one hot encoded state</span>
+					<span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ObservationSpace</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ObservationSpace</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown column type </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+
+		<span class="n">shape</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shapes</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+		<span class="k">return</span> <span class="p">(</span><span class="n">shape</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ModelHelper.PreProcessColumns"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.PreProcessColumns">[docs]</a>	<span class="k">def</span> <span class="nf">PreProcessColumns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+			<span class="n">columnsData</span><span class="p">:</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">NDArray</span><span class="p">],</span>
+			<span class="n">columnLabels</span><span class="p">:</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="p">]</span>
+			<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+
+		<span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PreProcessSingleColumn</span><span class="p">(</span><span class="n">columnsData</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">columnLabels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">columnLabels</span><span class="p">)):</span>
+			<span class="n">columnData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PreProcessSingleColumn</span><span class="p">(</span><span class="n">columnsData</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">columnLabels</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+			<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="n">columnData</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="ModelHelper.PostProcessColumns"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.PostProcessColumns">[docs]</a>	<span class="k">def</span> <span class="nf">PostProcessColumns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+			<span class="n">columnsData</span><span class="p">:</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">NDArray</span><span class="p">],</span>
+			<span class="n">columnLabels</span><span class="p">:</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="p">]</span>
+			<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">NDArray</span><span class="p">]:</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columnLabels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PostProcessSingleColumn</span><span class="p">(</span><span class="n">columnsData</span><span class="p">,</span> <span class="n">columnLabels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+		<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columnLabels</span><span class="p">)):</span>
+			<span class="n">columnData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PostProcessSingleColumn</span><span class="p">(</span><span class="n">columnsData</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">columnLabels</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+			<span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">columnData</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">data</span></div>
+
+
+
+	<span class="k">def</span> <span class="nf">_JoinColumnsData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columnsData</span><span class="p">):</span>
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columnsData</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+			<span class="k">return</span> <span class="n">columnsData</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columnsData</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+			<span class="n">joinedRow</span> <span class="o">=</span> <span class="p">[</span><span class="n">columnsData</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">columnsData</span><span class="p">))]</span>
+			<span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">joinedRow</span><span class="p">))</span>
+
+		<span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">output</span>
+
+
+
+
+<div class="viewcode-block" id="ModelHelper.PreProcessSingleColumn"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.PreProcessSingleColumn">[docs]</a>	<span class="k">def</span> <span class="nf">PreProcessSingleColumn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span><span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+
+		<span class="c1"># add a dimension to the data at the end</span>
+		<span class="n">proccessed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Terminated</span> <span class="ow">or</span>
+				<span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Truncated</span><span class="p">):</span>
+			<span class="c1"># one hot encode the boolean values</span>
+			<span class="n">intBools</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+			<span class="n">proccessed</span> <span class="o">=</span> <span class="n">to_categorical</span><span class="p">(</span><span class="n">intBools</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+		<span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Reward</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Config</span><span class="p">[</span><span class="s2">&quot;ClipRewards&quot;</span><span class="p">]:</span>
+				<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+				<span class="n">proccessed</span> <span class="o">=</span> <span class="n">to_categorical</span><span class="p">(</span><span class="n">data</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+		<span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Action</span> <span class="ow">and</span> \
+				<span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ActionSpace</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+
+			<span class="c1"># one hot encode the action</span>
+			<span class="n">proccessed</span> <span class="o">=</span> <span class="n">to_categorical</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ActionSpace</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+		<span class="k">elif</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">CurrentState</span> <span class="ow">or</span>
+				<span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">NextState</span><span class="p">)</span> <span class="ow">and</span> \
+				<span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ObservationSpace</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+
+			<span class="c1"># one hot encode the state</span>
+			<span class="n">proccessed</span> <span class="o">=</span> <span class="n">to_categorical</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ObservationSpace</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+
+		<span class="k">return</span> <span class="n">proccessed</span></div>
+
+<div class="viewcode-block" id="ModelHelper.PostProcessSingleColumn"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.PostProcessSingleColumn">[docs]</a>	<span class="k">def</span> <span class="nf">PostProcessSingleColumn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="n">NDArray</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span><span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+		<span class="n">proccessed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+		<span class="n">proccessed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">proccessed</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Terminated</span> <span class="ow">or</span>
+				<span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Truncated</span><span class="p">):</span>
+			<span class="c1"># argmax the one hot encoded boolean values</span>
+			<span class="n">intBools</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+			<span class="n">proccessed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">bool</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">intBools</span><span class="p">])</span>
+
+		<span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Reward</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Config</span><span class="p">[</span><span class="s2">&quot;ClipRewards&quot;</span><span class="p">]:</span>
+				<span class="n">proccessed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+				<span class="n">proccessed</span> <span class="o">=</span> <span class="n">proccessed</span> <span class="o">-</span> <span class="mi">1</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">proccessed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">proccessed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">StepRewardRange</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">StepRewardRange</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+		<span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Action</span> <span class="ow">and</span> \
+				<span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ActionSpace</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+
+			<span class="c1"># argmax the one hot encoded action</span>
+			<span class="n">proccessed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="k">elif</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">CurrentState</span> <span class="ow">or</span>
+				<span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">NextState</span><span class="p">)</span> <span class="ow">and</span> \
+				<span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ObservationSpace</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+
+			<span class="c1"># argmax the one hot encoded state</span>
+			<span class="n">proccessed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">proccessed</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="ModelHelper.IsColumnDiscrete"><a class="viewcode-back" href="../../../../src.Common.Utils.html#src.Common.Utils.ModelHelper.ModelHelper.IsColumnDiscrete">[docs]</a>	<span class="k">def</span> <span class="nf">IsColumnDiscrete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span><span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+		<span class="n">isDiscrete</span> <span class="o">=</span> <span class="kc">False</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Terminated</span> <span class="ow">or</span>
+				<span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Truncated</span><span class="p">):</span>
+			<span class="n">isDiscrete</span> <span class="o">=</span> <span class="kc">True</span>
+
+		<span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Reward</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Config</span><span class="p">[</span><span class="s2">&quot;ClipRewards&quot;</span><span class="p">]:</span>
+				<span class="n">isDiscrete</span> <span class="o">=</span> <span class="kc">True</span>
+
+		<span class="k">elif</span> <span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">Action</span> <span class="ow">and</span> \
+				<span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ActionSpace</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+			<span class="n">isDiscrete</span> <span class="o">=</span> <span class="kc">True</span>
+
+		<span class="k">elif</span> <span class="p">(</span><span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">CurrentState</span> <span class="ow">or</span>
+				<span class="n">label</span> <span class="o">==</span> <span class="n">DCT</span><span class="o">.</span><span class="n">DataColumnTypes</span><span class="o">.</span><span class="n">NextState</span><span class="p">)</span> <span class="ow">and</span> \
+				<span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ObservationSpace</span><span class="p">,</span> <span class="n">spaces</span><span class="o">.</span><span class="n">Discrete</span><span class="p">):</span>
+
+			<span class="n">isDiscrete</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+		<span class="k">return</span> <span class="n">isDiscrete</span></div></div>
+<span class="c1"># endregion</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Louie Jones-Strong.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
