@@ -1,6 +1,4 @@
 call .venv\Scripts\activate.bat
-cd docs
 
-sphinx-apidoc -o . ..
-make html
-cd ../
+sphinx-apidoc -o docs .
+call docs\make html
