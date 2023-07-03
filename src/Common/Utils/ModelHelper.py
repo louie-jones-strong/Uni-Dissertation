@@ -158,6 +158,8 @@ class ModelHelper(Singleton.Singleton):
 
 # region pre and post process columns
 
+# region get column characteristics
+
 	def GetColumnsShape(self, labels:typing.List[DCT.DataColumnTypes]) -> typing.Tuple[int, ...]:
 		shapes = []
 
@@ -200,6 +202,33 @@ class ModelHelper(Singleton.Singleton):
 
 		return (shape)
 
+	def IsColumnDiscrete(self, label:DCT.DataColumnTypes) -> bool:
+		isDiscrete = False
+
+		if (label == DCT.DataColumnTypes.Terminated or
+				label == DCT.DataColumnTypes.Truncated):
+			isDiscrete = True
+
+		elif label == DCT.DataColumnTypes.Reward:
+			if self.Config["ClipRewards"]:
+				isDiscrete = True
+
+		elif label == DCT.DataColumnTypes.Action and \
+				isinstance(self.ActionSpace, spaces.Discrete):
+			isDiscrete = True
+
+		elif (label == DCT.DataColumnTypes.CurrentState or
+				label == DCT.DataColumnTypes.NextState) and \
+				isinstance(self.ObservationSpace, spaces.Discrete):
+
+			isDiscrete = True
+
+
+		return isDiscrete
+
+# endregion
+
+
 
 	def PreProcessColumns(self,
 			columnsData:typing.List[NDArray],
@@ -230,8 +259,6 @@ class ModelHelper(Singleton.Singleton):
 
 		return data
 
-
-
 	def _JoinColumnsData(self, columnsData):
 		if len(columnsData) == 1:
 			return columnsData[0]
@@ -252,8 +279,7 @@ class ModelHelper(Singleton.Singleton):
 		# add a dimension to the data at the end
 		proccessed = np.reshape(data, (len(data), -1))
 
-		if (label == DCT.DataColumnTypes.Terminated or
-				label == DCT.DataColumnTypes.Truncated):
+		if label == DCT.DataColumnTypes.Terminated or label == DCT.DataColumnTypes.Truncated:
 			# one hot encode the boolean values
 			intBools = [int(i) for i in data]
 			proccessed = to_categorical(intBools, num_classes=2)
@@ -312,28 +338,5 @@ class ModelHelper(Singleton.Singleton):
 		return np.array([proccessed])
 
 
-	def IsColumnDiscrete(self, label:DCT.DataColumnTypes) -> bool:
-		isDiscrete = False
-
-		if (label == DCT.DataColumnTypes.Terminated or
-				label == DCT.DataColumnTypes.Truncated):
-			isDiscrete = True
-
-		elif label == DCT.DataColumnTypes.Reward:
-			if self.Config["ClipRewards"]:
-				isDiscrete = True
-
-		elif label == DCT.DataColumnTypes.Action and \
-				isinstance(self.ActionSpace, spaces.Discrete):
-			isDiscrete = True
-
-		elif (label == DCT.DataColumnTypes.CurrentState or
-				label == DCT.DataColumnTypes.NextState) and \
-				isinstance(self.ObservationSpace, spaces.Discrete):
-
-			isDiscrete = True
-
-
-		return isDiscrete
 # endregion
 

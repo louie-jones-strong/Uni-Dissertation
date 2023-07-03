@@ -52,6 +52,8 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 
 		self.ActionList = self._GetActionList()
 
+		self.UpdateModels()
+
 
 		self._Logger = Logger.Logger()
 
