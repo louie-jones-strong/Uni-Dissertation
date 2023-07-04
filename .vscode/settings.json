@@ -8,4 +8,11 @@
 	],
 	"python.testing.pytestEnabled": false,
 	"python.testing.unittestEnabled": true,
+	"files.exclude": {
+		"**/__pycache__": true,
+		"**/*.pyc": true,
+		".mypy_cache": true,
+		".venv": true,
+		"docs/_build": true
+	},
 }
