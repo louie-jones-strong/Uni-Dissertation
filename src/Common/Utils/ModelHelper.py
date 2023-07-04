@@ -1,8 +1,8 @@
 import tensorflow as tf
 import redis
 import numpy as np
-from src.Common.Enums.ModelType import ModelType
-import src.Common.Enums.DataColumnTypes as DCT
+from src.Common.Enums.eModelType import eModelType
+import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Utils.ConfigHelper as ConfigHelper
 import src.Common.Utils.Singleton as Singleton
@@ -28,17 +28,17 @@ class ModelHelper(Singleton.Singleton):
 		self.RedisClient = redis.Redis(host="model-store", port=5002, db=0)
 		return
 
-	def BuildModel(self, modeType:ModelType):
+	def BuildModel(self, modeType:eModelType):
 
 		inputColumns = []
 		outputColumns = []
 
 
-		if modeType == ModelType.Forward:
-			inputColumns = [DCT.DataColumnTypes.CurrentState, DCT.DataColumnTypes.Action]
-			outputColumns = [DCT.DataColumnTypes.NextState,
-							DCT.DataColumnTypes.Reward,
-							DCT.DataColumnTypes.Terminated]
+		if modeType == eModelType.Forward:
+			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
+			outputColumns = [DCT.eDataColumnTypes.NextState,
+							DCT.eDataColumnTypes.Reward,
+							DCT.eDataColumnTypes.Terminated]
 
 			model = self._Build_Model(inputColumns, outputColumns)
 
@@ -46,9 +46,9 @@ class ModelHelper(Singleton.Singleton):
 		return model, inputColumns, outputColumns
 
 
-	def FetchNewestWeights(self, modelType:ModelType, model):
+	def FetchNewestWeights(self, eModelType:eModelType, model):
 
-		key = modelType.name
+		key = eModelType.name
 
 		flatWeightBytes = self.RedisClient.get(key)
 		if flatWeightBytes is None:
@@ -72,9 +72,9 @@ class ModelHelper(Singleton.Singleton):
 
 		return True
 
-	def PushModel(self, modelType:ModelType, model):
+	def PushModel(self, eModelType:eModelType, model):
 
-		key = modelType.name
+		key = eModelType.name
 
 		weights = model.get_weights()
 		flatWeights = np.concatenate([w.flatten() for w in weights])
@@ -160,24 +160,24 @@ class ModelHelper(Singleton.Singleton):
 
 # region get column characteristics
 
-	def GetColumnsShape(self, labels:typing.List[DCT.DataColumnTypes]) -> typing.Tuple[int, ...]:
+	def GetColumnsShape(self, labels:typing.List[DCT.eDataColumnTypes]) -> typing.Tuple[int, ...]:
 		shapes = []
 
 		for label in labels:
 
-			if (label == DCT.DataColumnTypes.Terminated or
-				label == DCT.DataColumnTypes.Truncated):
+			if (label == DCT.eDataColumnTypes.Terminated or
+				label == DCT.eDataColumnTypes.Truncated):
 				shapes.append((2))
 
 
-			elif label == DCT.DataColumnTypes.Reward:
+			elif label == DCT.eDataColumnTypes.Reward:
 				if self.Config["ClipRewards"]:
 					shapes.append((3))
 				else:
 					shapes.append((1))
 
 
-			elif label == DCT.DataColumnTypes.Action:
+			elif label == DCT.eDataColumnTypes.Action:
 				if isinstance(self.ActionSpace, spaces.Discrete):
 					# one hot encoded action
 					shapes.append((self.ActionSpace.n))
@@ -185,8 +185,8 @@ class ModelHelper(Singleton.Singleton):
 					shapes.append(self.ActionSpace.shape)
 
 
-			elif (label == DCT.DataColumnTypes.CurrentState or
-					label == DCT.DataColumnTypes.NextState):
+			elif (label == DCT.eDataColumnTypes.CurrentState or
+					label == DCT.eDataColumnTypes.NextState):
 				if isinstance(self.ObservationSpace, spaces.Discrete):
 					# one hot encoded state
 					shapes.append((self.ObservationSpace.n))
@@ -202,23 +202,23 @@ class ModelHelper(Singleton.Singleton):
 
 		return (shape)
 
-	def IsColumnDiscrete(self, label:DCT.DataColumnTypes) -> bool:
+	def IsColumnDiscrete(self, label:DCT.eDataColumnTypes) -> bool:
 		isDiscrete = False
 
-		if (label == DCT.DataColumnTypes.Terminated or
-				label == DCT.DataColumnTypes.Truncated):
+		if (label == DCT.eDataColumnTypes.Terminated or
+				label == DCT.eDataColumnTypes.Truncated):
 			isDiscrete = True
 
-		elif label == DCT.DataColumnTypes.Reward:
+		elif label == DCT.eDataColumnTypes.Reward:
 			if self.Config["ClipRewards"]:
 				isDiscrete = True
 
-		elif label == DCT.DataColumnTypes.Action and \
+		elif label == DCT.eDataColumnTypes.Action and \
 				isinstance(self.ActionSpace, spaces.Discrete):
 			isDiscrete = True
 
-		elif (label == DCT.DataColumnTypes.CurrentState or
-				label == DCT.DataColumnTypes.NextState) and \
+		elif (label == DCT.eDataColumnTypes.CurrentState or
+				label == DCT.eDataColumnTypes.NextState) and \
 				isinstance(self.ObservationSpace, spaces.Discrete):
 
 			isDiscrete = True
@@ -232,7 +232,7 @@ class ModelHelper(Singleton.Singleton):
 
 	def PreProcessColumns(self,
 			columnsData:typing.List[NDArray],
-			columnLabels:typing.List[DCT.DataColumnTypes]
+			columnLabels:typing.List[DCT.eDataColumnTypes]
 			) -> NDArray:
 
 		data = self.PreProcessSingleColumn(columnsData[0], columnLabels[0])
@@ -246,7 +246,7 @@ class ModelHelper(Singleton.Singleton):
 
 	def PostProcessColumns(self,
 			columnsData:typing.List[NDArray],
-			columnLabels:typing.List[DCT.DataColumnTypes]
+			columnLabels:typing.List[DCT.eDataColumnTypes]
 			) -> typing.List[NDArray]:
 
 		if len(columnLabels) == 1:
@@ -274,29 +274,29 @@ class ModelHelper(Singleton.Singleton):
 
 
 
-	def PreProcessSingleColumn(self, data:NDArray, label:DCT.DataColumnTypes) -> NDArray:
+	def PreProcessSingleColumn(self, data:NDArray, label:DCT.eDataColumnTypes) -> NDArray:
 
 		# add a dimension to the data at the end
 		proccessed = np.reshape(data, (len(data), -1))
 
-		if label == DCT.DataColumnTypes.Terminated or label == DCT.DataColumnTypes.Truncated:
+		if label == DCT.eDataColumnTypes.Terminated or label == DCT.eDataColumnTypes.Truncated:
 			# one hot encode the boolean values
 			intBools = [int(i) for i in data]
 			proccessed = to_categorical(intBools, num_classes=2)
 
-		elif label == DCT.DataColumnTypes.Reward:
+		elif label == DCT.eDataColumnTypes.Reward:
 			if self.Config["ClipRewards"]:
 				data = np.sign(data)
 				proccessed = to_categorical(data+1, num_classes=3)
 
-		elif label == DCT.DataColumnTypes.Action and \
+		elif label == DCT.eDataColumnTypes.Action and \
 				isinstance(self.ActionSpace, spaces.Discrete):
 
 			# one hot encode the action
 			proccessed = to_categorical(data, num_classes=self.ActionSpace.n)
 
-		elif (label == DCT.DataColumnTypes.CurrentState or
-				label == DCT.DataColumnTypes.NextState) and \
+		elif (label == DCT.eDataColumnTypes.CurrentState or
+				label == DCT.eDataColumnTypes.NextState) and \
 				isinstance(self.ObservationSpace, spaces.Discrete):
 
 			# one hot encode the state
@@ -305,31 +305,31 @@ class ModelHelper(Singleton.Singleton):
 
 		return proccessed
 
-	def PostProcessSingleColumn(self, data:NDArray, label:DCT.DataColumnTypes) -> NDArray:
+	def PostProcessSingleColumn(self, data:NDArray, label:DCT.eDataColumnTypes) -> NDArray:
 		proccessed = np.reshape(data, (len(data), -1))
 		proccessed = np.squeeze(proccessed)
 
-		if (label == DCT.DataColumnTypes.Terminated or
-				label == DCT.DataColumnTypes.Truncated):
+		if (label == DCT.eDataColumnTypes.Terminated or
+				label == DCT.eDataColumnTypes.Truncated):
 			# argmax the one hot encoded boolean values
 			intBools = np.argmax(data, axis=1)
 			proccessed = np.array([bool(i) for i in intBools])
 
-		elif label == DCT.DataColumnTypes.Reward:
+		elif label == DCT.eDataColumnTypes.Reward:
 			if self.Config["ClipRewards"]:
 				proccessed = np.argmax(data, axis=1)
 				proccessed = proccessed - 1
 			else:
 				proccessed = np.clip(proccessed, self.StepRewardRange[0], self.StepRewardRange[1])
 
-		elif label == DCT.DataColumnTypes.Action and \
+		elif label == DCT.eDataColumnTypes.Action and \
 				isinstance(self.ActionSpace, spaces.Discrete):
 
 			# argmax the one hot encoded action
 			proccessed = np.argmax(data, axis=1)
 
-		elif (label == DCT.DataColumnTypes.CurrentState or
-				label == DCT.DataColumnTypes.NextState) and \
+		elif (label == DCT.eDataColumnTypes.CurrentState or
+				label == DCT.eDataColumnTypes.NextState) and \
 				isinstance(self.ObservationSpace, spaces.Discrete):
 
 			# argmax the one hot encoded state

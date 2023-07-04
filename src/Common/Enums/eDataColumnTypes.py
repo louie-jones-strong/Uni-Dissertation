@@ -2,7 +2,7 @@ from typing import Any
 import typing
 import enum
 
-class DataColumnTypes(enum.Enum):
+class eDataColumnTypes(enum.Enum):
 	CurrentState = 0
 	NextState = 1
 
@@ -18,7 +18,7 @@ class DataColumnTypes(enum.Enum):
 
 
 
-def FilterColumns(columnFilter:typing.List[DataColumnTypes], rows:typing.Tuple[Any, ...]) -> typing.List[Any]:
+def FilterColumns(columnFilter:typing.List[eDataColumnTypes], rows:typing.Tuple[Any, ...]) -> typing.List[Any]:
 	columns = []
 	for col in columnFilter:
 
@@ -27,7 +27,7 @@ def FilterColumns(columnFilter:typing.List[DataColumnTypes], rows:typing.Tuple[A
 	return columns
 
 
-def FilterDict(columnFilter:typing.List[DataColumnTypes], rowsDict) -> typing.List[Any]:
+def FilterDict(columnFilter:typing.List[eDataColumnTypes], rowsDict) -> typing.List[Any]:
 	columns = []
 	for col in columnFilter:
 

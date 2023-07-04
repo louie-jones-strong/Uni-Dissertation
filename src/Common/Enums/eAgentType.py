@@ -1,6 +1,6 @@
 import enum
 
-class AgentType(enum.Enum):
+class eAgentType(enum.Enum):
 	Random = 0
 	Human = 1
 	HardCoded = 2

@@ -1,7 +1,7 @@
 import typing
 from typing import Optional
 import src.Common.Utils.SharedCoreTypes as SCT
-from src.Common.Enums.ModelType import ModelType
+from src.Common.Enums.eModelType import eModelType
 import numpy as np
 from numpy.typing import NDArray
 import src.Common.Utils.ModelHelper as ModelHelper
@@ -12,7 +12,7 @@ class ForwardModel:
 		self._EnvSimulation = envSim
 
 		self._ModelHelper = ModelHelper.ModelHelper()
-		self._Model, self._InputColumns, self._OutputColumns = self._ModelHelper.BuildModel(ModelType.Forward)
+		self._Model, self._InputColumns, self._OutputColumns = self._ModelHelper.BuildModel(eModelType.Forward)
 
 		self._SimulatedStates = 0
 
@@ -21,7 +21,7 @@ class ForwardModel:
 
 	def UpdateModels(self) -> None:
 		print("fetching newest weights")
-		didFetch = self._ModelHelper.FetchNewestWeights(ModelType.Forward, self._Model)
+		didFetch = self._ModelHelper.FetchNewestWeights(eModelType.Forward, self._Model)
 		print("fetched newest weights", didFetch)
 
 		return

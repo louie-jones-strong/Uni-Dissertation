@@ -1,15 +1,15 @@
 import src.Common.Store.ExperienceStore.EsBase as EsBase
 import reverb
-import src.Common.Enums.DataColumnTypes as DCT
+import src.Common.Enums.eDataColumnTypes as DCT
 
 
-CurrentState_Name = DCT.DataColumnTypes.CurrentState.name
-NextState_Name = DCT.DataColumnTypes.NextState.name
-Action_Name = DCT.DataColumnTypes.Action.name
-Reward_Name = DCT.DataColumnTypes.Reward.name
-MaxFutureRewards_Name = DCT.DataColumnTypes.MaxFutureRewards.name
-Terminated_Name = DCT.DataColumnTypes.Terminated.name
-Truncated_Name = DCT.DataColumnTypes.Truncated.name
+CurrentState_Name = DCT.eDataColumnTypes.CurrentState.name
+NextState_Name = DCT.eDataColumnTypes.NextState.name
+Action_Name = DCT.eDataColumnTypes.Action.name
+Reward_Name = DCT.eDataColumnTypes.Reward.name
+MaxFutureRewards_Name = DCT.eDataColumnTypes.MaxFutureRewards.name
+Terminated_Name = DCT.eDataColumnTypes.Terminated.name
+Truncated_Name = DCT.eDataColumnTypes.Truncated.name
 
 class EsReverb(EsBase.EsBase):
 

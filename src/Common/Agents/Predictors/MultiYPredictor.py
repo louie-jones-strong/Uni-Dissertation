@@ -2,15 +2,15 @@ from src.Common.Agents.Predictors import BasePredictor
 import numpy as np
 from numpy.typing import NDArray
 import typing
-import src.Common.Enums.DataColumnTypes as DCT
+import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.SharedCoreTypes as SCT
 
 
 class MultiYPredictor(BasePredictor.BasePredictor):
 
 	def __init__(self,
-			xLabels:typing.List[DCT.DataColumnTypes],
-			yLabels:typing.List[DCT.DataColumnTypes],
+			xLabels:typing.List[DCT.eDataColumnTypes],
+			yLabels:typing.List[DCT.eDataColumnTypes],
 			overrideConfig:SCT.Config):
 		super().__init__(xLabels, yLabels, overrideConfig)
 

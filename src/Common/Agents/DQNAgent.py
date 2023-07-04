@@ -3,7 +3,7 @@ import typing
 
 import numpy as np
 import src.Common.Agents.BaseAgent as BaseAgent
-import src.Common.DataManager.DataColumnTypes as DCT
+import src.Common.DataManager.eDataColumnTypes as DCT
 import src.Common.Utils.SharedCoreTypes as SCT
 import tensorflow as tf
 from numpy.typing import NDArray
@@ -137,13 +137,13 @@ class DQNAgent(BaseAgent.BaseAgent):
 				SCT.Reward_List,
 				NDArray[np.float32]]:
 			columns = [
-				DCT.DataColumnTypes.CurrentState,
-				DCT.DataColumnTypes.NextState,
-				DCT.DataColumnTypes.Action,
-				DCT.DataColumnTypes.Reward,
-				DCT.DataColumnTypes.MaxFutureRewards,
-				DCT.DataColumnTypes.Terminated,
-				DCT.DataColumnTypes.Truncated,
+				DCT.eDataColumnTypes.CurrentState,
+				DCT.eDataColumnTypes.NextState,
+				DCT.eDataColumnTypes.Action,
+				DCT.eDataColumnTypes.Reward,
+				DCT.eDataColumnTypes.MaxFutureRewards,
+				DCT.eDataColumnTypes.Terminated,
+				DCT.eDataColumnTypes.Truncated,
 			]
 
 			priorityScale = self.Config["PriorityScale"]

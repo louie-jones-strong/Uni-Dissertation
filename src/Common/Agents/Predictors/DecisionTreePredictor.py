@@ -1,7 +1,7 @@
 from . import BasePredictor
 import xgboost as xgb
 import typing
-import src.Common.Enums.DataColumnTypes as DCT
+import src.Common.Enums.eDataColumnTypes as DCT
 from numpy.typing import NDArray
 import numpy as np
 import src.Common.Utils.SharedCoreTypes as SCT
@@ -9,8 +9,8 @@ import src.Common.Utils.SharedCoreTypes as SCT
 class DecisionTreePredictor(BasePredictor.BasePredictor):
 
 	def __init__(self,
-			xLabels:typing.List[DCT.DataColumnTypes],
-			yLabels:typing.List[DCT.DataColumnTypes],
+			xLabels:typing.List[DCT.eDataColumnTypes],
+			yLabels:typing.List[DCT.eDataColumnTypes],
 			overrideConfig:SCT.Config):
 		super().__init__(xLabels, yLabels, overrideConfig)
 

@@ -1,6 +1,6 @@
 import src.Common.DataManager.DataManager as DataManager
 import src.Common.Utils.Metrics.Logger as Logger
-import src.Common.Enums.DataColumnTypes as DCT
+import src.Common.Enums.eDataColumnTypes as DCT
 import typing
 import src.Common.Utils.SharedCoreTypes as SCT
 import numpy as np
@@ -9,8 +9,8 @@ from collections import deque
 import src.Common.Utils.ConfigHelper as ConfigHelper
 
 def GetPredictor(predictorName:str,
-			xLabels:typing.List[DCT.DataColumnTypes],
-			yLabels:typing.List[DCT.DataColumnTypes],
+			xLabels:typing.List[DCT.eDataColumnTypes],
+			yLabels:typing.List[DCT.eDataColumnTypes],
 			overrideConfig:SCT.Config) -> object:
 
 	if predictorName == "DecisionTree":
@@ -34,8 +34,8 @@ def GetPredictor(predictorName:str,
 class BasePredictor(ConfigHelper.ConfigurableClass):
 
 	def __init__(self,
-			xLabels:typing.List[DCT.DataColumnTypes],
-			yLabels:typing.List[DCT.DataColumnTypes],
+			xLabels:typing.List[DCT.eDataColumnTypes],
+			yLabels:typing.List[DCT.eDataColumnTypes],
 			overrideConfig:SCT.Config):
 		self.LoadConfig(overrideConfig)
 		assert len(xLabels) > 0, "xLabels must have at least one element"
@@ -50,7 +50,7 @@ class BasePredictor(ConfigHelper.ConfigurableClass):
 
 		className = self.__class__.__name__.replace("Predictor", "")
 		predictionName = "".join([y.name for y in yLabels])
-		predictionName = predictionName.replace("DataColumnTypes.", "")
+		predictionName = predictionName.replace("eDataColumnTypes.", "")
 		self._Name = f"{predictionName}_{className}"
 
 		self._StepsSinceTrained = -1

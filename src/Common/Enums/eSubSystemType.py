@@ -1,6 +1,6 @@
 import enum
 
-class SubSystemType(enum.Enum):
+class eSubSystemType(enum.Enum):
 	Learner = 0
 	Worker = 1
 	Webserver = 2

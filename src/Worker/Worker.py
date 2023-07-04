@@ -2,7 +2,7 @@ import src.Common.Agents.BaseAgent as BaseAgent
 import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.EnvRunner as EnvRunner
-from src.Common.Enums.AgentType import AgentType
+from src.Common.Enums.eAgentType import eAgentType
 import typing
 import time
 import src.Common.Store.ExperienceStore.EsBase as EsBase
@@ -13,12 +13,12 @@ class Worker:
 	Worker is responsible for collecting trajectories to fill the experience store.
 	"""
 
-	def __init__(self, envConfig:SCT.Config, agentType:AgentType, isTrainingMode:bool, experienceStore:EsBase.EsBase) -> None:
+	def __init__(self, envConfig:SCT.Config, eAgentType:eAgentType, isTrainingMode:bool, experienceStore:EsBase.EsBase) -> None:
 		self.Config = envConfig
 		self.IsEvaluating = not isTrainingMode
 
 
-		self.Agent = BaseAgent.GetAgent(agentType, envConfig, isTrainingMode)
+		self.Agent = BaseAgent.GetAgent(eAgentType, envConfig, isTrainingMode)
 
 
 		numEnvs = self.Config["NumEnvsPerWorker"]

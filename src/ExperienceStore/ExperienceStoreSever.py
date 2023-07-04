@@ -1,7 +1,7 @@
 import reverb
 import tensorflow as tf
 import time
-import src.Common.Enums.DataColumnTypes as DCT
+import src.Common.Enums.eDataColumnTypes as DCT
 
 def Run() -> None:
 
@@ -28,13 +28,13 @@ def Run() -> None:
 				# Read the Rate Limiters section for usage info.
 				rate_limiter=reverb.rate_limiters.MinSize(2),
 				signature={
-					DCT.DataColumnTypes.CurrentState.name: State_Spec,
-					DCT.DataColumnTypes.NextState.name: State_Spec,
-					DCT.DataColumnTypes.Action.name: Action_Spec,
-					DCT.DataColumnTypes.Reward.name: Reward_Spec,
-					DCT.DataColumnTypes.MaxFutureRewards.name: Reward_Spec,
-					DCT.DataColumnTypes.Terminated.name: EndFlag_Spec,
-					DCT.DataColumnTypes.Truncated.name: EndFlag_Spec
+					DCT.eDataColumnTypes.CurrentState.name: State_Spec,
+					DCT.eDataColumnTypes.NextState.name: State_Spec,
+					DCT.eDataColumnTypes.Action.name: Action_Spec,
+					DCT.eDataColumnTypes.Reward.name: Reward_Spec,
+					DCT.eDataColumnTypes.MaxFutureRewards.name: Reward_Spec,
+					DCT.eDataColumnTypes.Terminated.name: EndFlag_Spec,
+					DCT.eDataColumnTypes.Truncated.name: EndFlag_Spec
 				},
 			)
 		],

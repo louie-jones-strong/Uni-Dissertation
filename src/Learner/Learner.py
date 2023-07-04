@@ -1,28 +1,28 @@
 import reverb
-import src.Common.Enums.ModelType as ModelType
+import src.Common.Enums.eModelType as eeModelType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Utils.SharedCoreTypes as SCT
-import src.Common.Enums.DataColumnTypes as DCT
+import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.Metrics.Logger as Logger
 import time
 
 
 class Learner:
 
-	def __init__(self, envConfig:SCT.Config, modelType:ModelType, loadModel:bool):
+	def __init__(self, envConfig:SCT.Config, eModelType:eeModelType, loadModel:bool):
 		self.Config = envConfig
-		self.ModelType = modelType
+		self.eModelType = eModelType
 		self.ModelHelper = ModelHelper.ModelHelper(envConfig)
 
 
 		print("build model")
 		# todo make this driven by the env config
-		self.Model, self.InputColumns, self.OutputColumns = self.ModelHelper.BuildModel(self.ModelType)
+		self.Model, self.InputColumns, self.OutputColumns = self.ModelHelper.BuildModel(self.eModelType)
 		print("built model")
 
 		if loadModel:
 			print("fetching newest weights")
-			didFetch = self.ModelHelper.FetchNewestWeights(self.ModelType, self.Model)
+			didFetch = self.ModelHelper.FetchNewestWeights(self.eModelType, self.Model)
 			print("fetched newest weights", didFetch)
 
 		self._ConnectToExperienceStore()
@@ -77,6 +77,6 @@ class Learner:
 				self._ModelUpdateTime = time.time() + self.Config["SecsPerModelPush"]
 
 				print("Saving model")
-				self.ModelHelper.PushModel(self.ModelType, self.Model)
+				self.ModelHelper.PushModel(self.eModelType, self.Model)
 
 		return

@@ -1,6 +1,6 @@
 import enum
 
-class ModelType(enum.Enum):
+class eModelType(enum.Enum):
 	Policy = 0
 	Value = 1
 	Forward = 2

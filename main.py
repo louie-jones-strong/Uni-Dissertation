@@ -1,9 +1,9 @@
 import os
 
 import src.Common.Utils.ArgParser as ArgParser
-from src.Common.Enums.AgentType import AgentType
-from src.Common.Enums.ModelType import ModelType
-from src.Common.Enums.SubSystemType import SubSystemType
+from src.Common.Enums.eAgentType import eAgentType
+from src.Common.Enums.eModelType import eModelType
+from src.Common.Enums.eSubSystemType import eSubSystemType
 from src.Common.Utils.PathHelper import GetRootPath
 import src.Common.Utils.ConfigHelper as ConfigHelper
 
@@ -16,13 +16,13 @@ def Main():
 
 	parser = ArgParser.ArgParser()
 
-	parser.AddEnumOption("subsystem", "what sub system is to be ran", SubSystemType, "sub system")
+	parser.AddEnumOption("subsystem", "what sub system is to be ran", eSubSystemType, "sub system")
 	parser.AddFilePathOption("env", "path to env config", envConfigFolder, "env")
 
-	parser.AddEnumOption("model", "The type of model to train", ModelType, "ModelType")
-	parser.AddEnumOption("agent", "agent to use", AgentType, "agent")
+	parser.AddEnumOption("model", "The type of model to train", eModelType, "eModelType")
+	parser.AddEnumOption("agent", "agent to use", eAgentType, "agent")
 
-	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "playmode")
+	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "ePlayMode")
 	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
 	# parser.AddBoolOption("profile", "Should the runner be profiled", "profile")
 	parser.AddBoolOption("load", "load from previous run", "load")
@@ -37,7 +37,7 @@ def Main():
 	loggerSubSystemName = None
 
 
-	if subSystem == SubSystemType.Learner:
+	if subSystem == eSubSystemType.Learner:
 		import src.Learner.Learner as Learner
 
 		import src.Common.Utils.ModelHelper as ModelHelper
@@ -50,7 +50,7 @@ def Main():
 		loggerSubSystemName = f"Learner_{model.name}"
 		subSystem = learner
 
-	elif subSystem == SubSystemType.Worker:
+	elif subSystem == eSubSystemType.Worker:
 		import src.Worker.Worker as Worker
 
 		import src.Common.Utils.ModelHelper as ModelHelper
@@ -70,11 +70,11 @@ def Main():
 
 		subSystem = worker
 
-	elif subSystem == SubSystemType.Webserver:
+	elif subSystem == eSubSystemType.Webserver:
 		import src.WebServer.app as app
 		subSystem = app
 
-	elif subSystem == SubSystemType.ExperienceStore:
+	elif subSystem == eSubSystemType.ExperienceStore:
 		import src.ExperienceStore.ExperienceStoreSever as ExperienceStoreSever
 		subSystem = ExperienceStoreSever
 

@@ -3,7 +3,7 @@ import os
 import src.Worker.Worker as Worker
 import src.Common.Store.ExperienceStore.EsBase as EsBase
 import src.Common.Utils.ConfigHelper as ConfigHelper
-from src.Common.Enums.AgentType import AgentType
+from src.Common.Enums.eAgentType import eAgentType
 
 
 class Test_Envs(unittest.TestCase):
@@ -12,7 +12,7 @@ class Test_Envs(unittest.TestCase):
 	EnvsRoot = os.path.join(ConfigRoot, 'Envs')
 	MaxEpisodesOverride = 1
 	MaxStepsOverride = 10
-	AgentType = AgentType.Random
+	eAgentType = eAgentType.Random
 
 	def test_Envs(self):
 		configList = os.listdir(self.EnvsRoot)
@@ -33,7 +33,7 @@ class Test_Envs(unittest.TestCase):
 			envConfig["NumEnvsPerWorker"] = 2
 
 			experienceStore = EsBase.EsBase()
-			worker = Worker.Worker(envConfig, self.AgentType, True, experienceStore)
+			worker = Worker.Worker(envConfig, self.eAgentType, True, experienceStore)
 
 			worker.Run()
 

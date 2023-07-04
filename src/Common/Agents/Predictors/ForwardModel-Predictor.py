@@ -1,7 +1,7 @@
 import typing
 from typing import Optional
 import src.Common.Utils.SharedCoreTypes as SCT
-import src.Common.Enums.DataColumnTypes as DCT
+import src.Common.Enums.eDataColumnTypes as DCT
 import numpy as np
 from numpy.typing import NDArray
 import src.Common.Agents.Predictors.MultiYPredictor as MultiYPredictor
@@ -12,14 +12,14 @@ class ForwardModel:
 		self._EnvSimulation = envSim
 
 		xColumns = [
-			DCT.DataColumnTypes.CurrentState,
-			DCT.DataColumnTypes.Action]
+			DCT.eDataColumnTypes.CurrentState,
+			DCT.eDataColumnTypes.Action]
 
 		yColumns = [
-			DCT.DataColumnTypes.NextState,
-			DCT.DataColumnTypes.Reward,
-			DCT.DataColumnTypes.Terminated,
-			DCT.DataColumnTypes.Truncated]
+			DCT.eDataColumnTypes.NextState,
+			DCT.eDataColumnTypes.Reward,
+			DCT.eDataColumnTypes.Terminated,
+			DCT.eDataColumnTypes.Truncated]
 
 		if self._EnvSimulation is None:
 			self._PredictiveModel = MultiYPredictor.MultiYPredictor(xColumns, yColumns, overrideConfig)
