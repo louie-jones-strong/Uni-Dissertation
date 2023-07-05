@@ -18,6 +18,13 @@ class Learner:
 		print("build model")
 		# todo make this driven by the env config
 		self.Model, self.InputColumns, self.OutputColumns = self.ModelHelper.BuildModel(self.eModelType)
+		self.BatchSize = 256
+
+		self.TuneCallbacks = []
+
+		logger = Logger.Logger()
+		self.TuneCallbacks.append(logger.GetFitCallback())
+
 		print("built model")
 
 		if loadModel:
@@ -42,18 +49,14 @@ class Learner:
 		# todo should this be configurable?
 
 		print("Connected to experience store")
-		return
+
 
 	def Run(self) -> None:
 		print("Starting learner")
 
-		logger = Logger.Logger()
-		logCallback = logger.GetFitCallback()
-
 		# todo make this configurable
-		BatchSize = 256
 		DataCollectionMultiplier = 100
-		batchDataset = self.Store.batch(BatchSize * DataCollectionMultiplier)
+		batchDataset = self.Store.batch(self.BatchSize * DataCollectionMultiplier)
 
 		while True:
 
@@ -69,8 +72,9 @@ class Learner:
 					column = self.ModelHelper.PreProcessSingleColumn(raw_column, col)
 					y.append(column)
 
+				self._TuneModel(x, y)
 
-				self.Model.fit(x, y, epochs=1, callbacks=[logCallback], batch_size=BatchSize)
+
 
 			# should we save the model?
 			if time.time() >= self._ModelUpdateTime:
@@ -79,4 +83,9 @@ class Learner:
 				print("Saving model")
 				self.ModelHelper.PushModel(self.eModelType, self.Model)
 
+		return
+
+	def _TuneModel(self, x, y) -> None:
+
+		self.Model.fit(x, y, epochs=1, callbacks=self.TuneCallbacks, batch_size=self.BatchSize)
 		return
