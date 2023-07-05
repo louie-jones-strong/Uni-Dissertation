@@ -23,7 +23,6 @@
 	"IsDeterministic": true,
 	"ClipRewards": true,
 
-	"MaxAgents": 1,
 	"MaxSteps": 1000000,
 	"MaxEpisodes": 100000,
 	"NumEnvsPerWorker": 10,

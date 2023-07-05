@@ -23,7 +23,6 @@
 	"ClipRewards": true,
 
 
-	"MaxAgents": 1,
 	"MaxSteps": 1000,
 	"MaxEpisodes": 100000,
 	"NumEnvsPerWorker": 10,
