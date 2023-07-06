@@ -5,6 +5,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.Metrics.Logger as Logger
 import time
+import tensorflow as tf
 
 
 class Learner:
@@ -19,11 +20,6 @@ class Learner:
 		# todo make this driven by the env config
 		self.Model, self.InputColumns, self.OutputColumns = self.ModelHelper.BuildModel(self.eModelType)
 		self.BatchSize = 256
-
-		self.TuneCallbacks = []
-
-		logger = Logger.Logger()
-		self.TuneCallbacks.append(logger.GetFitCallback())
 
 		print("built model")
 
@@ -55,7 +51,7 @@ class Learner:
 		print("Starting learner")
 
 		# todo make this configurable
-		DataCollectionMultiplier = 100
+		DataCollectionMultiplier = 1
 		batchDataset = self.Store.batch(self.BatchSize * DataCollectionMultiplier)
 
 		while True:
@@ -67,12 +63,14 @@ class Learner:
 
 				# get y data
 				y = []
+				post_y = []
 				for col in self.OutputColumns:
 					raw_column = batch.data[col.name]
 					column = self.ModelHelper.PreProcessSingleColumn(raw_column, col)
 					y.append(column)
+					post_y.append(raw_column)
 
-				self._TuneModel(x, y)
+				self._TuneModel(x, y, post_y)
 
 
 
@@ -85,7 +83,62 @@ class Learner:
 
 		return
 
-	def _TuneModel(self, x, y) -> None:
+	def _TuneModel(self, x, y, post_y) -> None:
 
-		self.Model.fit(x, y, epochs=1, callbacks=self.TuneCallbacks, batch_size=self.BatchSize)
+		logger = Logger.Logger()
+		# tuneCallbacks = []
+		# tuneCallbacks.append(logger.GetFitCallback())
+
+		# self.Model.fit(x, y, epochs=1, callbacks=tuneCallbacks, batch_size=self.BatchSize)
+
+
+		losses = []
+		logDict = {}
+
+		accuracyCal = tf.keras.metrics.Accuracy()
+
+		with tf.GradientTape() as tape:
+			predictions = self.Model(x)
+
+
+
+			# loop through each column and calculate the loss
+			for i in range(len(self.OutputColumns)):
+
+				print("calculating loss for column", i)
+				col = self.OutputColumns[i]
+				colPredictions = predictions[i]
+
+				colY = y[i]
+				colPost_y = post_y[i]
+				lossFunc = tf.keras.losses.MeanSquaredError()
+
+				absError = tf.abs(colY - colPredictions)
+				loss = lossFunc(colY, colPredictions)
+
+				# loss = tf.reduce_mean(loss * importance)
+				losses.append(loss)
+
+				# reshape the predictions to match the post processed y
+
+				postPredictions = self.ModelHelper.PostProcessSingleColumn(colPredictions, col)
+
+				postPredictions = tf.reshape(postPredictions, colPost_y.shape)
+				accuracyCal.reset_state()
+				accuracyCal.update_state(colPost_y, postPredictions)
+				accuracy = accuracyCal.result()
+
+				logDict[f"{col.name}_loss"] = loss.numpy()
+				logDict[f"{col.name}_absError"] = absError.numpy()
+				logDict[f"{col.name}_accuracy"] = accuracy.numpy()
+
+
+
+		gradients = tape.gradient(losses, self.Model.trainable_variables)
+
+		self.Model.optimizer.apply_gradients(zip(gradients, self.Model.trainable_variables))
+
+
+		logger.LogDict(logDict)
+
 		return
