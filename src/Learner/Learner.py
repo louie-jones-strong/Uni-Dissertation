@@ -70,7 +70,7 @@ class Learner:
 					y.append(column)
 					post_y.append(raw_column)
 
-				self._TuneModel(x, y, post_y)
+				self._TuneModelGradTape(x, y, post_y)
 
 
 
@@ -83,14 +83,17 @@ class Learner:
 
 		return
 
-	def _TuneModel(self, x, y, post_y) -> None:
+
+	def _TuneModelFit(self, x, y, post_y) -> None:
 
 		logger = Logger.Logger()
-		# tuneCallbacks = []
-		# tuneCallbacks.append(logger.GetFitCallback())
+		tuneCallbacks = []
+		tuneCallbacks.append(logger.GetFitCallback())
 
-		# self.Model.fit(x, y, epochs=1, callbacks=tuneCallbacks, batch_size=self.BatchSize)
+		self.Model.fit(x, y, epochs=1, callbacks=tuneCallbacks, batch_size=self.BatchSize)
+		return
 
+	def _TuneModelGradTape(self, x, y, post_y) -> None:
 
 		losses = []
 		logDict = {}
@@ -99,8 +102,6 @@ class Learner:
 
 		with tf.GradientTape() as tape:
 			predictions = self.Model(x)
-
-
 
 			# loop through each column and calculate the loss
 			for i in range(len(self.OutputColumns)):
@@ -120,7 +121,6 @@ class Learner:
 				losses.append(loss)
 
 				# reshape the predictions to match the post processed y
-
 				postPredictions = self.ModelHelper.PostProcessSingleColumn(colPredictions, col)
 
 				postPredictions = tf.reshape(postPredictions, colPost_y.shape)
@@ -139,6 +139,7 @@ class Learner:
 		self.Model.optimizer.apply_gradients(zip(gradients, self.Model.trainable_variables))
 
 
+		logger = Logger.Logger()
 		logger.LogDict(logDict)
 
 		return
