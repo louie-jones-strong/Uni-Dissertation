@@ -30,7 +30,7 @@ class Learner:
 
 		self._ConnectToExperienceStore()
 
-		self._ModelUpdateTime  = time.time() + self.Config["SecsPerModelPush"]
+		self._ModelUpdateTime = time.time() + self.Config["SecsPerModelPush"]
 		return
 
 	def _ConnectToExperienceStore(self) -> None:

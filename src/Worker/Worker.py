@@ -13,7 +13,11 @@ class Worker:
 	Worker is responsible for collecting trajectories to fill the experience store.
 	"""
 
-	def __init__(self, envConfig:SCT.Config, eAgentType:eAgentType, isTrainingMode:bool, experienceStore:EsBase.EsBase) -> None:
+	def __init__(self, envConfig:SCT.Config,
+		eAgentType:eAgentType,
+		isTrainingMode:bool,
+		experienceStore:EsBase.EsBase) -> None:
+
 		self.Config = envConfig
 		self.IsEvaluating = not isTrainingMode
 
@@ -35,7 +39,7 @@ class Worker:
 
 		self.EpisodeCount = 0
 
-		self._ModelUpdateTime  = time.time() + self.Config["SecsPerModelFetch"]
+		self._ModelUpdateTime = time.time() + self.Config["SecsPerModelFetch"]
 		return
 
 	def Run(self) -> None:
@@ -88,7 +92,8 @@ class Worker:
 			count the number of episodes that have been completed, in this step.
 		"""
 
-		assert len(actions) == len(self.Envs), f"the number of actions must match the number of envs. {len(actions)} != {len(self.Envs)}"
+		assert len(actions) == len(self.Envs), \
+			f"the number of actions must match the number of envs. {len(actions)} != {len(self.Envs)}"
 
 
 		stateList = []

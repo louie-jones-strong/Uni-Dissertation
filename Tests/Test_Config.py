@@ -88,7 +88,7 @@ class Test_Config(unittest.TestCase):
 	def CheckAgentConfig(self, config):
 
 		self.CheckKey(config, "AgentConfig", dict)
-		agentConfig = config["AgentConfig"]
+		# agentConfig = config["AgentConfig"]
 
 		return
 
