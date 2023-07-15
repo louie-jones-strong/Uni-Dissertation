@@ -34,29 +34,27 @@ class Learner:
 		return
 
 	def _ConnectToExperienceStore(self) -> None:
+		dataCollectionMultiplier = 1
 
-		print("Connecting to experience store")
-
-		self.Store = reverb.TrajectoryDataset.from_table_signature(
+		# connect to the experience store dataset
+		trajectoryDataset = reverb.TrajectoryDataset.from_table_signature(
 			server_address=f'experience-store:{5001}',
 			table='Trajectories',
 			max_in_flight_samples_per_worker=10)
 
-		# todo should this be configurable?
 
-		print("Connected to experience store")
+		self.BatchedTrajectoryDataset = trajectoryDataset.batch(self.BatchSize * dataCollectionMultiplier)
+
+
+		return
 
 
 	def Run(self) -> None:
 		print("Starting learner")
 
-		# todo make this configurable
-		DataCollectionMultiplier = 1
-		batchDataset = self.Store.batch(self.BatchSize * DataCollectionMultiplier)
-
 		while True:
 
-			for batch in batchDataset.take(1):
+			for batch in self.BatchedTrajectoryDataset.take(1):
 				# get x data
 				raw_x = DCT.FilterDict(self.InputColumns, batch.data)
 				x = self.ModelHelper.PreProcessColumns(raw_x, self.InputColumns)

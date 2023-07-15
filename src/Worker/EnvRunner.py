@@ -7,7 +7,6 @@ class EnvRunner:
 		self.Env = env
 		self.MaxSteps = maxSteps
 		self.ExperienceStore = experienceStore
-		self.TragetoryStepCount = 1
 
 		self.State = self.Env.Reset()
 		self.StepCount = 0
