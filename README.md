@@ -8,7 +8,8 @@
 ## About
 This project has been created as part of my final year dissertation at the University of London.
 The project is an implementation of the reinforcement learning framework, proposed in my dissertation.
-
+The framework trains agents' policies to maximise the expected reward in a environment.
+The framework allows for tuning the agents' behaviours to mimic human behaviours or a custom curated behaviour.
 
 ## Requirements
 - [Python 3.8.10](https://www.python.org/downloads/release/python-3810/)
