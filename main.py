@@ -39,10 +39,13 @@ def Main():
 
 	if subSystem == eSubSystemType.Learner:
 		import src.Learner.Learner as Learner
-
 		import src.Common.Utils.ModelHelper as ModelHelper
+		import src.Common.Store.ModelStore.MsRedis as MsRedis
+
+		modelStore = MsRedis.MsRedis()
+
 		modelHelper = ModelHelper.ModelHelper()
-		modelHelper.Setup(envConfig)
+		modelHelper.Setup(envConfig, modelStore)
 
 		model = parser.Get("model")
 		load = parser.Get("load")
@@ -52,10 +55,14 @@ def Main():
 
 	elif subSystem == eSubSystemType.Worker:
 		import src.Worker.Worker as Worker
-
 		import src.Common.Utils.ModelHelper as ModelHelper
+		import src.Common.Store.ModelStore.MsRedis as MsRedis
+
+		modelStore = MsRedis.MsRedis()
+
+
 		modelHelper = ModelHelper.ModelHelper()
-		modelHelper.Setup(envConfig)
+		modelHelper.Setup(envConfig, modelStore)
 
 		agent = parser.Get("agent")
 		isTrainingMode = not parser.Get("play")

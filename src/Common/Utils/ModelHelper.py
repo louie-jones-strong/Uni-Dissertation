@@ -10,12 +10,13 @@ import typing
 from numpy.typing import NDArray
 from gymnasium import spaces
 from tensorflow.keras.utils import to_categorical
+import src.Common.Store.ModelStore.MsBase as MsBase
 
 
 class ModelHelper(Singleton.Singleton):
 
 
-	def Setup(self, envConfig:SCT.Config):
+	def Setup(self, envConfig:SCT.Config, modelStore:MsBase.MsBase) -> None:
 		self.Config = envConfig
 
 		self.ActionSpace = ConfigHelper.ConfigToSpace(envConfig["ActionSpace"])
@@ -23,12 +24,10 @@ class ModelHelper(Singleton.Singleton):
 		self.StepRewardRange = envConfig["StepRewardRange"]
 		self.EpisodeRewardRange = envConfig["EpisodeRewardRange"]
 
-
-		# connect to the model store
-		self.RedisClient = redis.Redis(host="model-store", port=5002, db=0)
+		self.ModelStore = modelStore
 		return
 
-	def BuildModel(self, modeType:eModelType):
+	def BuildModel(self, modeType:eModelType) -> typing.Tuple[tf.keras.models.Model, typing.List[DCT.eDataColumnTypes], typing.List[DCT.eDataColumnTypes]]:
 
 		inputColumns = []
 		outputColumns = []
@@ -46,41 +45,14 @@ class ModelHelper(Singleton.Singleton):
 		return model, inputColumns, outputColumns
 
 
-	def FetchNewestWeights(self, eModelType:eModelType, model):
+	def FetchNewestWeights(self, eModelType:eModelType, model:tf.keras.models.Model) -> bool:
 
-		key = eModelType.name
+		return self.ModelStore.FetchNewestWeights(eModelType.name, model)
 
-		flatWeightBytes = self.RedisClient.get(key)
-		if flatWeightBytes is None:
-			return False
+	def PushModel(self, eModelType:eModelType, model:tf.keras.models.Model) -> None:
 
-		flatWeights = np.frombuffer(flatWeightBytes, dtype=np.float32)
+		self.ModelStore.PushModel(eModelType.name, model)
 
-		currentWeights = model.get_weights()
-
-		newWeights = []
-		idx = 0
-		for layer in currentWeights:
-			shape = layer.shape
-			count = np.prod(shape)
-			layerWeights = flatWeights[idx:idx+count]
-			layerWeights = layerWeights.reshape(shape)
-			idx += count
-			newWeights.append(layerWeights)
-
-		model.set_weights(newWeights)
-
-		return True
-
-	def PushModel(self, eModelType:eModelType, model):
-
-		key = eModelType.name
-
-		weights = model.get_weights()
-		flatWeights = np.concatenate([w.flatten() for w in weights])
-
-		flatWeightBytes = flatWeights.tobytes()
-		self.RedisClient.set(key, flatWeightBytes)
 		return
 
 
@@ -96,7 +68,7 @@ class ModelHelper(Singleton.Singleton):
 
 
 # region Build Models
-	def _Build_Model(self, inputColumns, outputColumns):
+	def _Build_Model(self, inputColumns, outputColumns) -> tf.keras.models.Model:
 
 		inputShape = self.GetColumnsShape(inputColumns)
 
@@ -167,20 +139,20 @@ class ModelHelper(Singleton.Singleton):
 
 			if (label == DCT.eDataColumnTypes.Terminated or
 				label == DCT.eDataColumnTypes.Truncated):
-				shapes.append((2))
+				shapes.append([2])
 
 
 			elif label == DCT.eDataColumnTypes.Reward:
 				if self.Config["ClipRewards"]:
-					shapes.append((3))
+					shapes.append([3])
 				else:
-					shapes.append((1))
+					shapes.append([1])
 
 
 			elif label == DCT.eDataColumnTypes.Action:
 				if isinstance(self.ActionSpace, spaces.Discrete):
 					# one hot encoded action
-					shapes.append((self.ActionSpace.n))
+					shapes.append([self.ActionSpace.n])
 				else:
 					shapes.append(self.ActionSpace.shape)
 
@@ -189,7 +161,7 @@ class ModelHelper(Singleton.Singleton):
 					label == DCT.eDataColumnTypes.NextState):
 				if isinstance(self.ObservationSpace, spaces.Discrete):
 					# one hot encoded state
-					shapes.append((self.ObservationSpace.n))
+					shapes.append([self.ObservationSpace.n])
 				else:
 					shapes.append(self.ObservationSpace.shape)
 

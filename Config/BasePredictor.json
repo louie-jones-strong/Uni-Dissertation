@@ -1,6 +1,0 @@
-{
-	"MinStepsBetweenTraining": 100,
-	"MinAccuracy": 0.99,
-	"MaxError": 0.1,
-	"ValidationAverageWindow": 100
-}

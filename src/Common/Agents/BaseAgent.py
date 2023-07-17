@@ -9,7 +9,7 @@ from src.Common.Enums.eAgentType import eAgentType
 from src.Common.Enums.ePlayMode import ePlayMode
 from gymnasium.spaces import Discrete, Box
 import typing
-import src.Common.Agents.ForwardModel as ForwardModel
+import src.Common.Agents.Models.ForwardModel as ForwardModel
 
 
 
@@ -31,9 +31,11 @@ def GetAgent(eAgentType:eAgentType,
 		forwardModel = ForwardModel.ForwardModel(None)
 		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel)
 
-	# elif eAgentType == "DQN":
-	# 	from . import DQNAgent
-	# 	return DQNAgent.DQNAgent(overrideConfig, isTrainingMode)
+	elif eAgentType == eAgentType.HardCoded:
+		from . import HardCodedAgent
+		return HardCodedAgent.HardCodedAgent(overrideConfig, isTrainingMode)
+
+
 
 	raise Exception(f"Agent \"{eAgentType}\" not found")
 	return

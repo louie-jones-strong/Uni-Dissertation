@@ -4,7 +4,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 import time
 from gymnasium.spaces import Discrete, Box
-import src.Common.Agents.ForwardModel as ForwardModel
+import src.Common.Agents.Models.ForwardModel as ForwardModel
 import typing
 from typing import Optional
 import math
@@ -138,12 +138,22 @@ class TreeNode:
 
 
 
+def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:
+
+	if isinstance(state1, int):
+		return state1 == state2
+
+	return np.array_equal(state1, state2)
+
+
+
 class MonteCarloAgent(BaseAgent.BaseAgent):
 
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool, forwardModel:ForwardModel.ForwardModel):
+		self._ForwardModel = forwardModel
+
 		super().__init__(envConfig, isTrainingMode)
 
-		self._ForwardModel = forwardModel
 		self._CachedTree = None
 		self._StopTime = 0
 		return
@@ -167,7 +177,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		self._StopTime = time.process_time() + self.Config["MaxSecondsPerAction"]
 
 		rootNode = self._CachedTree
-		if rootNode is None or rootNode.State != state:
+		if rootNode is None or AreStatesEqual(rootNode.State, state):
 			self._CachedTree = None
 			rootNode = TreeNode(state, self.StepNum, done=False)
 
@@ -224,7 +234,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		if self._CachedTree is not None:
 
 			# check if the root is the same state
-			if self._CachedTree.State != state:
+			if AreStatesEqual(self._CachedTree.State, state):
 				self._CachedTree = None
 			else:
 				self._CachedTree = self._CachedTree.GetActionNode(action)
