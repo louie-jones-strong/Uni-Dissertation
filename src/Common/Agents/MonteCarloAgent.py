@@ -81,7 +81,7 @@ class TreeNode:
 
 		return
 
-	def GetNodeScore(self, exploreFactor:float, perentCounts:int) -> float:
+	def GetNodeScore(self, exploreFactor:float, parentCounts:int) -> float:
 		# Unexplored nodes have maximum values so we favour exploration
 		if self.Counts == 0:
 			return float('inf')

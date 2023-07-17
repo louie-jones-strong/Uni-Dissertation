@@ -31,9 +31,9 @@ def GetAgent(eAgentType:eAgentType,
 		forwardModel = ForwardModel.ForwardModel(None)
 		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel)
 
-	elif eAgentType == eAgentType.HardCoded:
-		from . import HardCodedAgent
-		return HardCodedAgent.HardCodedAgent(overrideConfig, isTrainingMode)
+	# elif eAgentType == eAgentType.HardCoded:
+	# 	from . import HardCodedAgent
+	# 	return HardCodedAgent.HardCodedAgent(overrideConfig, isTrainingMode)
 
 
 

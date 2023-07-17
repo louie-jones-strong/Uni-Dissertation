@@ -13,7 +13,7 @@ Truncated_Name = DCT.eDataColumnTypes.Truncated.name
 
 class EsReverb(EsBase.EsBase):
 
-	def __init__(self):
+	def __init__(self) -> None:
 		super().__init__()
 
 		self._ReverbConnection = reverb.Client(f"experience-store:{5001}")

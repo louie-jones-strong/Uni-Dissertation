@@ -32,7 +32,7 @@ class ForwardModel:
 	def Predict(self,
 			states:SCT.State_List,
 			actions:SCT.Action_List
-			) -> typing.Tuple[SCT.State_List, SCT.Reward_List, NDArray[np.bool_], NDArray[np.bool_]]:
+			) -> typing.Tuple[SCT.State_List, SCT.Reward_List, NDArray[np.bool_]]:
 
 		if self._EnvSimulation is not None:
 			nextStates, rewards, terminateds = self._EnvSimulation.Predict(states, actions)

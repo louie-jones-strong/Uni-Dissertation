@@ -48,7 +48,7 @@ class EnvRunner:
 		return nextState, terminated or truncated
 
 
-	def Reset(self):
+	def Reset(self) -> None:
 		self.ExperienceStore.EmptyTransitionBuffer()
 		self.State = self.Env.Reset()
 		self.StepCount = 0

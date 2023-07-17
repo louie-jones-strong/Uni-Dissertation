@@ -6,6 +6,7 @@ flake8==6.0.0
 
 # types
 types-keyboard==0.13.2.7
+types-redis==4.6.0.2
 
 # docs
 sphinx==6.2.1

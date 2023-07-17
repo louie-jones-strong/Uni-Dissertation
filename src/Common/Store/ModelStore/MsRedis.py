@@ -1,4 +1,4 @@
-import Common.Store.ModelStore.MsBase as MsBase
+import src.Common.Store.ModelStore.MsBase as MsBase
 import redis
 import numpy as np
 import tensorflow as tf

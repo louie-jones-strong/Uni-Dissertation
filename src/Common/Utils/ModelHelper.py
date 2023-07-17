@@ -1,5 +1,4 @@
 import tensorflow as tf
-import redis
 import numpy as np
 from src.Common.Enums.eModelType import eModelType
 import src.Common.Enums.eDataColumnTypes as DCT
@@ -27,7 +26,10 @@ class ModelHelper(Singleton.Singleton):
 		self.ModelStore = modelStore
 		return
 
-	def BuildModel(self, modeType:eModelType) -> typing.Tuple[tf.keras.models.Model, typing.List[DCT.eDataColumnTypes], typing.List[DCT.eDataColumnTypes]]:
+	def BuildModel(self, modeType:eModelType) -> typing.Tuple[
+			tf.keras.models.Model,
+			typing.List[DCT.eDataColumnTypes],
+			typing.List[DCT.eDataColumnTypes]]:
 
 		inputColumns = []
 		outputColumns = []
@@ -68,7 +70,9 @@ class ModelHelper(Singleton.Singleton):
 
 
 # region Build Models
-	def _Build_Model(self, inputColumns, outputColumns) -> tf.keras.models.Model:
+	def _Build_Model(self,
+			inputColumns:typing.List[DCT.eDataColumnTypes],
+			outputColumns:typing.List[DCT.eDataColumnTypes]) -> tf.keras.models.Model:
 
 		inputShape = self.GetColumnsShape(inputColumns)
 

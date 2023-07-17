@@ -15,4 +15,9 @@
 		".venv": true,
 		"docs/_build": true
 	},
+	"cSpell.words": [
+		"argmax",
+		"backpropagation",
+		"dtype"
+	],
 }

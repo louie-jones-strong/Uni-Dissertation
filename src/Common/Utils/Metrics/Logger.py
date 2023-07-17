@@ -8,7 +8,7 @@ from wandb.keras import WandbCallback
 
 class Logger(Singleton.Singleton):
 	# config
-	_ProjectName = "Dissertation-v2"
+	_ProjectName = "Dissertation"
 	_TimeStackSeparator = "."
 
 	# state

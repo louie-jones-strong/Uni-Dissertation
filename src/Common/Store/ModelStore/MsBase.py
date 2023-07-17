@@ -1,4 +1,3 @@
-from collections import deque
 import tensorflow as tf
 
 class MsBase():
