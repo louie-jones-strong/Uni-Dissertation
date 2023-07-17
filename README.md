@@ -19,9 +19,17 @@ The framework allows for tuning the agents' behaviours to mimic human behaviours
 
 ## Quick Start
 1. Clone the repository
-2. Run `docker-compose build` in the root directory
-3. Run `docker-compose up` in the root directory
-4. Navigate to `localhost:5000` in your browser
+2. Run the following commands in the root directory
+```
+Setup.bat
+```
+```
+docker-compose build
+```
+```
+docker-compose up
+```
+3. Navigate to ```localhost:5000``` in your browser
 
 You can modify the settings in the `.env` file.
 

@@ -10,3 +10,5 @@ pip install -r src\ExperienceStore\requirements.txt
 pip install -r src\Learner\requirements.txt
 pip install -r src\WebServer\requirements.txt
 pip install -r src\Worker\requirements.txt
+
+py setup.py
