@@ -1,5 +1,5 @@
 {
-	"MaxSecondsPerAction": 0.1,
+	"MaxSecondsPerAction": 10,
 	"MaxSelections": 16,
 	"CacheTree": true,
 	"ExploreFactor": 0.5,

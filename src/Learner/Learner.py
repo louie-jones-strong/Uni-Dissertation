@@ -6,6 +6,8 @@ import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.Metrics.Logger as Logger
 import time
 import tensorflow as tf
+import src.Common.Store.ExperienceStore.EsReverb as EsReverb
+import numpy as np
 
 
 class Learner:
@@ -31,6 +33,7 @@ class Learner:
 		self._ConnectToExperienceStore()
 
 		self._ModelUpdateTime = time.time() + self.Config["SecsPerModelPush"]
+		self._Logger = Logger.Logger()
 		return
 
 	def _ConnectToExperienceStore(self) -> None:
@@ -45,6 +48,8 @@ class Learner:
 
 		self.BatchedTrajectoryDataset = trajectoryDataset.batch(self.BatchSize * dataCollectionMultiplier)
 
+
+		self.EsStore = EsReverb.EsReverb()
 
 		return
 
@@ -68,7 +73,15 @@ class Learner:
 					y.append(column)
 					post_y.append(raw_column)
 
-				self._TuneModelGradTape(x, y, post_y)
+				# log incoming priorities
+
+				absErrors = self._TuneModelGradTape(x, y, post_y)
+
+				self._Logger.LogDict({"in_priority": batch.info.priority})
+				self._Logger.LogDict({"out_priority": absErrors})
+
+				self.EsStore.UpdatePriorities(batch.info.key, absErrors)
+
 
 
 
@@ -80,6 +93,7 @@ class Learner:
 				self.ModelHelper.PushModel(self.eModelType, self.Model)
 
 		return
+
 
 
 	def _TuneModelFit(self, x, y, post_y) -> None:
@@ -95,6 +109,7 @@ class Learner:
 
 		losses = []
 		logDict = {}
+		absErrors = []
 
 		accuracyCal = tf.keras.metrics.Accuracy()
 
@@ -104,7 +119,6 @@ class Learner:
 			# loop through each column and calculate the loss
 			for i in range(len(self.OutputColumns)):
 
-				print("calculating loss for column", i)
 				col = self.OutputColumns[i]
 				colPredictions = predictions[i]
 
@@ -117,6 +131,7 @@ class Learner:
 
 				# loss = tf.reduce_mean(loss * importance)
 				losses.append(loss)
+				absErrors.append(np.mean(absError, axis=1))
 
 				# reshape the predictions to match the post processed y
 				postPredictions = self.ModelHelper.PostProcessSingleColumn(colPredictions, col)
@@ -127,17 +142,16 @@ class Learner:
 				accuracy = accuracyCal.result()
 
 				logDict[f"{col.name}_loss"] = loss.numpy()
-				logDict[f"{col.name}_absError"] = absError.numpy()
 				logDict[f"{col.name}_accuracy"] = accuracy.numpy()
 
-
+		absErrors = np.array(absErrors)
+		absErrors = np.max(absErrors, axis=0)
 
 		gradients = tape.gradient(losses, self.Model.trainable_variables)
 
 		self.Model.optimizer.apply_gradients(zip(gradients, self.Model.trainable_variables))
 
+		self._Logger.LogDict(logDict)
 
-		logger = Logger.Logger()
-		logger.LogDict(logDict)
 
-		return
+		return absErrors

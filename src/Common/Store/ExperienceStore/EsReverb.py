@@ -49,7 +49,7 @@ class EsReverb(EsBase.EsBase):
 					if i+1 >= tableLen:
 						writer.create_item(
 							table=tableKey,
-							priority=1,
+							priority=1_000,
 							trajectory={
 								CurrentState_Name: writer.history[CurrentState_Name][-tableLen:],
 								NextState_Name: writer.history[NextState_Name][-tableLen:],
@@ -68,4 +68,17 @@ class EsReverb(EsBase.EsBase):
 		assert abs(self._TotalReward) <= 0.000_0001, f"TotalReward:{self._TotalReward}"
 
 		super().EmptyTransitionBuffer()
+		return
+
+	def UpdatePriorities(self, keys, priorities) -> None:
+		trajectoryPriorities = {}
+		for i in range(len(keys)):
+
+			key = int(keys[i])
+			priority = priorities[i]
+
+			trajectoryPriorities[key] = priority
+
+
+		self._ReverbConnection.mutate_priorities('Trajectories', trajectoryPriorities)
 		return
