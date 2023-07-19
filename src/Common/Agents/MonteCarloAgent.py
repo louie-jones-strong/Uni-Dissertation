@@ -57,15 +57,15 @@ class TreeNode:
 
 		self.Children = []
 		for i in range(len(nextStates)):
-			done = terminateds[i]
+			terminated = terminateds[i]
 			expandedNode = TreeNode(
 				nextStates[i],
 				episodeStep=self.EpisodeStep + 1,
-				done=done,
+				done=terminated,
 				parent=self,
 				actionIdxTaken=i)
 
-			if done:
+			if terminated:
 				expandedNode.BackPropagate(rewards[i], counts=1)
 
 			self.Children.append(expandedNode)
@@ -105,8 +105,14 @@ class TreeNode:
 			return None
 
 		actionValues = np.zeros(len(self.Children), dtype=np.float32)
+
 		for i in range(len(self.Children)):
 			child = self.Children[i]
+
+			if child.Done:
+				actionValues[i] = -1_000
+				continue
+
 			if child.Counts > 0:
 				actionValues[i] = child.TotalRewards / child.Counts
 
@@ -177,9 +183,21 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		self._StopTime = time.process_time() + self.Config["MaxSecondsPerAction"]
 
 		rootNode = self._CachedTree
-		if rootNode is None or AreStatesEqual(rootNode.State, state):
-			self._CachedTree = None
-			rootNode = TreeNode(state, self.StepNum, done=False)
+		if rootNode is None or not AreStatesEqual(rootNode.State, state):
+
+			if rootNode is not None:
+				for child in rootNode.Children:
+
+					if AreStatesEqual(child.State, state):
+						rootNode = child
+						break
+
+			if rootNode is None or not AreStatesEqual(rootNode.State, state):
+				self._CachedTree = None
+				rootNode = TreeNode(state, self.StepNum, done=False)
+
+
+
 
 		if rootNode.Children is None:
 			rootNode.Expand(self.ActionList, self._ForwardModel)
@@ -219,28 +237,6 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		actionValues = rootNode.GetActionValues()
 		return actionValues
-
-	def Remember(self,
-			state:SCT.State,
-			action:SCT.Action,
-			reward:SCT.Reward,
-			nextState:SCT.State,
-			terminated:bool,
-			truncated:bool) -> None:
-
-		super().Remember(state, action, reward, nextState, terminated, truncated)
-
-		# trim the tree
-		if self._CachedTree is not None:
-
-			# check if the root is the same state
-			if AreStatesEqual(self._CachedTree.State, state):
-				self._CachedTree = None
-			else:
-				self._CachedTree = self._CachedTree.GetActionNode(action)
-				self._CachedTree.DetachParent()
-		return
-
 
 	def _RollOut(self, state:SCT.State, maxDepth:int) -> SCT.Reward_List:
 
