@@ -1,6 +1,7 @@
 import src.Common.Store.ExperienceStore.EsBase as EsBase
 import reverb
 import src.Common.Enums.eDataColumnTypes as DCT
+import numpy as np
 
 
 CurrentState_Name = DCT.eDataColumnTypes.CurrentState.name
@@ -31,6 +32,10 @@ class EsReverb(EsBase.EsBase):
 			for i in range(numTransitions):
 				transition = self._TransitionBuffer.pop()
 				state, nextState, action, reward, terminated, truncated = transition
+
+				if isinstance(state, np.ndarray):
+					state = state.astype(np.double)
+					nextState = nextState.astype(np.double)
 
 
 				self._TotalReward -= reward  # todo discount factor
