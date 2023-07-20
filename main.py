@@ -82,8 +82,9 @@ def Main():
 		subSystem = app
 
 	elif subSystem == eSubSystemType.ExperienceStore:
-		import src.ExperienceStore.ExperienceStoreSever as ExperienceStoreSever
-		subSystem = ExperienceStoreSever
+		import src.ExperienceStore.ExperienceStoreServer as ExperienceStoreServer
+
+		subSystem = ExperienceStoreServer.ExperienceStoreServer(envConfig)
 
 
 

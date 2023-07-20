@@ -60,7 +60,7 @@ services:
     deploy:
       replicas: 1
 
-    entrypoint: redis-server --port 5002 # --save 60 1
+    entrypoint: redis-server --port 5002 --save 60 1
 
 # ===== Learners =====
   learner-policy:
