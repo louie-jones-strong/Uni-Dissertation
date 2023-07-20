@@ -89,7 +89,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --load ${LOAD_LAST_RUN}
+    entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN}
 
   learner-value:
     build:
@@ -117,7 +117,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Learner --model Value --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --load ${LOAD_LAST_RUN}
+    entrypoint: python main.py --subsystem Learner --model Value --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN}
 
   learner-forward:
     build:
@@ -145,7 +145,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --load ${LOAD_LAST_RUN}
+    entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN}
 
 # ===== Workers =====
   worker-explore:
@@ -174,7 +174,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/${ENV_CONFIG_PATH} --agent Random --play False --wandb ${LOG_TO_WANDB}
+    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/${ENV_CONFIG_PATH} --agent Random --play False --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP}
 
 
   worker-eval:
@@ -203,8 +203,7 @@ services:
     env_file:
       - secrets.env
 
-    # entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/${ENV_CONFIG_PATH} --agent ML --play True --wandb ${LOG_TO_WANDB}
-    tty: true
+    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/${ENV_CONFIG_PATH} --agent ML --play True --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP}
 
 
 volumes:

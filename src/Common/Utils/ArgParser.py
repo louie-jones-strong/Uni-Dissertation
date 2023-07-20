@@ -13,6 +13,7 @@ class ArgParser:
 		Bool = 1
 		Options = 2
 		Enum = 3
+		String = 4
 
 	def __init__(self) -> None:
 		self.Parser = argparse.ArgumentParser()
@@ -50,6 +51,11 @@ class ArgParser:
 		self._AddOption(name, helpStr, uiLabel, ArgParser.ArgType.Enum)
 		self.ArgSettings[name]["enumType"] = enumType
 		return
+
+	def AddStrOption(self, name:str, helpStr:str, uiLabel:Optional[str]) -> None:
+		self._AddOption(name, helpStr, uiLabel, ArgParser.ArgType.String)
+		return
+
 
 	def _GetArgs(self) -> typing.Dict[str, typing.Tuple[str, bool]]:
 

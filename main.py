@@ -24,7 +24,7 @@ def Main():
 
 	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "ePlayMode")
 	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
-	# parser.AddBoolOption("profile", "Should the runner be profiled", "profile")
+	parser.AddStrOption("rungroup", "grouping for wandb runs", "run group")
 	parser.AddBoolOption("load", "load from previous run", "load")
 
 
@@ -90,9 +90,14 @@ def Main():
 
 	if loggerSubSystemName is not None:
 		envConfig["SubSystemName"] = loggerSubSystemName
+		envConfig["Group"] = parser.Get("rungroup")
+
+		timeStamp = int(time.time())
+		envConfig["RunStartTime"] = timeStamp
+
+
 		# setup logger
 		import src.Common.Utils.Metrics.Logger as Logger
-		timeStamp = int(time.time())
 		runId = f"{envConfig['Name']}_{loggerSubSystemName}_{timeStamp}"
 		runPath = os.path.join(GetRootPath(), "Data", envConfig['Name'])#, runId)
 
