@@ -43,6 +43,11 @@ class ModelHelper(Singleton.Singleton):
 
 			model = self._Build_Model(inputColumns, outputColumns)
 
+		elif modeType == eModelType.Value:
+			inputColumns = [DCT.eDataColumnTypes.CurrentState]
+			outputColumns = [DCT.eDataColumnTypes.MaxFutureRewards]
+			model = self._Build_Model(inputColumns, outputColumns)
+
 
 		return model, inputColumns, outputColumns
 
@@ -152,6 +157,8 @@ class ModelHelper(Singleton.Singleton):
 				else:
 					shapes.append([1])
 
+			elif label == DCT.eDataColumnTypes.MaxFutureRewards:
+				shapes.append([1])
 
 			elif label == DCT.eDataColumnTypes.Action:
 				if isinstance(self.ActionSpace, spaces.Discrete):

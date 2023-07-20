@@ -120,29 +120,36 @@ class Learner:
 			for i in range(len(self.OutputColumns)):
 
 				col = self.OutputColumns[i]
-				colPredictions = predictions[i]
-
 				colY = y[i]
 				colPost_y = post_y[i]
+
+				if len(self.OutputColumns) == 1:
+					colPredictions = predictions
+
+				else:
+					colPredictions = predictions[i]
+
 				lossFunc = tf.keras.losses.MeanSquaredError()
 
 				absError = tf.abs(colY - colPredictions)
 				loss = lossFunc(colY, colPredictions)
 
-				# loss = tf.reduce_mean(loss * importance)
 				losses.append(loss)
 				absErrors.append(np.mean(absError, axis=1))
 
-				# reshape the predictions to match the post processed y
-				postPredictions = self.ModelHelper.PostProcessSingleColumn(colPredictions, col)
 
-				postPredictions = tf.reshape(postPredictions, colPost_y.shape)
-				accuracyCal.reset_state()
-				accuracyCal.update_state(colPost_y, postPredictions)
-				accuracy = accuracyCal.result()
 
 				logDict[f"{col.name}_loss"] = loss.numpy()
-				logDict[f"{col.name}_accuracy"] = accuracy.numpy()
+
+				if self.ModelHelper.IsColumnDiscrete(col):
+					# reshape the predictions to match the post processed y
+					postPredictions = self.ModelHelper.PostProcessSingleColumn(colPredictions, col)
+					postPredictions = tf.reshape(postPredictions, colPost_y.shape)
+
+					accuracyCal.reset_state()
+					accuracyCal.update_state(colPost_y, postPredictions)
+					accuracy = accuracyCal.result()
+					logDict[f"{col.name}_accuracy"] = accuracy.numpy()
 
 		absErrors = np.array(absErrors)
 		absErrors = np.max(absErrors, axis=0)

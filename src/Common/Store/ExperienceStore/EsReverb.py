@@ -54,7 +54,7 @@ class EsReverb(EsBase.EsBase):
 					if i+1 >= tableLen:
 						writer.create_item(
 							table=tableKey,
-							priority=1_000,
+							priority=10,
 							trajectory={
 								CurrentState_Name: writer.history[CurrentState_Name][-tableLen:],
 								NextState_Name: writer.history[NextState_Name][-tableLen:],

@@ -62,17 +62,17 @@ class ExperienceStoreServer:
 
 
 		self.Tables = []
-		self.AddTable("Trajectories", 1, 1_000, 1_000_000, 0.8)
+		self.AddTableTrajectory("Trajectories", 1, 1_000, 1_000_000, 0.8)
+
 
 		return
 
-	def AddTable(self, tableName:str, stepCount:int, minSize:int, maxSize:int, priorityExponent:float) -> None:
+	def AddTableTrajectory(self, tableName:str, stepCount:int, minSize:int, maxSize:int, priorityExponent:float) -> None:
+		state_Spec = self.SpaceToSpec(self.ObservationSpace, stepCount)
+		action_Spec = self.SpaceToSpec(self.ActionSpace, stepCount)
 
-		State_Spec = self.SpaceToSpec(self.ObservationSpace, stepCount)
-		Action_Spec = self.SpaceToSpec(self.ActionSpace, stepCount)
-
-		Reward_Spec = tf.TensorSpec([stepCount], tf.double)
-		EndFlag_Spec = tf.TensorSpec([stepCount], tf.bool)
+		reward_Spec = tf.TensorSpec([stepCount], tf.double)
+		endFlag_Spec = tf.TensorSpec([stepCount], tf.bool)
 
 
 		table = reverb.Table(
@@ -82,13 +82,13 @@ class ExperienceStoreServer:
 			max_size=maxSize,
 			rate_limiter=reverb.rate_limiters.MinSize(minSize),
 			signature={
-				DCT.eDataColumnTypes.CurrentState.name: State_Spec,
-				DCT.eDataColumnTypes.NextState.name: State_Spec,
-				DCT.eDataColumnTypes.Action.name: Action_Spec,
-				DCT.eDataColumnTypes.Reward.name: Reward_Spec,
-				DCT.eDataColumnTypes.MaxFutureRewards.name: Reward_Spec,
-				DCT.eDataColumnTypes.Terminated.name: EndFlag_Spec,
-				DCT.eDataColumnTypes.Truncated.name: EndFlag_Spec
+				DCT.eDataColumnTypes.CurrentState.name: state_Spec,
+				DCT.eDataColumnTypes.NextState.name: state_Spec,
+				DCT.eDataColumnTypes.Action.name: action_Spec,
+				DCT.eDataColumnTypes.Reward.name: reward_Spec,
+				DCT.eDataColumnTypes.MaxFutureRewards.name: reward_Spec,
+				DCT.eDataColumnTypes.Terminated.name: endFlag_Spec,
+				DCT.eDataColumnTypes.Truncated.name: endFlag_Spec
 			})
 
 		self.Tables.append(table)
