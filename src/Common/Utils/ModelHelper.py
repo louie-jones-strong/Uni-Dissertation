@@ -40,16 +40,26 @@ class ModelHelper(Singleton.Singleton):
 			outputColumns = [DCT.eDataColumnTypes.NextState,
 							DCT.eDataColumnTypes.Reward,
 							DCT.eDataColumnTypes.Terminated]
+			dataTable = "Forward_Trajectories"
 
 			model = self._Build_Model(inputColumns, outputColumns)
 
 		elif modeType == eModelType.Value:
 			inputColumns = [DCT.eDataColumnTypes.CurrentState]
 			outputColumns = [DCT.eDataColumnTypes.MaxFutureRewards]
+			dataTable = "Value_Trajectories"
+
 			model = self._Build_Model(inputColumns, outputColumns)
 
 
-		return model, inputColumns, outputColumns
+		elif modeType == eModelType.HumanDiscriminator:
+			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
+			outputColumns = [DCT.eDataColumnTypes.PlayStyleTag]
+			dataTable = ""
+			model = self._Build_Model(inputColumns, outputColumns)
+
+
+		return model, inputColumns, outputColumns, dataTable
 
 
 	def FetchNewestWeights(self, eModelType:eModelType, model:tf.keras.models.Model) -> bool:
@@ -176,6 +186,9 @@ class ModelHelper(Singleton.Singleton):
 				else:
 					shapes.append(self.ObservationSpace.shape)
 
+			elif label == DCT.eDataColumnTypes.PlayStyleTag:
+				shapes.append([2])
+
 			else:
 				raise Exception(f"Unknown column type {label}")
 
@@ -204,6 +217,9 @@ class ModelHelper(Singleton.Singleton):
 				label == DCT.eDataColumnTypes.NextState) and \
 				isinstance(self.ObservationSpace, spaces.Discrete):
 
+			isDiscrete = True
+
+		elif label == DCT.eDataColumnTypes.PlayStyleTag:
 			isDiscrete = True
 
 

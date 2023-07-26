@@ -20,7 +20,7 @@ class Learner:
 
 		print("build model")
 		# todo make this driven by the env config
-		self.Model, self.InputColumns, self.OutputColumns = self.ModelHelper.BuildModel(self.eModelType)
+		self.Model, self.InputColumns, self.OutputColumns, self.DataTable = self.ModelHelper.BuildModel(self.eModelType)
 		self.BatchSize = 256
 
 		print("built model")
@@ -42,7 +42,7 @@ class Learner:
 		# connect to the experience store dataset
 		trajectoryDataset = reverb.TrajectoryDataset.from_table_signature(
 			server_address=f'experience-store:{5001}',
-			table='Trajectories',
+			table=self.DataTable,
 			max_in_flight_samples_per_worker=10)
 
 
@@ -73,14 +73,13 @@ class Learner:
 					y.append(column)
 					post_y.append(raw_column)
 
-				# log incoming priorities
 
 				absErrors = self._TuneModelGradTape(x, y, post_y)
 
 				self._Logger.LogDict({"in_priority": batch.info.priority})
 				self._Logger.LogDict({"out_priority": absErrors})
 
-				self.EsStore.UpdatePriorities(batch.info.key, absErrors)
+				self.EsStore.UpdatePriorities(self.DataTable, batch.info.key, absErrors)
 
 
 

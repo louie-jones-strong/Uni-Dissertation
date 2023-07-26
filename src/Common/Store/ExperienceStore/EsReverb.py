@@ -20,7 +20,8 @@ class EsReverb(EsBase.EsBase):
 		self._ReverbConnection = reverb.Client(f"experience-store:{5001}")
 
 		self.TableTrajectoriesLens = {
-			"Trajectories": 1
+			"Forward_Trajectories": 1,
+			"Value_Trajectories": 1
 		}
 		return
 
@@ -54,7 +55,7 @@ class EsReverb(EsBase.EsBase):
 					if i+1 >= tableLen:
 						writer.create_item(
 							table=tableKey,
-							priority=10,
+							priority=1,
 							trajectory={
 								CurrentState_Name: writer.history[CurrentState_Name][-tableLen:],
 								NextState_Name: writer.history[NextState_Name][-tableLen:],
@@ -75,7 +76,7 @@ class EsReverb(EsBase.EsBase):
 		super().EmptyTransitionBuffer()
 		return
 
-	def UpdatePriorities(self, keys, priorities) -> None:
+	def UpdatePriorities(self, dataTable, keys, priorities) -> None:
 		trajectoryPriorities = {}
 		for i in range(len(keys)):
 
@@ -85,5 +86,5 @@ class EsReverb(EsBase.EsBase):
 			trajectoryPriorities[key] = priority
 
 
-		self._ReverbConnection.mutate_priorities('Trajectories', trajectoryPriorities)
+		self._ReverbConnection.mutate_priorities(dataTable, trajectoryPriorities)
 		return

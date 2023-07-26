@@ -29,7 +29,7 @@ services:
 
     volumes:
       # add output dictionary for the learned data
-      - ML_Data:/app/Data
+      - ./Data:/app/Data
 
       # dictionaries for dev
       - ./src:/app/src
@@ -50,7 +50,7 @@ services:
     image: redis
 
     volumes:
-      - ML_Data:/data
+      - ./Data:/app/Data
 
     networks:
       - projectNetwork
@@ -69,7 +69,7 @@ services:
     image: learner
 
     volumes:
-      - ML_Data:/app/Data
+      - ./Data:/app/Data
       - ./src:/app/src
       - ./Config:/app/Config
 
@@ -97,7 +97,7 @@ services:
     image: learner
 
     volumes:
-      - ML_Data:/app/Data
+      - ./Data:/app/Data
       - ./src:/app/src
       - ./Config:/app/Config
 
@@ -125,7 +125,7 @@ services:
     image: learner
 
     volumes:
-      - ML_Data:/app/Data
+      - ./Data:/app/Data
       - ./src:/app/src
       - ./Config:/app/Config
 
@@ -154,7 +154,7 @@ services:
     image: worker
 
     volumes:
-      - ML_Data:/app/Data
+      - ./Data:/app/Data
       - ./src:/app/src
       - ./Config:/app/Config
 
@@ -183,7 +183,7 @@ services:
     image: worker
 
     volumes:
-      - ML_Data:/app/Data
+      - ./Data:/app/Data
       - ./src:/app/src
       - ./Config:/app/Config
 
@@ -205,9 +205,6 @@ services:
 
     entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/${ENV_CONFIG_PATH} --agent ML --play True --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP}
 
-
-volumes:
-  ML_Data:
 
 networks:
   projectNetwork:

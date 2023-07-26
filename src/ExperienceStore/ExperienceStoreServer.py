@@ -62,7 +62,8 @@ class ExperienceStoreServer:
 
 
 		self.Tables = []
-		self.AddTableTrajectory("Trajectories", 1, 1_000, 1_000_000, 0.8)
+		self.AddTableTrajectory("Forward_Trajectories", 1, 1_000, 1_000_000, 0.8)
+		self.AddTableTrajectory("Value_Trajectories", 1, 1_000, 1_000_000, 0.8)
 
 
 		return

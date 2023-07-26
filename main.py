@@ -98,7 +98,7 @@ def Main():
 
 		# setup logger
 		import src.Common.Utils.Metrics.Logger as Logger
-		runId = f"{envConfig['Name']}_{loggerSubSystemName}_{timeStamp}"
+		runId = f"{loggerSubSystemName}_{timeStamp}"
 		runPath = os.path.join(GetRootPath(), "Data", envConfig['Name'])#, runId)
 
 		logger = Logger.Logger()

@@ -14,7 +14,7 @@ class eDataColumnTypes(enum.Enum):
 	Terminated = 5
 	Truncated = 6
 
-	PlayStyleTags = 7
+	PlayStyleTag = 7
 
 
 

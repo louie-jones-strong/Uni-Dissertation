@@ -28,7 +28,7 @@ def GetAgent(eAgentType:eAgentType,
 	elif eAgentType == eAgentType.ML:
 		from . import MonteCarloAgent
 
-		forwardModel = ForwardModel.ForwardModel(None)
+		forwardModel = ForwardModel.ForwardModel()
 		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel)
 
 	# elif eAgentType == eAgentType.HardCoded:
