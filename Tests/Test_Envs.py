@@ -4,6 +4,7 @@ import src.Worker.Worker as Worker
 import src.Common.Store.ExperienceStore.EsBase as EsBase
 import src.Common.Utils.ConfigHelper as ConfigHelper
 from src.Common.Enums.eAgentType import eAgentType
+import src.Common.Utils.PathHelper as PathHelper
 
 
 class Test_Envs(unittest.TestCase):
@@ -32,7 +33,9 @@ class Test_Envs(unittest.TestCase):
 			envConfig["MaxSteps"] = self.MaxStepsOverride
 			envConfig["NumEnvsPerWorker"] = 2
 
-			experienceStore = EsBase.EsBase()
+			runPath = os.path.join(PathHelper.GetRootPath(), "Data", "Tests")
+
+			experienceStore = EsBase.EsBase(runPath)
 			worker = Worker.Worker(envConfig, self.AgentType, True, experienceStore)
 
 			worker.Run()

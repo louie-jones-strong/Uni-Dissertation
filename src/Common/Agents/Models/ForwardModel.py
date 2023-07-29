@@ -1,5 +1,4 @@
 import typing
-from typing import Optional
 import src.Common.Utils.SharedCoreTypes as SCT
 from src.Common.Enums.eModelType import eModelType
 import numpy as np
@@ -11,18 +10,20 @@ class ForwardModel:
 
 		self._ModelHelper = ModelHelper.ModelHelper()
 		self._Model, self._InputColumns, self._OutputColumns, _ = self._ModelHelper.BuildModel(eModelType.Forward)
+		self.HasTrainedModel = False
 
 		self.UpdateModels()
+
 		return
 
 	def UpdateModels(self) -> None:
-		didFetch = self._ModelHelper.FetchNewestWeights(eModelType.Forward, self._Model)
-		print("fetched newest weights", didFetch)
+		self.HasTrainedModel = self._ModelHelper.FetchNewestWeights(eModelType.Forward, self._Model)
+		print("fetched newest weights", self.HasTrainedModel)
 
 		return
 
 	def CanPredict(self) -> bool:
-		return True  # todo if no model loaded return false
+		return self.HasTrainedModel
 
 	def Predict(self,
 			states:SCT.State_List,

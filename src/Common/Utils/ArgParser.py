@@ -175,5 +175,8 @@ class ArgParser:
 			key = UI.OptionPicker(uiLabel, list(members.keys()))
 			return members[key]
 
+		elif argInfo["type"] == ArgParser.ArgType.String:
+			return UI.StrPicker(uiLabel)
+
 
 		return None

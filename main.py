@@ -19,10 +19,10 @@ def Main():
 	parser.AddEnumOption("subsystem", "what sub system is to be ran", eSubSystemType, "sub system")
 	parser.AddFilePathOption("env", "path to env config", envConfigFolder, "env")
 
-	parser.AddEnumOption("model", "The type of model to train", eModelType, "eModelType")
+	parser.AddEnumOption("model", "The type of model to train", eModelType, "ModelType")
 	parser.AddEnumOption("agent", "agent to use", eAgentType, "agent")
 
-	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "ePlayMode")
+	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "PlayMode")
 	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
 	parser.AddStrOption("rungroup", "grouping for wandb runs", "run group")
 	parser.AddBoolOption("load", "load from previous run", "load")
@@ -37,6 +37,13 @@ def Main():
 	loggerSubSystemName = None
 
 
+	envConfig["Group"] = parser.Get("rungroup")
+	runPath = os.path.join(GetRootPath(), "Data", envConfig['Name'], envConfig["Group"])
+
+	# create the run path
+	if not os.path.exists(runPath):
+		os.makedirs(runPath)
+
 	if subSystem == eSubSystemType.Learner:
 		import src.Learner.Learner as Learner
 		import src.Common.Utils.ModelHelper as ModelHelper
@@ -49,7 +56,7 @@ def Main():
 
 		model = parser.Get("model")
 		load = parser.Get("load")
-		learner = Learner.Learner(envConfig, model, load)
+		learner = Learner.Learner(envConfig, model, load, runPath)
 		loggerSubSystemName = f"Learner_{model.name}"
 		subSystem = learner
 
@@ -65,12 +72,19 @@ def Main():
 		modelHelper.Setup(envConfig, modelStore)
 
 		agent = parser.Get("agent")
-		isTrainingMode = not parser.Get("play")
+
+		isTrainingMode = False
+		if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
+			isTrainingMode = not parser.Get("play")
 
 
-		import src.Common.Store.ExperienceStore.EsReverb as EsReverb
-
-		experienceStore = EsReverb.EsReverb()
+		experienceStore = None
+		if agent == eAgentType.Human:
+			import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
+			experienceStore = EsNumpy.EsNumpy(runPath)
+		else:
+			import src.Common.Store.ExperienceStore.EsReverb as EsReverb
+			experienceStore = EsReverb.EsReverb(runPath)
 
 		worker = Worker.Worker(envConfig, agent, isTrainingMode, experienceStore)
 		loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
@@ -90,7 +104,6 @@ def Main():
 
 	if loggerSubSystemName is not None:
 		envConfig["SubSystemName"] = loggerSubSystemName
-		envConfig["Group"] = parser.Get("rungroup")
 
 		timeStamp = int(time.time())
 		envConfig["RunStartTime"] = timeStamp
@@ -99,7 +112,6 @@ def Main():
 		# setup logger
 		import src.Common.Utils.Metrics.Logger as Logger
 		runId = f"{loggerSubSystemName}_{timeStamp}"
-		runPath = os.path.join(GetRootPath(), "Data", envConfig['Name'])#, runId)
 
 		logger = Logger.Logger()
 		logger.Setup(envConfig, runPath, runId=runId, wandbOn=parser.Get("wandb"))

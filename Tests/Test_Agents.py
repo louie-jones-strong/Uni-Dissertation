@@ -6,6 +6,7 @@ import src.Common.Utils.ConfigHelper as ConfigHelper
 from src.Common.Enums.eAgentType import eAgentType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Store.ModelStore.MsBase as MsBase
+import src.Common.Utils.PathHelper as PathHelper
 
 class Test_Agents(unittest.TestCase):
 
@@ -58,8 +59,8 @@ class Test_Agents(unittest.TestCase):
 
 
 
-
-			experienceStore = EsBase.EsBase()
+			runPath = os.path.join(PathHelper.GetRootPath(), "Data", "Tests")
+			experienceStore = EsBase.EsBase(runPath)
 			worker = Worker.Worker(envConfig, agentType, True, experienceStore)
 
 			worker.Run()

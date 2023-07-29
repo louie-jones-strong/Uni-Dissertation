@@ -11,8 +11,9 @@ class HumanAgent(BaseAgent.BaseAgent):
 	def GetAction(self, state:SCT.State) -> SCT.Action:
 		super().GetAction(state)
 
-		controls = self.Config["Controls"]
-		fps = self.Config["FPS"]
+		humanConfig = self.EnvConfig["AgentConfig"]["Human"]
+		controls = humanConfig["Controls"]
+		fps = humanConfig["FPS"]
 
 		action = None
 		while action is None:

@@ -1,8 +1,6 @@
 import src.Common.Store.ExperienceStore.EsBase as EsBase
 import reverb
 import src.Common.Enums.eDataColumnTypes as DCT
-import numpy as np
-
 
 CurrentState_Name = DCT.eDataColumnTypes.CurrentState.name
 NextState_Name = DCT.eDataColumnTypes.NextState.name
@@ -14,14 +12,15 @@ Truncated_Name = DCT.eDataColumnTypes.Truncated.name
 
 class EsReverb(EsBase.EsBase):
 
-	def __init__(self) -> None:
-		super().__init__()
+	def __init__(self, runPath) -> None:
+		super().__init__(runPath)
 
 		self._ReverbConnection = reverb.Client(f"experience-store:{5001}")
 
 		self.TableTrajectoriesLens = {
 			"Forward_Trajectories": 1,
-			"Value_Trajectories": 1
+			"Value_Trajectories": 1,
+			"Human_Trajectories": 1,
 		}
 		return
 
@@ -31,22 +30,17 @@ class EsReverb(EsBase.EsBase):
 		with self._ReverbConnection.trajectory_writer(num_keep_alive_refs=numTransitions) as writer:
 
 			for i in range(numTransitions):
-				transition = self._TransitionBuffer.pop()
-				state, nextState, action, reward, terminated, truncated = transition
 
-				if isinstance(state, np.ndarray):
-					state = state.astype(np.double)
-					nextState = nextState.astype(np.double)
+				transition = self.PopTransition()
+				state, nextState, action, reward, futureRewards, terminated, truncated = transition
 
-
-				self._TotalReward -= reward  # todo discount factor
 
 				writer.append({
 					CurrentState_Name: state,
 					NextState_Name: nextState,
 					Action_Name: action,
 					Reward_Name: reward,
-					MaxFutureRewards_Name: self._TotalReward,
+					MaxFutureRewards_Name: futureRewards,
 					Terminated_Name: terminated,
 					Truncated_Name: truncated
 				})
@@ -71,7 +65,6 @@ class EsReverb(EsBase.EsBase):
 
 
 		assert len(self._TransitionBuffer) == 0
-		assert abs(self._TotalReward) <= 0.000_0001, f"TotalReward:{self._TotalReward}"
 
 		super().EmptyTransitionBuffer()
 		return

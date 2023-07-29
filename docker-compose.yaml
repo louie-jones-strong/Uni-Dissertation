@@ -19,7 +19,7 @@ services:
     deploy:
       replicas: 1
 
-    entrypoint: python main.py --subsystem Webserver --env /app/Config/Envs/${ENV_CONFIG_PATH}
+    entrypoint: python main.py --subsystem Webserver --env /app/Config/Envs/${ENV_CONFIG_PATH} --rungroup ${RUN_GROUP}
 
 # ===== Stores =====
   experience-store:
@@ -44,7 +44,7 @@ services:
     deploy:
       replicas: 1
 
-    entrypoint: python main.py --subsystem ExperienceStore --env /app/Config/Envs/${ENV_CONFIG_PATH}
+    entrypoint: python main.py --subsystem ExperienceStore --env /app/Config/Envs/${ENV_CONFIG_PATH} --rungroup ${RUN_GROUP}
 
   model-store:
     image: redis
@@ -92,8 +92,6 @@ services:
     entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN}
 
   learner-value:
-    build:
-      dockerfile: ./src/Learner/Dockerfile
     image: learner
 
     volumes:
@@ -120,8 +118,6 @@ services:
     entrypoint: python main.py --subsystem Learner --model Value --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN}
 
   learner-forward:
-    build:
-      dockerfile: ./src/Learner/Dockerfile
     image: learner
 
     volumes:
@@ -146,6 +142,34 @@ services:
       - secrets.env
 
     entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN}
+
+  learner-humanlike:
+    image: learner
+
+    volumes:
+      - ./Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model HumanDiscriminator --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN}
+    # tty: true
+
 
 # ===== Workers =====
   worker-explore:

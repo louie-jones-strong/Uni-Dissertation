@@ -55,7 +55,7 @@ class ModelHelper(Singleton.Singleton):
 		elif modeType == eModelType.HumanDiscriminator:
 			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
 			outputColumns = [DCT.eDataColumnTypes.PlayStyleTag]
-			dataTable = ""
+			dataTable = "Human_Trajectories"
 			model = self._Build_Model(inputColumns, outputColumns)
 
 
@@ -274,6 +274,9 @@ class ModelHelper(Singleton.Singleton):
 
 
 	def PreProcessSingleColumn(self, data:NDArray, label:DCT.eDataColumnTypes) -> NDArray:
+		if len(data) <= 1:
+			raise Exception(f"Data length is too short for column {label.name}")
+
 
 		# add a dimension to the data at the end
 		proccessed = np.reshape(data, (len(data), -1))
