@@ -5,8 +5,9 @@ import typing
 
 class EsNumpy(EsBase.EsBase):
 
-	def __init__(self, runPath) -> None:
-		super().__init__(runPath)
+	def __init__(self, savePath) -> None:
+		super().__init__()
+		self.SavePath = savePath
 
 		self.TrajectoriesLens = 1
 
@@ -48,24 +49,24 @@ class EsNumpy(EsBase.EsBase):
 
 	def Save(self) -> None:
 
-		np.save(os.path.join(self.RunPath, "States.npy"), self.States)
-		np.save(os.path.join(self.RunPath, "NextStates.npy"), self.NextStates)
-		np.save(os.path.join(self.RunPath, "Actions.npy"), self.Actions)
-		np.save(os.path.join(self.RunPath, "Rewards.npy"), self.Rewards)
-		np.save(os.path.join(self.RunPath, "FutureRewards.npy"), self.FutureRewards)
-		np.save(os.path.join(self.RunPath, "Terminated.npy"), self.Terminated)
-		np.save(os.path.join(self.RunPath, "Truncated.npy"), self.Truncated)
+		np.save(os.path.join(self.SavePath, "States.npy"), self.States)
+		np.save(os.path.join(self.SavePath, "NextStates.npy"), self.NextStates)
+		np.save(os.path.join(self.SavePath, "Actions.npy"), self.Actions)
+		np.save(os.path.join(self.SavePath, "Rewards.npy"), self.Rewards)
+		np.save(os.path.join(self.SavePath, "FutureRewards.npy"), self.FutureRewards)
+		np.save(os.path.join(self.SavePath, "Terminated.npy"), self.Terminated)
+		np.save(os.path.join(self.SavePath, "Truncated.npy"), self.Truncated)
 
 		return
 
 	def Load(self) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
-		self.States = np.load(os.path.join(self.RunPath, "States.npy"))
-		self.NextStates = np.load(os.path.join(self.RunPath, "NextStates.npy"))
-		self.Actions = np.load(os.path.join(self.RunPath, "Actions.npy"))
-		self.Rewards = np.load(os.path.join(self.RunPath, "Rewards.npy"))
-		self.FutureRewards = np.load(os.path.join(self.RunPath, "FutureRewards.npy"))
-		self.Terminated = np.load(os.path.join(self.RunPath, "Terminated.npy"))
-		self.Truncated = np.load(os.path.join(self.RunPath, "Truncated.npy"))
+		self.States = np.load(os.path.join(self.SavePath, "States.npy"))
+		self.NextStates = np.load(os.path.join(self.SavePath, "NextStates.npy"))
+		self.Actions = np.load(os.path.join(self.SavePath, "Actions.npy"))
+		self.Rewards = np.load(os.path.join(self.SavePath, "Rewards.npy"))
+		self.FutureRewards = np.load(os.path.join(self.SavePath, "FutureRewards.npy"))
+		self.Terminated = np.load(os.path.join(self.SavePath, "Terminated.npy"))
+		self.Truncated = np.load(os.path.join(self.SavePath, "Truncated.npy"))
 
 		return self.States, self.NextStates, self.Actions, self.Rewards, self.FutureRewards, self.Terminated, self.Truncated

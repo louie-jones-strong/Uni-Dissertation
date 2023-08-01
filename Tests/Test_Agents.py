@@ -59,8 +59,7 @@ class Test_Agents(unittest.TestCase):
 
 
 
-			runPath = os.path.join(PathHelper.GetRootPath(), "Data", "Tests")
-			experienceStore = EsBase.EsBase(runPath)
+			experienceStore = EsBase.EsBase()
 			worker = Worker.Worker(envConfig, agentType, True, experienceStore)
 
 			worker.Run()

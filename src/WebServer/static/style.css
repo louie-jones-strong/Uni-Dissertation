@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&family=Roboto:wght@400;500;700;900&display=swap');
+
+
+p, h1, h2, h3, h4, h5{
+	max-width: 60ch;
+	padding-left:  clamp(0px, 0.25em, 30px);
+	padding-right: clamp(0px, 0.25em, 30px);
+}
+
+* :not(abbr, u){
+	text-rendering: optimizelegibility;
+	-webkit-font-smoothing: antialiased;
+	font-style: normal;
+	font-variant: normal;
+
+	color: var(--Colour-Text4);
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 600;
+	line-height: 125%;
+}
+
+h1, h2, h3, h4{
+	text-transform: capitalize;
+	font-family: 'Roboto', sans-serif;
+}
+
+
+
+html, body {
+	height: 100%;
+	width: 100%;
+	scroll-behavior: smooth;
+	padding: 0px;
+}
+
+body{
+	overflow-x: hidden;
+	margin: 0px;
+	padding: 0px;
+	background-color: #1a2035;
+	color: rgba(255, 255, 255, 0.8);
+	font-weight: 400;
+	line-height: 1.6;
+	height: 100%;
+
+
+	display: grid;
+	grid-template-columns: 17.5em 1fr;
+	grid-template-rows: 3.5em  1fr 2em;
+	grid-template-areas:
+		"header header"
+		"sideBar main"
+		"sideBar footer";
+}
+
+/* header */
+header{
+	padding-left: 3em;
+	grid-area: header;
+	background-color: #27304f;
+	display: flex;
+	/* justify-content: center; */
+	align-items: center;
+}
+
+header p, header h1, header h2, header h3, header h4, header h5, header h6{
+	margin: 0px;
+	margin-inline: 0.5em;
+	padding: 0px;
+}
+
+
+/* sidebar */
+aside{
+	margin: 0.75em;
+	margin-left: 0.5em;
+	margin-bottom: 3em;
+
+	border-radius: 1em;
+	grid-area: sideBar;
+	background-color: #27304f;
+}
+
+
+
+
+/* footer */
+footer{
+	padding-inline: 0.5em;
+	padding-block: 0.25em;
+	border-top-left-radius: 0.75em;
+	grid-area: footer;
+	background-color: #27304f;
+}
+
+footer p{
+	margin: 0px;
+	padding: 0px;
+}
+
+.shadow{
+	box-shadow: 0.25em 0.5em 0.5em 0.125em rgba(0,0,0,25%);
+}
+
+
+
+/* content */
+main{
+	grid-area: main;
+	margin: 1em;
+}
+
+
+.row{
+	display: flex;
+	flex-wrap: wrap;
+	margin-block: 1em;
+}
+
+.card{
+	background-color: #27304f;
+	border: rgb(29, 32, 46) solid 1px;
+	border-radius: 0.5em;
+	margin: 0.5em;
+	padding: 1em;
+
+	display: flex;
+	flex-direction: column;
+
+}

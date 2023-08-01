@@ -4,9 +4,8 @@ import typing
 import numpy as np
 
 class EsBase():
-	def __init__(self, runPath) -> None:
+	def __init__(self) -> None:
 
-		self.RunPath = runPath
 		self._TransitionBuffer = deque()
 		self._TotalReward = 0
 		self._DiscountFactor = 0.99  # todo make this configurable

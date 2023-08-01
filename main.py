@@ -26,6 +26,7 @@ def Main():
 	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
 	parser.AddStrOption("rungroup", "grouping for wandb runs", "run group")
 	parser.AddBoolOption("load", "load from previous run", "load")
+	parser.AddStrOption("exampleType", "type of behaviour example", "example type")
 
 
 	# get the subsystem settings
@@ -38,7 +39,8 @@ def Main():
 
 
 	envConfig["Group"] = parser.Get("rungroup")
-	runPath = os.path.join(GetRootPath(), "Data", envConfig['Name'], envConfig["Group"])
+	envDataPath = os.path.join(GetRootPath(), "Data", envConfig['Name'])
+	runPath = os.path.join(envDataPath, envConfig["Group"])
 
 	# create the run path
 	if not os.path.exists(runPath):
@@ -56,7 +58,11 @@ def Main():
 
 		model = parser.Get("model")
 		load = parser.Get("load")
-		learner = Learner.Learner(envConfig, model, load, runPath)
+
+		exampleType = parser.Get("exampleType")
+		examplesSavePath = os.path.join(envDataPath, "examples", exampleType)
+
+		learner = Learner.Learner(envConfig, model, load, examplesSavePath)
 		loggerSubSystemName = f"Learner_{model.name}"
 		subSystem = learner
 
@@ -77,14 +83,24 @@ def Main():
 		if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
 			isTrainingMode = not parser.Get("play")
 
-
 		experienceStore = None
 		if agent == eAgentType.Human:
 			import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
-			experienceStore = EsNumpy.EsNumpy(runPath)
+
+			exampleType = parser.Get("exampleType")
+			examplesSavePath = os.path.join(envDataPath, "examples", exampleType)
+
+			experienceStore = EsNumpy.EsNumpy(examplesSavePath)
 		else:
-			import src.Common.Store.ExperienceStore.EsReverb as EsReverb
-			experienceStore = EsReverb.EsReverb(runPath)
+
+			try:
+				import src.Common.Store.ExperienceStore.EsReverb as EsReverb
+				experienceStore = EsReverb.EsReverb()
+			except:
+				# used to allow testing on windows
+				print("Reverb not installed, using Base Experience Store")
+				import src.Common.Store.ExperienceStore.EsBase as EsBase
+				experienceStore = EsBase.EsBase()
 
 		worker = Worker.Worker(envConfig, agent, isTrainingMode, experienceStore)
 		loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"

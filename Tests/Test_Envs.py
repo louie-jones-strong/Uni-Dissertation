@@ -33,9 +33,7 @@ class Test_Envs(unittest.TestCase):
 			envConfig["MaxSteps"] = self.MaxStepsOverride
 			envConfig["NumEnvsPerWorker"] = 2
 
-			runPath = os.path.join(PathHelper.GetRootPath(), "Data", "Tests")
-
-			experienceStore = EsBase.EsBase(runPath)
+			experienceStore = EsBase.EsBase()
 			worker = Worker.Worker(envConfig, self.AgentType, True, experienceStore)
 
 			worker.Run()

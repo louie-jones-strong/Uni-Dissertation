@@ -13,11 +13,10 @@ from tensorflow.keras.utils import to_categorical
 
 class Learner:
 
-	def __init__(self, envConfig:SCT.Config, modelType:eModelType, loadModel:bool, runPath:str):
+	def __init__(self, envConfig:SCT.Config, modelType:eModelType, loadModel:bool, examplePath:str):
 		self.Config = envConfig
 		self.ModelType = modelType
 		self.ModelHelper = ModelHelper.ModelHelper(envConfig)
-		self.RunPath = runPath
 
 		print("build model")
 		# todo make this driven by the env config
@@ -28,7 +27,8 @@ class Learner:
 
 		self.HumanData = None
 		if self.ModelType == eModelType.HumanDiscriminator:
-			self.HumanData = EsNumpy.EsNumpy(self.RunPath)
+
+			self.HumanData = EsNumpy.EsNumpy(examplePath)
 			self.HumanData.Load()
 
 		print("built model")
@@ -57,7 +57,7 @@ class Learner:
 		self.BatchedTrajectoryDataset = trajectoryDataset.batch(self.BatchSize * dataCollectionMultiplier)
 
 
-		self.EsStore = EsReverb.EsReverb(self.RunPath)
+		self.EsStore = EsReverb.EsReverb()
 
 		return
 

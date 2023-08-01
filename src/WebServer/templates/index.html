@@ -1,20 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Home</title>
-</head>
-<body>
-	<div>
-		<div>
-			<h1>Option A</h1>
-			<video src=""></video>
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div>
+	<div class="row">
+		<div class="card shadow">
+			Save models
+			save experience replays
+			review game
+			review action
+			config
 		</div>
-		<div>
-			<h1>Option A</h1>
-			<video src=""></video>
-		</div>
+		<div class="card shadow"></div>
 	</div>
-</body>
-</html>
+
+	<div class="row">
+		<div class="card shadow">
+			Save models
+			save experience replays
+			review game
+			review action
+			config
+		</div>
+		<div class="card shadow"></div>
+	</div>
+</div>
+{% endblock %}
