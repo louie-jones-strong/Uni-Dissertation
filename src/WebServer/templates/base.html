@@ -13,15 +13,33 @@
 
 <body>
 	<header class="shadow">
-		<h1>My Website</h1>
+		<h1>Dashboard</h1>
 		<h2>Env: FrozenLake</h2>
 	</header>
 
 	<aside class="shadow">
 		<ul>
-			{% for item in sidebar_data %}
-				<li><a href="{{ item.url }}">{{ item.title }}</a></li>
-			{% endfor %}
+			<li class="highlightOnHover">
+				<a href="\">
+					<p>Overview</p>
+				</a>
+			</li>
+			<li class="highlightOnHover">
+				<a href="\metrics">
+					<p>Metrics</p>
+				</a>
+			</li>
+			<li class="highlightOnHover">
+				<a href="\config">
+					<p>Config</p>
+				</a>
+			</li>
+			<li class="highlightOnHover">
+				<a href="\episodereview">
+					<p>Review Episodes</p>
+				</a>
+			</li>
+			<!-- <li><a href="\behaviourfeedback">Curate Behaviour</a></li> -->
 		</ul>
 	</aside>
 
