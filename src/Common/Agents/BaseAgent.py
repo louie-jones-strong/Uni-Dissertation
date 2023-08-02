@@ -126,6 +126,7 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 
 		elif isinstance(self.ActionSpace, Box):
 			raise NotImplementedError
-
+		else:
+			raise NotImplementedError
 
 		return

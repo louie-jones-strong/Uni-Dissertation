@@ -15,8 +15,8 @@ class Worker:
 
 	def __init__(self, envConfig:SCT.Config,
 		eAgentType:eAgentType,
-		isTrainingMode:bool,
-		experienceStore:EsBase.EsBase) -> None:
+		envRunners:typing.List[EnvRunner.EnvRunner],
+		isTrainingMode:bool) -> None:
 
 		self.Config = envConfig
 		self.IsEvaluating = not isTrainingMode
@@ -24,18 +24,7 @@ class Worker:
 
 		self.Agent = BaseAgent.GetAgent(eAgentType, envConfig, isTrainingMode)
 
-
-		numEnvs = self.Config["NumEnvsPerWorker"]
-		if self.IsEvaluating:
-			numEnvs = 1
-
-		self.Envs = []
-		for i in range(numEnvs):
-			env = BaseEnv.GetEnv(self.Config)
-
-			runner = EnvRunner.EnvRunner(env, self.Config["MaxSteps"], experienceStore)
-			self.Envs.append(runner)
-
+		self.Envs = envRunners
 
 		self.EpisodeCount = 0
 

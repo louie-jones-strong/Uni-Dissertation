@@ -7,6 +7,8 @@ from src.Common.Enums.eAgentType import eAgentType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Store.ModelStore.MsBase as MsBase
 import src.Common.Utils.PathHelper as PathHelper
+import src.Worker.EnvRunner as EnvRunner
+import src.Worker.Environments.BaseEnv as BaseEnv
 
 class Test_Agents(unittest.TestCase):
 
@@ -58,9 +60,14 @@ class Test_Agents(unittest.TestCase):
 			modelHelper.Setup(envConfig, modelStore)
 
 
+			envRunners = []
 
+			env = BaseEnv.GetEnv(envConfig)
 			experienceStore = EsBase.EsBase()
-			worker = Worker.Worker(envConfig, agentType, True, experienceStore)
+			runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore)
+			envRunners.append(runner)
+
+			worker = Worker.Worker(envConfig, agentType, envRunners, True)
 
 			worker.Run()
 		return

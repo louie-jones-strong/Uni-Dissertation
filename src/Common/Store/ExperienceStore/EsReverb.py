@@ -15,8 +15,6 @@ class EsReverb(EsBase.EsBase):
 	def __init__(self) -> None:
 		super().__init__()
 
-		self._ReverbConnection = reverb.Client(f"experience-store:{5001}")
-
 		self.TableTrajectoriesLens = {
 			"Forward_Trajectories": 1,
 			"Value_Trajectories": 1,
@@ -24,10 +22,30 @@ class EsReverb(EsBase.EsBase):
 		}
 		return
 
+
+#region Reverb Client
+
+	_ReverbConnection = None
+
+	def Get_ReverbConnection(self):
+		if type(self)._ReverbConnection is None:
+			type(self)._ReverbConnection = reverb.Client(f"experience-store:{5001}")
+
+		return type(self)._ReverbConnection
+
+	# def Set_ReverbConnection(self, val):
+	# 	type(self)._ReverbConnection = val
+	# 	return
+
+	ReverbConnection = property(Get_ReverbConnection)
+
+#endregion Reverb Client
+
+
 	def EmptyTransitionBuffer(self) -> None:
 
 		numTransitions = len(self._TransitionBuffer)
-		with self._ReverbConnection.trajectory_writer(num_keep_alive_refs=numTransitions) as writer:
+		with self.ReverbConnection.trajectory_writer(num_keep_alive_refs=numTransitions) as writer:
 
 			for i in range(numTransitions):
 
@@ -79,5 +97,5 @@ class EsReverb(EsBase.EsBase):
 			trajectoryPriorities[key] = priority
 
 
-		self._ReverbConnection.mutate_priorities(dataTable, trajectoryPriorities)
+		self.ReverbConnection.mutate_priorities(dataTable, trajectoryPriorities)
 		return

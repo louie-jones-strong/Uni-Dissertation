@@ -10,6 +10,27 @@ import src.Common.Utils.ConfigHelper as ConfigHelper
 import time
 
 
+def CreateExperienceStore(agent, envDataPath, parser):
+	experienceStore = None
+	if agent == eAgentType.Human:
+		import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
+
+		exampleType = parser.Get("exampleType")
+		examplesSavePath = os.path.join(envDataPath, "examples", exampleType)
+
+		experienceStore = EsNumpy.EsNumpy(examplesSavePath)
+	else:
+
+		try:
+			import src.Common.Store.ExperienceStore.EsReverb as EsReverb
+			experienceStore = EsReverb.EsReverb()
+		except:
+			# used to allow testing on windows
+			print("Reverb not installed, using Base Experience Store")
+			import src.Common.Store.ExperienceStore.EsBase as EsBase
+			experienceStore = EsBase.EsBase()
+	return
+
 def Main():
 
 	envConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
@@ -70,6 +91,8 @@ def Main():
 		import src.Worker.Worker as Worker
 		import src.Common.Utils.ModelHelper as ModelHelper
 		import src.Common.Store.ModelStore.MsRedis as MsRedis
+		import src.Worker.EnvRunner as EnvRunner
+		import src.Worker.Environments.BaseEnv as BaseEnv
 
 		modelStore = MsRedis.MsRedis()
 
@@ -83,26 +106,18 @@ def Main():
 		if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
 			isTrainingMode = not parser.Get("play")
 
-		experienceStore = None
-		if agent == eAgentType.Human:
-			import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
+		numEnvs = envConfig["NumEnvsPerWorker"]
+		if not isTrainingMode:
+			numEnvs = 1
 
-			exampleType = parser.Get("exampleType")
-			examplesSavePath = os.path.join(envDataPath, "examples", exampleType)
+		envRunners = []
+		for i in range(numEnvs):
+			env = BaseEnv.GetEnv(envConfig)
+			experienceStore = CreateExperienceStore(agent, envDataPath, parser)
+			runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore)
+			envRunners.append(runner)
 
-			experienceStore = EsNumpy.EsNumpy(examplesSavePath)
-		else:
-
-			try:
-				import src.Common.Store.ExperienceStore.EsReverb as EsReverb
-				experienceStore = EsReverb.EsReverb()
-			except:
-				# used to allow testing on windows
-				print("Reverb not installed, using Base Experience Store")
-				import src.Common.Store.ExperienceStore.EsBase as EsBase
-				experienceStore = EsBase.EsBase()
-
-		worker = Worker.Worker(envConfig, agent, isTrainingMode, experienceStore)
+		worker = Worker.Worker(envConfig, agent, envRunners, isTrainingMode)
 		loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
 
 		subSystem = worker
