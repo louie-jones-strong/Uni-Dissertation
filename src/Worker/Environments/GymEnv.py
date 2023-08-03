@@ -148,4 +148,6 @@ class GymEnv(BaseEnv.BaseEnv):
 
 	def Render(self) -> None:
 		super().Render()
-		return
+
+		rendered = self._RenderCopy.render()
+		return rendered

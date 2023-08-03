@@ -13,8 +13,20 @@
 			"justMyCode": true,
 			"args": [
 				"--wandb", "False",
-				"--play", "False",
-				"--load", "False"
+				"--load", "False",
+				"--rungroup", "dev"
+			]
+		},
+		{
+			"name": "Webserver",
+			"type": "python",
+			"request": "launch",
+			"program": "main.py",
+			"console": "integratedTerminal",
+			"justMyCode": true,
+			"args": [
+				"--rungroup", "dev",
+				"--subsystem", "Webserver"
 			]
 		}
 	]

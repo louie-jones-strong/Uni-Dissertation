@@ -6,7 +6,43 @@
 <div>
 	<div class="row">
 		<div class="card shadow">
+			<h2>Episode Replay Video</h2>
+			<video width="100%" controls>
+				<source src="{{ 'static/replays/' + replayData.EpisodeId + '.mp4' }}" type="video/mp4">
+				Your browser does not support the video tag.
+			</video>
+		</div>
+	</div>
+	<div class="row">
+		<div class="card shadow">
+			<h2>Simple Stats</h2>
+			<hr>
+			<p>
+				Duration:
+				<em>{{ replayData.DurationText() }}</em>
+			</p>
+			<p>
+				Reason Finished:
+				<em>{{ replayData.ReasonEnded() }}</em>
+			</p>
 
+			<p>
+				Total Actions:
+				<em>{{ replayData.NumSteps() }}</em>
+			</p>
+
+			<p>
+				Total Frames:
+				<em>{{ replayData.Steps[-1].Frame + 1 }}</em>
+			</p>
+		</div>
+		<div class="card shadow">
+			<h2>Rewards</h2>
+			<hr>
+			<p>
+				Total Rewards:
+				<em>{{ replayData.TotalReward()}}</em>
+			</p>
 		</div>
 	</div>
 </div>

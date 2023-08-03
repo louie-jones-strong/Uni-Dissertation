@@ -3,7 +3,7 @@
 	"EnvType": "Gym",
 	"GymConfig": {
 		"GymID": "FrozenLake-v1",
-		"RenderMode": "human",
+		"RenderMode": "rgb_array",
 		"kwargs": {
 			"is_slippery": false
 		}

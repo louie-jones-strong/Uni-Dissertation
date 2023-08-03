@@ -29,7 +29,7 @@ def CreateExperienceStore(agent, envDataPath, parser):
 			print("Reverb not installed, using Base Experience Store")
 			import src.Common.Store.ExperienceStore.EsBase as EsBase
 			experienceStore = EsBase.EsBase()
-	return
+	return experienceStore
 
 def Main():
 
@@ -109,12 +109,13 @@ def Main():
 		numEnvs = envConfig["NumEnvsPerWorker"]
 		if not isTrainingMode:
 			numEnvs = 1
+			replayFolder = os.path.join(runPath, "replays")
 
 		envRunners = []
 		for i in range(numEnvs):
 			env = BaseEnv.GetEnv(envConfig)
 			experienceStore = CreateExperienceStore(agent, envDataPath, parser)
-			runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore)
+			runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore, replayFolder=replayFolder)
 			envRunners.append(runner)
 
 		worker = Worker.Worker(envConfig, agent, envRunners, isTrainingMode)
