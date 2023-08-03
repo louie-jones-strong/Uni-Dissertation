@@ -3,19 +3,19 @@ from src.WebServer.views import views
 import os
 
 
-def CleanUpReplays() -> None:
-	replaysFolder = os.path.join("src", "WebServer", "static", "replays")
-	if os.path.exists(replaysFolder):
-		for file in os.listdir(replaysFolder):
-			os.remove(os.path.join(replaysFolder, file))
+def CleanUpAssets() -> None:
+	assetsFolder = os.path.join("src", "WebServer", "static", "assets")
+	if os.path.exists(assetsFolder):
+		for file in os.listdir(assetsFolder):
+			os.remove(os.path.join(assetsFolder, file))
 	else:
-		os.makedirs(replaysFolder)
+		os.makedirs(assetsFolder)
 
 	return
 
 def Run() -> None:
 
-	CleanUpReplays()
+	CleanUpAssets()
 
 	app = Flask(__name__)
 	app.register_blueprint(views, url_prefix="/")

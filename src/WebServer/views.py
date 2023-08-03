@@ -34,7 +34,7 @@ def EpisodeReview() -> str:
 
 	replays = os.listdir(ReplaysFolder)
 	firstReplay = os.path.join(ReplaysFolder, replays[0])
-	replay = ER.EpisodeReplay.LoadFromFile(firstReplay)
+	replay = ER.EpisodeReplay.LoadFromFolder(firstReplay)
 
 	data["replayData"] = replay
 
@@ -58,14 +58,20 @@ def CreateVideo(replay:ER.EpisodeReplay) -> None:
 
 	width = firstFrame.shape[1]
 	height = firstFrame.shape[0]
-	outputPath = os.path.join("src", "WebServer", "static", "replays", f"{replay.EpisodeId}.mp4")
+	frameDups = 5
+	outputPath = os.path.join("src", "WebServer", "static", "assets", f"{replay.EpisodeId}.mp4")
 
-	fourcc = cv.VideoWriter_fourcc(*'mp4v')
+
+	# create the video
+	fourcc = cv.VideoWriter_fourcc(*"H264")
 	videoWriter = cv.VideoWriter(outputPath, fourcc, 25, (width, height))
 
 
 	for step in replay.Steps:
-		videoWriter.write(step.HumanState)
+		for i in range(frameDups):
+			# numpy array to image
+			image = cv.cvtColor(step.HumanState, cv.COLOR_RGB2BGR)
+			videoWriter.write(image)
 
 	videoWriter.release()
 	return

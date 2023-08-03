@@ -50,27 +50,47 @@ class EpisodeReplay:
 #endregion formatting
 
 
-#region json serialization
-	def ToJson(self):
 
-		selfDict = {
-			"Steps": [],
-			"Terminated": self.Terminated,
-			"Truncated": self.Truncated,
-			"EpisodeId": self.EpisodeId,
-			"StartTime": self.StartTime,
-			"EndTime": self.EndTime
-		}
+#region File IO
+	def SaveToFolder(self, folderPath):
 
-		for step in self.Steps:
-			selfDict["Steps"].append(step.__dict__())
+		# define folder to store all the data for this episode
+		replayFolder = os.path.join(folderPath, self.EpisodeId)
+
+		# create the run path
+		if not os.path.exists(replayFolder):
+			os.makedirs(replayFolder)
+
+		filePath = os.path.join(replayFolder, "data.json")
+
+		with open(filePath, 'w') as f:
+			selfDict = {
+				"Steps": [],
+				"Terminated": self.Terminated,
+				"Truncated": self.Truncated,
+				"EpisodeId": self.EpisodeId,
+				"StartTime": self.StartTime,
+				"EndTime": self.EndTime
+			}
+
+			for step in self.Steps:
+				stepDict = step.Save(replayFolder)
+				selfDict["Steps"].append(stepDict)
+
+			jsonStr = json.dumps(selfDict, indent=4)
+			f.write(jsonStr)
+		return
 
 
-		return json.dumps(selfDict, indent=4)
+
 
 	@classmethod
-	def FromJson(cls, jsonStr):
-		data = json.loads(jsonStr)
+	def LoadFromFolder(cls, folderPath):
+
+		filePath = os.path.join(folderPath, "data.json")
+
+		with open(filePath, 'r') as f:
+			data = json.loads(f.read())
 
 		instance = cls()
 
@@ -80,30 +100,11 @@ class EpisodeReplay:
 		instance.StartTime = data.get("StartTime", None)
 		instance.EndTime = data.get("EndTime", None)
 
+		instance.Steps = []
 		stepsData = data.get("Steps", [])
-		steps = [ERStep.FromJson(stepData) for stepData in stepsData]
-		instance.Steps = steps
+		for stepData in stepsData:
+			step = ERStep.Load(stepData, folderPath)
+			instance.Steps.append(step)
 
 		return instance
-#endregion json serialization
-
-
-#region File IO
-	def SaveToFolder(self, folderPath):
-
-		# create the run path
-		if not os.path.exists(folderPath):
-			os.makedirs(folderPath)
-
-		filePath = os.path.join(folderPath, f"{self.EpisodeId}.json")
-
-		with open(filePath, 'w') as f:
-			f.write(self.ToJson())
-		return
-
-	@classmethod
-	def LoadFromFile(cls, filePath):
-		with open(filePath, 'r') as f:
-			jsonStr = f.read()
-		return cls.FromJson(jsonStr)
 #endregion File IO

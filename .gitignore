@@ -1,4 +1,4 @@
 ﻿secrets.env
 *.pyc
 Data
-src/WebServer/static/replays
+src/WebServer/static/assets

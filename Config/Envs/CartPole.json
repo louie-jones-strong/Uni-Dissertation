@@ -3,7 +3,7 @@
 	"EnvType": "Gym",
 	"GymConfig": {
 		"GymID": "CartPole-v1",
-		"RenderMode": "human"
+		"RenderMode": "rgb_array"
 	},
 
 	"ObservationSpace":{

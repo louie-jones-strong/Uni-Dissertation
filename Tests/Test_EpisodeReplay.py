@@ -22,8 +22,6 @@ class Test_EpisodeReplay(unittest.TestCase):
 		# check methods
 		self.assertIsNotNone(er.AddStep)
 		self.assertIsNotNone(er.EpisodeEnd)
-		self.assertIsNotNone(er.ToJson)
-		self.assertIsNotNone(er.FromJson)
 		return
 
 	def test_Timing(self):
