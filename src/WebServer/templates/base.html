@@ -14,7 +14,7 @@
 <body>
 	<header class="shadow">
 		<h1>Dashboard</h1>
-		<h2>Env: FrozenLake</h2>
+		<h2>Env: {{Environment}}</h2>
 	</header>
 
 	<aside class="shadow">
@@ -37,11 +37,13 @@
 			<li class="">
 				<p>Review Episodes</p>
 				<ul>
+					{%for episodeReplay in EpisodeReplays%}
 					<li class="highlightOnHover">
-						<a href="\episodereview">
-							<p>Review Episodes</p>
+						<a href="\episodereview\{{episodeReplay}}">
+							<p>{{episodeReplay}}</p>
 						</a>
 					</li>
+					{%endfor%}
 				</ul>
 			</li>
 			<!-- <li><a href="\behaviourfeedback">Curate Behaviour</a></li> -->

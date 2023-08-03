@@ -4,6 +4,7 @@ import os
 import src.Common.Utils.PathHelper as PathHelper
 import src.Common.EpisodeReplay.EpisodeReplay as ER
 import cv2 as cv
+import src.WebServer.AssetCreator as AssetCreator
 
 views = Blueprint("views", __name__)
 
@@ -28,18 +29,21 @@ def Metrics() -> str:
 	return redirect("https://wandb.ai/louiej-s/Dissertation", code=302)
 
 
-@views.route("/episodereview")
-def EpisodeReview() -> str:
+@views.route("/episodereview/<episode>")
+def EpisodeReview(episode) -> str:
 	data = GetCommonData()
 
 	replays = os.listdir(ReplaysFolder)
-	firstReplay = os.path.join(ReplaysFolder, replays[0])
+	if episode not in replays:
+		return "Episode not found"
+
+	firstReplay = os.path.join(ReplaysFolder, episode)
 	replay = ER.EpisodeReplay.LoadFromFolder(firstReplay)
 
 	data["replayData"] = replay
 
 	# make video for replay
-	CreateVideo(replay)
+	AssetCreator.CreateVideo(replay)
 
 
 
@@ -47,38 +51,13 @@ def EpisodeReview() -> str:
 
 
 
-
-
-def CreateVideo(replay:ER.EpisodeReplay) -> None:
-
-	firstFrame = replay.Steps[0].HumanState
-
-	if firstFrame is None:
-		return
-
-	width = firstFrame.shape[1]
-	height = firstFrame.shape[0]
-	frameDups = 5
-	outputPath = os.path.join("src", "WebServer", "static", "assets", f"{replay.EpisodeId}.mp4")
-
-
-	# create the video
-	fourcc = cv.VideoWriter_fourcc(*"H264")
-	videoWriter = cv.VideoWriter(outputPath, fourcc, 25, (width, height))
-
-
-	for step in replay.Steps:
-		for i in range(frameDups):
-			# numpy array to image
-			image = cv.cvtColor(step.HumanState, cv.COLOR_RGB2BGR)
-			videoWriter.write(image)
-
-	videoWriter.release()
-	return
-
-
 def GetCommonData() -> typing.Dict[str, typing.Any]:
 	data = {}
+
+	replays = os.listdir(ReplaysFolder)
+
+	data["EpisodeReplays"] = replays
+	data["Environment"] = "FrozenLake"
 
 
 	return data

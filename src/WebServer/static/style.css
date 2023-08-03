@@ -79,32 +79,52 @@ aside{
 	border-radius: 1em;
 	grid-area: sideBar;
 	background-color: #27304f;
+	max-height: 100%;
 }
 
-aside > ul{
+aside ul{
 	list-style-type: none;
-	padding-left: 1.5em;
-	padding-right: 1em;
+	padding-left: 1em;
+	padding-right: 0.25em;
+	max-height: 100%;
 }
 
-aside > ul > li{
+aside ul > li{
 	height: max-content;
 	border-radius: 0.5em;
+	max-height: 100%;
 }
 
 aside > ul > li > a{
 	width: 100%;
 	margin: 0px;
 	padding: 0px;
+	text-decoration: none;
+}
+aside > ul > li p{
+	margin: 0px;
+	padding-block: 0.25em;
+	padding-inline: 0.5em;
 	text-transform: capitalize;
 	font-family: 'Roboto', sans-serif;
 	font-size: x-large;
 	text-decoration: none;
 }
-aside > ul > li > a > p{
+
+
+aside > ul > li > ul {
+	overflow-y: scroll;
+	max-height: 30em;
+}
+
+aside > ul > li > ul p{
 	margin: 0px;
-	padding-block: 0.5em;
+	padding-block: 0.25em;
 	padding-inline: 0.5em;
+	text-transform: capitalize;
+	font-family: 'Roboto', sans-serif;
+	text-decoration: none;
+	font-size: large;
 }
 
 

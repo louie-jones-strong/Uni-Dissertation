@@ -25,19 +25,17 @@ class EnvRunner:
 
 	def Step(self, action, actionReason=None):
 
-		if self.EpisodeReplay is not None:
-
-			frameNum = self.Env._CurrentStep
-			humanState = self.Env.Render()
-			agentState = self.State
-
+		if self.EpisodeReplay is None:
 			nextState, reward, terminated, truncated = self.Env.Step(action)
-
-			erStep = ERStep(frameNum, humanState, agentState, reward, action, actionReason)
-			self.EpisodeReplay.AddStep(erStep)
 
 		else:
+			humanState = self.Env.Render()
+
 			nextState, reward, terminated, truncated = self.Env.Step(action)
+
+			erStep = ERStep(self.Env._CurrentStep, humanState, self.State, reward, action, actionReason)
+			self.EpisodeReplay.AddStep(erStep)
+
 
 
 
@@ -53,6 +51,10 @@ class EnvRunner:
 		if terminated or truncated:
 
 			if self.EpisodeReplay is not None:
+				humanState = self.Env.Render()
+				erStep = ERStep(self.Env._CurrentStep, humanState, self.State, reward, None, None)
+				self.EpisodeReplay.AddStep(erStep)
+
 				self.EpisodeReplay.EpisodeEnd(terminated, truncated)
 				self.EpisodeReplay.SaveToFolder(self.ReplayFolder)
 
