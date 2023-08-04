@@ -41,6 +41,11 @@ def Setup(envConfig) -> None:
 		data["EpisodeReplays"] = replays
 		data["envConfig"] = envConfig
 
+		actionLabels = {}
+		for key, value in envConfig["AgentConfig"]["Human"]["Controls"].items():
+			actionLabels[value] = key
+		data["ActionLabels"] = actionLabels
+
 
 		return data
 

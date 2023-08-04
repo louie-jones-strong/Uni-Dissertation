@@ -149,3 +149,19 @@ class TreeNode:
 		currentState = state.reshape(1, -1)
 		states = np.repeat(currentState, count, axis=0)
 		return states
+
+	def ToDict(self):
+		data = {
+			"State": self.State,
+			"EpisodeStep": self.EpisodeStep,
+			"Done": self.Done,
+			"TotalRewards": self.TotalRewards,
+			"Counts": self.Counts,
+			"ActionIdxTaken": self.ActionIdxTaken
+		}
+
+		data["Children"] = None
+		if self.Children is not None:
+			data["Children"] = [child.ToDict() for child in self.Children]
+
+		return data

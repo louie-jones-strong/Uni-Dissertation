@@ -52,7 +52,6 @@ class GymEnv(BaseEnv.BaseEnv):
 
 		self._RenderCopy = None
 
-
 		if gymEnv is None:
 
 			gymConfig = self._Config.get("GymConfig", {})
@@ -61,11 +60,7 @@ class GymEnv(BaseEnv.BaseEnv):
 			kargs = gymConfig.get("kwargs", {})
 			wrappers = gymConfig.get("Wrappers", None)
 
-
-
 			self._GymEnv = gym.make(gymId, **kargs)
-
-
 
 			# create a copy of the environment for rendering
 			# this is because you cannot copy the env if it has been rendered

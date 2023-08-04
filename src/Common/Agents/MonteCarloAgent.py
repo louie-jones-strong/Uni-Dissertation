@@ -42,7 +42,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		super().GetActionValues(state)
 
 		if not self._ForwardModel.CanPredict():
-			return self.ActionSpace.sample()
+			return self.ActionSpace.sample(), "MonteCarloAgent Random Action (Can't Predict)"
 
 		self._StopTime = time.process_time() + self.Config["MaxSecondsPerAction"]
 
@@ -96,11 +96,15 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			self._CachedTree = rootNode
 
 		if rootNode.Children is None:
-			return self.ActionSpace.sample()
+			return self.ActionSpace.sample(), "MonteCarloAgent Random Action (No Children)"
 
 
 		actionValues = rootNode.GetActionValues()
-		actionReason = "MonteCarloAgent"
+		actionReason = {
+			"Type": "MonteCarloAgent",
+			"ActionValues": actionValues,
+			"Tree": rootNode.ToDict()
+		}
 		return actionValues, actionReason
 
 	def _RollOut(self, state:SCT.State, maxDepth:int) -> SCT.Reward_List:

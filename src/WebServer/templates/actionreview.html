@@ -29,6 +29,22 @@
 				</a>
 			</div>
 		</div>
+
+
+	</div>
+	<div class="row">
+		<div class="card shadow">
+			<h2>Simple Stats</h2>
+			<hr>
+			<p>
+				Start Time:
+				<em>{{ replayData.DurationText(replayData.Steps[actionIndex-1].CompletedTime) }}</em>
+			</p>
+			<p>
+				End Time:
+				<em>{{ replayData.DurationText(actionData.CompletedTime) }}</em>
+			</p>
+		</div>
 	</div>
 	<div class="row">
 		<div class="card shadow">
@@ -37,7 +53,24 @@
 		</div>
 		<div class="card shadow">
 			<h2>Agent State</h2>
+			<hr>
 			<p>{{actionData.AgentState}}</p>
+		</div>
+		<div class="card shadow">
+			<h2>Action</h2>
+			<hr>
+			<p>{{actionData.Action}} : {{ActionLabels[actionData.Action]}}</p>
+			<hr>
+			{%for key, value in ActionLabels.items() %}
+				<p>{{key}} = {{value}}</p>
+			{% endfor %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="card shadow">
+			<h2>Action Reason</h2>
+			<hr>
+			<p>{{actionData.ActionReason}}</p>
 		</div>
 	</div>
 </div>

@@ -1,9 +1,9 @@
 from src.Common.EpisodeReplay.EpisodeReplayStep import EpisodeReplayStep as ERStep
 import src.Common.Utils.Formatter as Formatter
-import json
 import time
 import uuid
 import os
+import pickle
 
 class EpisodeReplay:
 
@@ -65,9 +65,9 @@ class EpisodeReplay:
 		if not os.path.exists(replayFolder):
 			os.makedirs(replayFolder)
 
-		filePath = os.path.join(replayFolder, "data.json")
+		filePath = os.path.join(replayFolder, "data.pkl")
 
-		with open(filePath, 'w') as f:
+		with open(filePath, 'wb') as f:
 			selfDict = {
 				"Steps": [],
 				"Terminated": self.Terminated,
@@ -81,8 +81,8 @@ class EpisodeReplay:
 				stepDict = step.Save(replayFolder)
 				selfDict["Steps"].append(stepDict)
 
-			jsonStr = json.dumps(selfDict, indent=4)
-			f.write(jsonStr)
+			pickle.dump(selfDict, f)
+			# f.write(jsonStr)
 		return
 
 
@@ -91,10 +91,10 @@ class EpisodeReplay:
 	@classmethod
 	def LoadFromFolder(cls, folderPath):
 
-		filePath = os.path.join(folderPath, "data.json")
+		filePath = os.path.join(folderPath, "data.pkl")
 
-		with open(filePath, 'r') as f:
-			data = json.loads(f.read())
+		with open(filePath, 'rb') as f:
+			data = pickle.load(f)
 
 		instance = cls()
 
