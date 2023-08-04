@@ -26,6 +26,9 @@ def Setup(envConfig) -> None:
 	def GetCommonData() -> typing.Dict[str, typing.Any]:
 		data = {}
 
+		if not os.path.exists(ReplaysFolder):
+			os.makedirs(ReplaysFolder)
+
 		replays = os.listdir(ReplaysFolder)
 
 		data["EpisodeReplays"] = replays
