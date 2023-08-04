@@ -1,24 +1,19 @@
 from flask import Flask
-from src.WebServer.views import views
+import src.WebServer.views as views
+import src.WebServer.AssetCreator as AssetCreator
 import os
 
+class WebServer:
 
-def CleanUpAssets() -> None:
-	assetsFolder = os.path.join("src", "WebServer", "static", "assets")
-	if os.path.exists(assetsFolder):
-		for file in os.listdir(assetsFolder):
-			os.remove(os.path.join(assetsFolder, file))
-	else:
-		os.makedirs(assetsFolder)
+	def __init__(self, envConfig) -> None:
+		AssetCreator.CleanUpAssets()
+		viewsBlueprint = views.Setup(envConfig)
 
-	return
+		self.App = Flask(__name__)
+		self.App.register_blueprint(viewsBlueprint, url_prefix="/")
 
-def Run() -> None:
+		return
 
-	CleanUpAssets()
-
-	app = Flask(__name__)
-	app.register_blueprint(views, url_prefix="/")
-	app.run(debug=True, host="0.0.0.0", port=5000)
-
-	return
+	def Run(self) -> None:
+		self.App.run(debug=True, host="0.0.0.0", port=5000)
+		return

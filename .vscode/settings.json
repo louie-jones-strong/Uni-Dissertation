@@ -18,6 +18,7 @@
 	"cSpell.words": [
 		"argmax",
 		"backpropagation",
-		"dtype"
+		"dtype",
+		"wandb"
 	],
 }

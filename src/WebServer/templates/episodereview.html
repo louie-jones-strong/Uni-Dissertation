@@ -6,6 +6,15 @@
 <div>
 	<div class="row">
 		<div class="card shadow">
+			<h2>Episode Replay</h2>
+			<hr>
+			<a href="/episodereview/{{replayData.EpisodeId}}">
+				<p>{{replayData.EpisodeId}}</p>
+			</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="card shadow">
 			<h2>Episode Replay Video</h2>
 			<video controls autoplay muted loop>
 				<source src="{{'/static/assets/' + replayData.EpisodeId + '.mp4'}}" type="video/mp4">
@@ -41,6 +50,52 @@
 				Total Rewards:
 				<em>{{ replayData.TotalReward()}}</em>
 			</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="card shadow">
+			<h2>Actions</h2>
+			<table>
+				<tr>
+					<th>
+						Frame
+					</th>
+					<th>
+						Action
+					</th>
+					<th>
+						Reward
+					</th>
+					<th>
+						Time
+					</th>
+					<th></th>
+				</tr>
+
+				{%for i in range((replayData.Steps|length)-1)%}
+				<tr>
+					<td>
+						{{ replayData.Steps[i].Frame }}
+					</td>
+					<td>
+						{{ replayData.Steps[i].Action }}
+					</td>
+					<td>
+						{{ replayData.Steps[i].Reward }}
+					</td>
+					<td>
+						{{ replayData.DurationText(replayData.Steps[i].CompletedTime) }}
+					</td>
+					<td>
+						<a href="/episodereview/{{replayData.EpisodeId}}/action/{{ i }}">
+							<button class="shaded highlightOnHover">
+								<p>Review</p>
+							</button>
+						</a>
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
 		</div>
 	</div>
 </div>

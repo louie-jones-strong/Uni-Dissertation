@@ -198,6 +198,27 @@ button > p{
 	text-decoration: none;
 	color: rgba(255, 255, 255, 0.8);
 }
+/* Tables */
+table{
+	border-collapse: collapse;
+	text-align: center;
+}
+
+th, td{
+	border: 2px solid rgba(255, 255, 255, 0.5);
+	padding: 0.35em;
+}
+
+th{
+	background-color: #435596;
+	color: var(--ColourAccent-Contrast);
+}
+
+
+hr.gap{
+	border: none;
+	margin-block: 5em;
+}
 
 
 /* content */

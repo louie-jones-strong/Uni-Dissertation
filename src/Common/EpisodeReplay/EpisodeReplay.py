@@ -31,8 +31,12 @@ class EpisodeReplay:
 
 
 #region formatting
-	def DurationText(self) -> str:
-		return Formatter.ConvertNs(self.EndTime - self.StartTime)
+	def DurationText(self, endTime=None) -> str:
+
+		if endTime is None:
+			endTime = self.EndTime
+
+		return Formatter.ConvertNs(endTime - self.StartTime)
 
 	def ReasonEnded(self) -> str:
 		if self.Terminated:

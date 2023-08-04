@@ -125,7 +125,7 @@ def Main():
 
 	elif subSystem == eSubSystemType.Webserver:
 		import src.WebServer.app as app
-		subSystem = app
+		subSystem = app.WebServer(envConfig)
 
 	elif subSystem == eSubSystemType.ExperienceStore:
 		import src.ExperienceStore.ExperienceStoreServer as ExperienceStoreServer

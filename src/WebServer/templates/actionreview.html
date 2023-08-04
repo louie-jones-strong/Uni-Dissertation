@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Action Review{% endblock %}
+
+{% block content %}
+<div>
+	<div class="row">
+		<div class="card shadow">
+			<h2>Episode Replay</h2>
+			<hr>
+			<a href="/episodereview/{{replayData.EpisodeId}}">
+				<p>{{replayData.EpisodeId}}</p>
+			</a>
+		</div>
+		<div class="card shadow">
+			<h2>Frame</h2>
+			<hr>
+			<div class="row">
+				<a href="/episodereview/{{replayData.EpisodeId}}/action/{{ (actionIndex-1)|string }}">
+					<button class="shaded highlightOnHover">
+						<p><</p>
+					</button>
+				</a>
+				<p>{{actionData.Frame}}</p>
+				<a href="/episodereview/{{replayData.EpisodeId}}/action/{{ (actionIndex+1)|string }}">
+					<button class="shaded highlightOnHover">
+						<p>></p>
+					</button>
+				</a>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="card shadow">
+			<h2>Human State</h2>
+			<img  src="{{'/static/assets/' + replayData.EpisodeId + '_' + actionIndex|string + '.png'}}">
+		</div>
+		<div class="card shadow">
+			<h2>Agent State</h2>
+			<p>{{actionData.AgentState}}</p>
+		</div>
+	</div>
+</div>
+{% endblock %}
