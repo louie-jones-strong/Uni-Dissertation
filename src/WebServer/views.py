@@ -7,6 +7,8 @@ import cv2 as cv
 import src.WebServer.AssetCreator as AssetCreator
 
 
+
+
 def Setup(envConfig) -> None:
 
 	rootPath = PathHelper.GetRootPath()
@@ -14,7 +16,12 @@ def Setup(envConfig) -> None:
 	RunFolder = os.path.join(DataFolder, envConfig["Group"])
 	ReplaysFolder = os.path.join(RunFolder, "replays")
 
-
+	reverbClient = None
+	try:
+		import reverb
+		reverbClient = reverb.Client(f"experience-store:{5001}")
+	except:
+		print("Reverb not installed")
 
 	views = Blueprint("views", __name__)
 
@@ -98,5 +105,16 @@ def Setup(envConfig) -> None:
 
 		return render_template("actionreview.html", **data)
 #endregion endpoints
+
+	@views.route("/api/saveTrajectories", methods=["POST"])
+	def SaveTrajectories() -> str:
+		if reverbClient is None:
+			return "Reverb not installed"
+		else:
+			checkPointPath = reverbClient.checkpoint()
+			print(checkPointPath)
+			return checkPointPath
+
+		return
 
 	return views
