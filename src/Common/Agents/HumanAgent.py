@@ -22,4 +22,4 @@ class HumanAgent(BaseAgent.BaseAgent):
 					action = controls[control]
 
 		time.sleep(1.0/fps)
-		return action
+		return action, "HumanAgent"

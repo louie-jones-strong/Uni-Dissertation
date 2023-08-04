@@ -47,10 +47,10 @@ class Worker:
 		while self.EpisodeCount < maxEpisodes:
 
 			# get actions from the agent
-			actions = self._GetActions(stateList)
+			actions, actionReasons = self._GetActions(stateList)
 
 			# make the chosen actions in the environments
-			stateList, finishedEpisodes = self._StepEnvs(actions)
+			stateList, finishedEpisodes = self._StepEnvs(actions, actionReasons)
 
 			# increment the episode count by the number of episodes that have been completed in this step
 			self.EpisodeCount += finishedEpisodes
@@ -67,9 +67,17 @@ class Worker:
 		return
 
 	def _GetActions(self, stateList:typing.List[SCT.State]) -> typing.List[SCT.Action]:
-		return [self.Agent.GetAction(state) for state in stateList]
+		actions = []
+		actionReasons = []
 
-	def _StepEnvs(self, actions:typing.List[SCT.Action]) -> typing.List[SCT.State]:
+		for state in stateList:
+			action, actionReason = self.Agent.GetAction(state)
+			actions.append(action)
+			actionReasons.append(actionReason)
+
+		return actions, actionReasons
+
+	def _StepEnvs(self, actions:typing.List[SCT.Action], actionReasons) -> typing.List[SCT.State]:
 		"""
 		Makes the chosen actions in the environments.
 
@@ -89,7 +97,7 @@ class Worker:
 		finishedEpisodes = 0
 		for i in range(len(self.Envs)):
 
-			state, done = self.Envs[i].Step(actions[i])
+			state, done = self.Envs[i].Step(actions[i], actionReason=actionReasons[i])
 
 			stateList.append(state)
 

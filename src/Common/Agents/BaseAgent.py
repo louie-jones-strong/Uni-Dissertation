@@ -101,11 +101,11 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		self.StepNum += 1
 		self.TotalStepNum += 1
 
-		return 0
+		return 0, "BaseAgent"
 
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
 		shape = SCT.JoinTuples(self.ActionSpace.shape, None)
-		return np.ones(shape, dtype=np.float32)
+		return np.ones(shape, dtype=np.float32), "BaseAgent"
 
 	def _GetMaxValues(self, values:NDArray[np.float32]) -> int:
 		maxValue = np.max(values)

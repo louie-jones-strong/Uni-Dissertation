@@ -31,8 +31,82 @@ def CreateExperienceStore(agent, envDataPath, parser):
 			experienceStore = EsBase.EsBase()
 	return experienceStore
 
-def Main():
+def SetupLogger(parser, envConfig, runPath, loggerSubSystemName):
+	envConfig["SubSystemName"] = loggerSubSystemName
 
+	timeStamp = int(time.time())
+	envConfig["RunStartTime"] = timeStamp
+
+
+	# setup logger
+	import src.Common.Utils.Metrics.Logger as Logger
+	runId = f"{loggerSubSystemName}_{timeStamp}"
+
+	logger = Logger.Logger()
+	logger.Setup(envConfig, runPath, runId=runId, wandbOn=parser.Get("wandb"))
+	return
+
+def Setup_Learner(parser, envConfig, runPath, envDataPath):
+	import src.Learner.Learner as Learner
+	import src.Common.Utils.ModelHelper as ModelHelper
+	import src.Common.Store.ModelStore.MsRedis as MsRedis
+
+	modelStore = MsRedis.MsRedis()
+
+	modelHelper = ModelHelper.ModelHelper()
+	modelHelper.Setup(envConfig, modelStore)
+
+	model = parser.Get("model")
+	load = parser.Get("load")
+
+	exampleType = parser.Get("exampleType")
+	examplesSavePath = os.path.join(envDataPath, "examples", exampleType)
+
+	learner = Learner.Learner(envConfig, model, load, examplesSavePath)
+
+	loggerSubSystemName = f"Learner_{model.name}"
+	SetupLogger(parser, envConfig, runPath, loggerSubSystemName)
+	return learner
+
+def Setup_Worker(parser, envConfig, runPath, envDataPath):
+	import src.Worker.Worker as Worker
+	import src.Common.Utils.ModelHelper as ModelHelper
+	import src.Common.Store.ModelStore.MsRedis as MsRedis
+	import src.Worker.EnvRunner as EnvRunner
+	import src.Worker.Environments.BaseEnv as BaseEnv
+
+	modelStore = MsRedis.MsRedis()
+
+
+	modelHelper = ModelHelper.ModelHelper()
+	modelHelper.Setup(envConfig, modelStore)
+
+	agent = parser.Get("agent")
+
+	isTrainingMode = False
+	if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
+		isTrainingMode = not parser.Get("play")
+
+	numEnvs = envConfig["NumEnvsPerWorker"]
+	if not isTrainingMode:
+		numEnvs = 1
+		replayFolder = os.path.join(runPath, "replays")
+
+	envRunners = []
+	for i in range(numEnvs):
+		env = BaseEnv.GetEnv(envConfig)
+		experienceStore = CreateExperienceStore(agent, envDataPath, parser)
+		runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore, replayFolder=replayFolder)
+		envRunners.append(runner)
+
+	worker = Worker.Worker(envConfig, agent, envRunners, isTrainingMode)
+	loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
+
+	SetupLogger(parser, envConfig, runPath, loggerSubSystemName)
+	return worker
+
+
+def DefineCommandLineArgs():
 	envConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
 
 	parser = ArgParser.ArgParser()
@@ -49,6 +123,13 @@ def Main():
 	parser.AddBoolOption("load", "load from previous run", "load")
 	parser.AddStrOption("exampleType", "type of behaviour example", "example type")
 
+	return parser
+
+
+
+def Main():
+
+	parser = DefineCommandLineArgs()
 
 	# get the subsystem settings
 	subSystem = parser.Get("subsystem")
@@ -68,60 +149,10 @@ def Main():
 		os.makedirs(runPath)
 
 	if subSystem == eSubSystemType.Learner:
-		import src.Learner.Learner as Learner
-		import src.Common.Utils.ModelHelper as ModelHelper
-		import src.Common.Store.ModelStore.MsRedis as MsRedis
-
-		modelStore = MsRedis.MsRedis()
-
-		modelHelper = ModelHelper.ModelHelper()
-		modelHelper.Setup(envConfig, modelStore)
-
-		model = parser.Get("model")
-		load = parser.Get("load")
-
-		exampleType = parser.Get("exampleType")
-		examplesSavePath = os.path.join(envDataPath, "examples", exampleType)
-
-		learner = Learner.Learner(envConfig, model, load, examplesSavePath)
-		loggerSubSystemName = f"Learner_{model.name}"
-		subSystem = learner
+		subSystem = Setup_Learner(parser, envDataPath, envConfig)
 
 	elif subSystem == eSubSystemType.Worker:
-		import src.Worker.Worker as Worker
-		import src.Common.Utils.ModelHelper as ModelHelper
-		import src.Common.Store.ModelStore.MsRedis as MsRedis
-		import src.Worker.EnvRunner as EnvRunner
-		import src.Worker.Environments.BaseEnv as BaseEnv
-
-		modelStore = MsRedis.MsRedis()
-
-
-		modelHelper = ModelHelper.ModelHelper()
-		modelHelper.Setup(envConfig, modelStore)
-
-		agent = parser.Get("agent")
-
-		isTrainingMode = False
-		if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
-			isTrainingMode = not parser.Get("play")
-
-		numEnvs = envConfig["NumEnvsPerWorker"]
-		if not isTrainingMode:
-			numEnvs = 1
-			replayFolder = os.path.join(runPath, "replays")
-
-		envRunners = []
-		for i in range(numEnvs):
-			env = BaseEnv.GetEnv(envConfig)
-			experienceStore = CreateExperienceStore(agent, envDataPath, parser)
-			runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore, replayFolder=replayFolder)
-			envRunners.append(runner)
-
-		worker = Worker.Worker(envConfig, agent, envRunners, isTrainingMode)
-		loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
-
-		subSystem = worker
+		subSystem = Setup_Worker(parser, envConfig, runPath, envDataPath)
 
 	elif subSystem == eSubSystemType.Webserver:
 		import src.WebServer.app as app
@@ -131,23 +162,6 @@ def Main():
 		import src.ExperienceStore.ExperienceStoreServer as ExperienceStoreServer
 
 		subSystem = ExperienceStoreServer.ExperienceStoreServer(envConfig)
-
-
-
-	if loggerSubSystemName is not None:
-		envConfig["SubSystemName"] = loggerSubSystemName
-
-		timeStamp = int(time.time())
-		envConfig["RunStartTime"] = timeStamp
-
-
-		# setup logger
-		import src.Common.Utils.Metrics.Logger as Logger
-		runId = f"{loggerSubSystemName}_{timeStamp}"
-
-		logger = Logger.Logger()
-		logger.Setup(envConfig, runPath, runId=runId, wandbOn=parser.Get("wandb"))
-
 
 	# run the subsystem
 	subSystem.Run()

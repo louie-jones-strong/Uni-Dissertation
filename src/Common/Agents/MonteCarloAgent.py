@@ -35,8 +35,8 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 	def GetAction(self, state:SCT.State) -> SCT.Action:
 		super().GetAction(state)
-		actionValues = self.GetActionValues(state)
-		return self._GetMaxValues(actionValues)
+		actionValues, actionReason = self.GetActionValues(state)
+		return self._GetMaxValues(actionValues), actionReason
 
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
 		super().GetActionValues(state)
@@ -100,7 +100,8 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 
 		actionValues = rootNode.GetActionValues()
-		return actionValues
+		actionReason = "MonteCarloAgent"
+		return actionValues, actionReason
 
 	def _RollOut(self, state:SCT.State, maxDepth:int) -> SCT.Reward_List:
 
