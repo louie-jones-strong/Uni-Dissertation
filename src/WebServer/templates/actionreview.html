@@ -72,6 +72,46 @@
 			<hr>
 			<p>{{actionData.ActionReason}}</p>
 		</div>
+		<div class="card shadow">
+			<h2>Action Reason</h2>
+			<div id="chart_div" style="width: 900px; height: 500px;">
+
+			</div>
+		</div>
 	</div>
+
+	<script type="text/javascript">
+		var treeTable = {{ monteCarloTreeTable|safe }};
+
+		google.charts.load('current', {'packages':['treemap']});
+		google.charts.setOnLoadCallback(drawChart);
+		function drawChart() {
+			var data = google.visualization.arrayToDataTable(treeTable);
+
+			tree = new google.visualization.TreeMap(document.getElementById('chart_div'));
+
+			var options = {
+				minColor: '#FF0000',
+				midColor: '#fff',
+				maxColor: '#00FF00',
+				showScale: true,
+				generateTooltip: ShowTooltip
+			};
+
+			tree.draw(data, options);
+
+			function ShowTooltip(row, size, value) {
+				return '<div class="treeToolTip">' +
+					'<span style="font-family:Courier"><b>' + data.getValue(row, 0) +
+					'</b>, ' + data.getValue(row, 1) + ', ' + data.getValue(row, 2) +
+					', ' + data.getValue(row, 3) + '</span><br>' +
+					'Datatable row: ' + row + '<br>' +
+				data.getColumnLabel(2) +
+					' (total value of this cell and its children): ' + size + '<br>' +
+				data.getColumnLabel(3) + ': ' + value + ' </div>';
+			}
+
+		}
+	</script>
 </div>
 {% endblock %}

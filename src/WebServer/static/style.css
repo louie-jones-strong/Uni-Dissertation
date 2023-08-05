@@ -249,3 +249,12 @@ main{
 .card > *{
 	margin-bottom: 0.2em;
 }
+
+
+/* treeToolTip */
+.treeToolTip{
+	border-radius: 1em;
+	background:#435596;
+	padding:0.5em;
+	border: 2px solid #1d2543;
+}

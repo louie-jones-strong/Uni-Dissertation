@@ -5,9 +5,37 @@ import src.Common.Utils.PathHelper as PathHelper
 import src.Common.EpisodeReplay.EpisodeReplay as ER
 import cv2 as cv
 import src.WebServer.AssetCreator as AssetCreator
+import json
+import numpy as np
+import uuid
 
 
+class NumpyEncoder(json.JSONEncoder):
+	""" Custom encoder for numpy data types """
+	def default(self, obj):
 
+		if isinstance(obj, (np.int_, np.intc, np.intp, np.int8,
+							np.int16, np.int32, np.int64, np.uint8,
+							np.uint16, np.uint32, np.uint64)):
+
+			return int(obj)
+
+		elif isinstance(obj, (np.float_, np.float16, np.float32, np.float64)):
+			return float(obj)
+
+		elif isinstance(obj, (np.complex_, np.complex64, np.complex128)):
+			return {'real': obj.real, 'imag': obj.imag}
+
+		elif isinstance(obj, (np.ndarray,)):
+			return obj.tolist()
+
+		elif isinstance(obj, (np.bool_)):
+			return bool(obj)
+
+		elif isinstance(obj, (np.void)):
+			return None
+
+		return json.JSONEncoder.default(self, obj)
 
 def Setup(envConfig) -> None:
 
@@ -48,6 +76,49 @@ def Setup(envConfig) -> None:
 
 
 		return data
+
+	def GetMonteCarloData(actionData, data):
+		actionReason = actionData.ActionReason
+
+		if actionReason is None:
+			return None
+
+		if "Tree" not in actionReason:
+			return None
+
+		treeRoot = actionReason["Tree"]
+
+		treeTable = [["ID", "Parent", "State", "EpisodeStep", "Done", "TotalRewards", "Counts", "Action"]]
+		treeTable = GetMonteCarloTreeTable(treeTable, treeRoot, parentId=None)
+
+
+		jsonTree = json.dumps(treeTable, indent=4,
+				separators=(', ', ': '), ensure_ascii=False,
+				cls=NumpyEncoder)
+
+		data["monteCarloTreeTable"] = jsonTree
+		return data
+
+	def GetMonteCarloTreeTable(treeTable, treeNode, parentId=None):
+		id = str(uuid.uuid4())
+
+		treeTable.append([
+			id,
+			parentId,
+			treeNode["State"],
+			treeNode["EpisodeStep"],
+			treeNode["Done"],
+			treeNode["TotalRewards"],
+			treeNode["Counts"],
+			treeNode["ActionIdxTaken"]])
+
+		children = treeNode["Children"]
+		if children is not None:
+			for c in range(len(children)):
+				child = children[c]
+				treeTable = GetMonteCarloTreeTable(treeTable, child, parentId=id)
+
+		return treeTable
 
 
 
@@ -104,6 +175,9 @@ def Setup(envConfig) -> None:
 		data["replayData"] = replay
 		data["actionData"] = replay.Steps[action]
 		data["actionIndex"] = action
+		data["monteCarloTreeTable"] = GetMonteCarloData(replay.Steps[action], data)
+
+		data = GetMonteCarloData(replay.Steps[action], data)
 
 		# make video for replay
 		AssetCreator.CreateImage(replay, action)
