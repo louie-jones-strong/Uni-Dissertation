@@ -8,6 +8,7 @@ import src.WebServer.AssetCreator as AssetCreator
 import json
 import numpy as np
 import uuid
+import math
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -53,7 +54,9 @@ def Setup(envConfig) -> None:
 
 	views = Blueprint("views", __name__)
 
-
+	ActionLabels = {}
+	for key, value in envConfig["AgentConfig"]["Human"]["Controls"].items():
+		ActionLabels[value] = key
 
 
 
@@ -69,10 +72,7 @@ def Setup(envConfig) -> None:
 		data["EpisodeReplays"] = replays
 		data["envConfig"] = envConfig
 
-		actionLabels = {}
-		for key, value in envConfig["AgentConfig"]["Human"]["Controls"].items():
-			actionLabels[value] = key
-		data["ActionLabels"] = actionLabels
+		data["ActionLabels"] = ActionLabels
 
 
 		return data
@@ -88,7 +88,8 @@ def Setup(envConfig) -> None:
 
 		treeRoot = actionReason["Tree"]
 
-		treeTable = [["ID", "Parent", "State", "EpisodeStep", "Done", "TotalRewards", "Counts", "Action"]]
+		treeTable = [["ID", "Parent", "size", "Avg Rewards (Colour)", "Counts", "TotalRewards", "State", "EpisodeStep", "Done", "ActionIdx", "Action"]]
+
 		treeTable = GetMonteCarloTreeTable(treeTable, treeRoot, parentId=None)
 
 
@@ -100,17 +101,33 @@ def Setup(envConfig) -> None:
 		return data
 
 	def GetMonteCarloTreeTable(treeTable, treeNode, parentId=None):
-		id = str(uuid.uuid4())
+		actionIdx = treeNode["ActionIdxTaken"]
+		action = None
+		if actionIdx is not None:
+			action = ActionLabels[actionIdx]
+
+
+		parentStr = ""
+		id = f"{action}"
+		if parentId is not None and parentId != "None":
+			parentStr = str(parentId)
+			id = f"{parentStr},{action}"
+
+		size = math.log(treeNode["Counts"] + 1) * 10
+		avgValue = treeNode["TotalRewards"] / (treeNode["Counts"] + 1)
 
 		treeTable.append([
 			id,
 			parentId,
+			size,
+			avgValue,
+			treeNode["Counts"],
+			treeNode["TotalRewards"],
 			treeNode["State"],
 			treeNode["EpisodeStep"],
 			treeNode["Done"],
-			treeNode["TotalRewards"],
-			treeNode["Counts"],
-			treeNode["ActionIdxTaken"]])
+			treeNode["ActionIdxTaken"],
+			action])
 
 		children = treeNode["Children"]
 		if children is not None:
