@@ -228,6 +228,7 @@ services:
       - secrets.env
 
     entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/${ENV_CONFIG_PATH} --agent ML --play True --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --exampleType human
+    # tty: true
 
 
 networks:

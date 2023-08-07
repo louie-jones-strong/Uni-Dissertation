@@ -42,6 +42,10 @@
 				Total Frames:
 				<em>{{ replayData.Steps[-1].Frame + 1 }}</em>
 			</p>
+			<p>
+				Agent:
+				<em>{{ replayData.ReplayInfo}}</em>
+			</p>
 		</div>
 		<div class="card shadow">
 			<h2>Rewards</h2>
@@ -61,10 +65,16 @@
 						Frame
 					</th>
 					<th>
+						Action Idx
+					</th>
+					<th>
 						Action
 					</th>
 					<th>
 						Reward
+					</th>
+					<th>
+						Value
 					</th>
 					<th>
 						Time
@@ -81,7 +91,13 @@
 						{{ replayData.Steps[i].Action }}
 					</td>
 					<td>
+						{{ ActionLabels[replayData.Steps[i].Action] }}
+					</td>
+					<td>
 						{{ replayData.Steps[i].Reward }}
+					</td>
+					<td>
+						{{ replayData.Steps[i].StateValue()}}
 					</td>
 					<td>
 						{{ replayData.DurationText(replayData.Steps[i].CompletedTime) }}

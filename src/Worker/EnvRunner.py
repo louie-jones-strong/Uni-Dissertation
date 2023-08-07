@@ -5,11 +5,12 @@ from src.Common.EpisodeReplay.EpisodeReplayStep import EpisodeReplayStep as ERSt
 
 class EnvRunner:
 
-	def __init__(self, env:BaseEnv.BaseEnv, maxSteps:int, experienceStore, replayFolder=None) -> None:
+	def __init__(self, env:BaseEnv.BaseEnv, maxSteps:int, experienceStore, replayFolder=None, replayInfo=None) -> None:
 		self.Env = env
 		self.MaxSteps = maxSteps
 		self.ExperienceStore = experienceStore
 		self.ReplayFolder = replayFolder
+		self.ReplayInfo = replayInfo
 
 		self.State = self.Env.Reset()
 		self.StepCount = 0
@@ -78,6 +79,6 @@ class EnvRunner:
 		self.TotalReward = 0
 
 		if self.ReplayFolder is not None:
-			self.EpisodeReplay = ER()
+			self.EpisodeReplay = ER(self.ReplayInfo)
 		return
 

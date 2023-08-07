@@ -62,3 +62,17 @@ class EpisodeReplayStep:
 
 
 		return dict
+
+	def StateValue(self) -> float:
+
+		if self.ActionReason is None:
+			return 0
+
+		if "ActionValues" not in self.ActionReason:
+			return 0
+
+		actionValues = self.ActionReason["ActionValues"]
+
+		minValue = min(actionValues)
+		maxValue = max(actionValues)
+		return minValue, maxValue

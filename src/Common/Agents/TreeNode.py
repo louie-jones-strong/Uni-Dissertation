@@ -5,6 +5,7 @@ import src.Common.Agents.Models.ForwardModel as ForwardModel
 import typing
 from typing import Optional
 import math
+import src.Common.Agents.BaseAgent as BaseAgent
 
 
 class TreeNode:
@@ -40,7 +41,9 @@ class TreeNode:
 
 		nodeScores = np.array([child.GetNodeScore(exploreFactor, self.Counts) for child in self.Children])
 
-		selectedIndex = np.argmax(nodeScores)
+		# selectedIndex = np.argmax(nodeScores)
+		selectedIndex = BaseAgent.BaseAgent._GetMaxValues(nodeScores)
+
 		selectedNode = self.Children[selectedIndex]
 
 		return selectedNode.Selection(exploreFactor)
@@ -106,12 +109,13 @@ class TreeNode:
 		for i in range(len(self.Children)):
 			child = self.Children[i]
 
-			if child.Done:
-				actionValues[i] = -1_000
-				continue
-
+			actionValues[i] = 0
 			if child.Counts > 0:
 				actionValues[i] = child.TotalRewards / child.Counts
+
+				if child.Done and actionValues[i] <= 0:
+					actionValues[i] = -1_000
+					continue
 
 		return actionValues
 

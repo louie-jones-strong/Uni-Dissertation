@@ -30,9 +30,6 @@
 			</div>
 		</div>
 
-
-	</div>
-	<div class="row">
 		<div class="card shadow">
 			<h2>Simple Stats</h2>
 			<hr>
@@ -60,10 +57,34 @@
 			<h2>Action</h2>
 			<hr>
 			<p>{{actionData.Action}} : {{ActionLabels[actionData.Action]}}</p>
-			<hr>
-			{%for key, value in ActionLabels.items() %}
-				<p>{{key}} = {{value}}</p>
-			{% endfor %}
+			<table>
+				<tr>
+					<th>
+						Index
+					</th>
+					<th>
+						Description
+					</th>
+					<th>
+						Value
+					</th>
+				</tr>
+
+				{%for key, value in ActionLabels.items() %}
+				<tr>
+					<td>
+						{{key}}
+					</td>
+					<td>
+						{{value}}
+					</td>
+					<td>
+						{{actionData.ActionReason.ActionValues[key]}}
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+
 		</div>
 	</div>
 	<div class="row">
@@ -94,8 +115,10 @@
 				maxDepth: 1,
 				maxPostDepth: 10,
 				minColor: '#FF0000',
-				midColor: '#aaa',
+				midColor: '#555',
 				maxColor: '#00FF00',
+				minColorValue: -1,
+				maxColorValue: 1,
 				showScale: true,
 				useWeightedAverageForAggregation: true,
 				generateTooltip: ShowTooltip

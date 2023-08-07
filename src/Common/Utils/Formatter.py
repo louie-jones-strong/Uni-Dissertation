@@ -1,5 +1,7 @@
+import datetime
 
-def ConvertNs(ns):
+
+def ConvertNsDuration(ns):
 
 	ms = ns / 1000000
 	s = ms / 1000
@@ -18,3 +20,10 @@ def ConvertNs(ns):
 		return f"{m:.2f}m"
 	else:
 		return f"{h:.2f}h"
+
+
+def ConvertNsTime(ns):
+
+	date = datetime.datetime.fromtimestamp(ns / 1e9)
+	return date.strftime("%Y-%m-%d-%H-%M-%S.%f")[:-3]
+

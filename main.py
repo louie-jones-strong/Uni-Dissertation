@@ -87,16 +87,22 @@ def Setup_Worker(parser, envConfig, runPath, envDataPath):
 	if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
 		isTrainingMode = not parser.Get("play")
 
+	replayInfo = None
+	replayFolder = None
+
 	numEnvs = envConfig["NumEnvsPerWorker"]
 	if not isTrainingMode:
 		numEnvs = 1
 		replayFolder = os.path.join(runPath, "replays")
+		replayInfo = {
+			"Agent": agent.name
+		}
 
 	envRunners = []
 	for i in range(numEnvs):
 		env = BaseEnv.GetEnv(envConfig)
 		experienceStore = CreateExperienceStore(agent, envDataPath, parser)
-		runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore, replayFolder=replayFolder)
+		runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore, replayFolder=replayFolder, replayInfo=replayInfo)
 		envRunners.append(runner)
 
 	worker = Worker.Worker(envConfig, agent, envRunners, isTrainingMode)

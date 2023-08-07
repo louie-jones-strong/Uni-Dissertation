@@ -107,7 +107,8 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		shape = SCT.JoinTuples(self.ActionSpace.shape, None)
 		return np.ones(shape, dtype=np.float32), "BaseAgent"
 
-	def _GetMaxValues(self, values:NDArray[np.float32]) -> int:
+	@staticmethod
+	def _GetMaxValues(values:NDArray[np.float32]) -> int:
 		maxValue = np.max(values)
 		maxValues = np.where(values == maxValue)[0]
 		choice = random.choice(maxValues)

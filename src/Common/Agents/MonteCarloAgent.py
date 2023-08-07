@@ -36,7 +36,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def GetAction(self, state:SCT.State) -> SCT.Action:
 		super().GetAction(state)
 		actionValues, actionReason = self.GetActionValues(state)
-		return self._GetMaxValues(actionValues), actionReason
+		return BaseAgent.BaseAgent._GetMaxValues(actionValues), actionReason
 
 	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
 		super().GetActionValues(state)

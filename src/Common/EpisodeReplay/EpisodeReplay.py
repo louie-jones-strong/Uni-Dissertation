@@ -7,16 +7,23 @@ import pickle
 
 class EpisodeReplay:
 
-	def __init__(self):
+	def __init__(self, replayInfo=None) -> None:
+
+		self.ReplayInfo = replayInfo
+
 		self.Steps = []
 		self.Terminated = False
 		self.Truncated = False
 
-		# create a unique id for the episode
-		self.EpisodeId = str(uuid.uuid4())
 
 		self.StartTime = time.time_ns()
 		self.EndTime = None
+
+
+		# create a unique id for the episode
+		# self.EpisodeId = str(uuid.uuid4())
+		# self.EpisodeId = str(self.StartTime)
+		self.EpisodeId = Formatter.ConvertNsTime(self.StartTime)
 		return
 
 	def AddStep(self, step:ERStep) -> None:
@@ -36,7 +43,7 @@ class EpisodeReplay:
 		if endTime is None:
 			endTime = self.EndTime
 
-		return Formatter.ConvertNs(endTime - self.StartTime)
+		return Formatter.ConvertNsDuration(endTime - self.StartTime)
 
 	def ReasonEnded(self) -> str:
 		if self.Terminated:
@@ -74,7 +81,8 @@ class EpisodeReplay:
 				"Truncated": self.Truncated,
 				"EpisodeId": self.EpisodeId,
 				"StartTime": self.StartTime,
-				"EndTime": self.EndTime
+				"EndTime": self.EndTime,
+				"ReplayInfo": self.ReplayInfo
 			}
 
 			for step in self.Steps:
