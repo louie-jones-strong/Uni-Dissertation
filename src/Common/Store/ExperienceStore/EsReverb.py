@@ -23,7 +23,7 @@ class EsReverb(EsBase.EsBase):
 		return
 
 
-#region Reverb Client
+# region Reverb Client
 
 	_ReverbConnection = None
 
@@ -39,7 +39,7 @@ class EsReverb(EsBase.EsBase):
 
 	ReverbConnection = property(Get_ReverbConnection)
 
-#endregion Reverb Client
+# endregion Reverb Client
 
 
 	def EmptyTransitionBuffer(self) -> None:

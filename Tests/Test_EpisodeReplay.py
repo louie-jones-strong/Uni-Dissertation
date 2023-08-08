@@ -3,6 +3,9 @@ import unittest
 import src.Common.EpisodeReplay.EpisodeReplay as ER
 import src.Common.EpisodeReplay.EpisodeReplayStep as ERStep
 import time
+from src.Common.Utils.PathHelper import GetRootPath
+import os
+import numpy as np
 
 
 class Test_EpisodeReplay(unittest.TestCase):
@@ -62,17 +65,25 @@ class Test_EpisodeReplay(unittest.TestCase):
 		self.assertFalse(er.Truncated)
 		return
 
-	def test_JsonConversion(self):
+	def test_SaveAndLoad(self):
+
+		humanState = np.array([1,2,3,4,5])
+
 		er = ER.EpisodeReplay()
-		er.AddStep(ERStep.EpisodeReplayStep(None, None, None, None, None, None))
-		er.AddStep(ERStep.EpisodeReplayStep(None, None, None, None, None, None))
+		er.AddStep(ERStep.EpisodeReplayStep(None, humanState, None, None, None, None))
+		er.AddStep(ERStep.EpisodeReplayStep(None, humanState, None, None, None, None))
 		er.EpisodeEnd(terminated=True, truncated=False)
 
+		savePath = os.path.join(GetRootPath(), "Tests", "SaveFolder")
+		replayFolder = er.SaveToFolder(savePath)
 
-		jsonStr = er.ToJson()
-		self.assertIsNotNone(jsonStr)
+		# check the path returned
+		self.assertIsNotNone(replayFolder)
+		self.assertIsInstance(replayFolder, str)
+		self.assertTrue(replayFolder.startswith(savePath))
+		self.assertTrue(os.path.exists(replayFolder))
 
-		er2 = ER.EpisodeReplay.FromJson(jsonStr)
+		er2 = ER.EpisodeReplay.LoadFromFolder(replayFolder)
 		self.assertIsNotNone(er2)
 
 		self.assertEqual(er.Terminated, er2.Terminated)

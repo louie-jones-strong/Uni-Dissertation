@@ -4,7 +4,6 @@ import src.Worker.Worker as Worker
 import src.Common.Store.ExperienceStore.EsBase as EsBase
 import src.Common.Utils.ConfigHelper as ConfigHelper
 from src.Common.Enums.eAgentType import eAgentType
-import src.Common.Utils.PathHelper as PathHelper
 import src.Worker.EnvRunner as EnvRunner
 import src.Worker.Environments.BaseEnv as BaseEnv
 

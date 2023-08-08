@@ -3,11 +3,9 @@ import typing
 import os
 import src.Common.Utils.PathHelper as PathHelper
 import src.Common.EpisodeReplay.EpisodeReplay as ER
-import cv2 as cv
 import src.WebServer.AssetCreator as AssetCreator
 import json
 import numpy as np
-import uuid
 import math
 
 
@@ -49,7 +47,7 @@ def Setup(envConfig) -> None:
 	try:
 		import reverb
 		reverbClient = reverb.Client(f"experience-store:{5001}")
-	except:
+	except ImportError:
 		print("Reverb not installed")
 
 	views = Blueprint("views", __name__)
@@ -88,7 +86,19 @@ def Setup(envConfig) -> None:
 
 		treeRoot = actionReason["Tree"]
 
-		treeTable = [["ID", "Parent", "size", "Avg Rewards (Colour)", "Counts", "TotalRewards", "State", "EpisodeStep", "Done", "ActionIdx", "Action"]]
+		treeTable = [[
+			"ID",
+			"Parent",
+			"size",
+			"Avg Rewards (Colour)",
+			"Counts",
+			"TotalRewards",
+			"State",
+			"EpisodeStep",
+			"Done",
+			"ActionIdx",
+			"Action"
+		]]
 
 		treeTable = GetMonteCarloTreeTable(treeTable, treeRoot, parentId=None)
 
@@ -143,7 +153,7 @@ def Setup(envConfig) -> None:
 
 
 
-#region endpoints
+# region endpoints
 	@views.route("/")
 	def Home() -> str:
 		data = GetCommonData()
@@ -200,7 +210,7 @@ def Setup(envConfig) -> None:
 		AssetCreator.CreateImage(replay, action)
 
 		return render_template("actionreview.html", **data)
-#endregion endpoints
+# endregion endpoints
 
 	@views.route("/api/saveTrajectories", methods=["POST"])
 	def SaveTrajectories() -> str:

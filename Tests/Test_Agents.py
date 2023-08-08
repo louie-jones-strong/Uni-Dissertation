@@ -6,7 +6,6 @@ import src.Common.Utils.ConfigHelper as ConfigHelper
 from src.Common.Enums.eAgentType import eAgentType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Store.ModelStore.MsBase as MsBase
-import src.Common.Utils.PathHelper as PathHelper
 import src.Worker.EnvRunner as EnvRunner
 import src.Worker.Environments.BaseEnv as BaseEnv
 

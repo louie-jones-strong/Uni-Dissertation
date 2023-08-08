@@ -1,7 +1,6 @@
 from flask import Flask
 import src.WebServer.views as views
 import src.WebServer.AssetCreator as AssetCreator
-import os
 
 class WebServer:
 

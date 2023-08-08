@@ -1,11 +1,9 @@
 import src.Common.Agents.BaseAgent as BaseAgent
-import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.EnvRunner as EnvRunner
 from src.Common.Enums.eAgentType import eAgentType
 import typing
 import time
-import src.Common.Store.ExperienceStore.EsBase as EsBase
 
 
 class Worker:

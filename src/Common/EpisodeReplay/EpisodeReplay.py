@@ -1,7 +1,6 @@
 from src.Common.EpisodeReplay.EpisodeReplayStep import EpisodeReplayStep as ERStep
 import src.Common.Utils.Formatter as Formatter
 import time
-import uuid
 import os
 import pickle
 
@@ -37,7 +36,7 @@ class EpisodeReplay:
 		return
 
 
-#region formatting
+# region formatting
 	def DurationText(self, endTime=None) -> str:
 
 		if endTime is None:
@@ -58,11 +57,11 @@ class EpisodeReplay:
 
 	def TotalReward(self) -> float:
 		return sum([step.Reward for step in self.Steps])
-#endregion formatting
+# endregion formatting
 
 
 
-#region File IO
+# region File IO
 	def SaveToFolder(self, folderPath):
 
 		# define folder to store all the data for this episode
@@ -91,7 +90,7 @@ class EpisodeReplay:
 
 			pickle.dump(selfDict, f)
 			# f.write(jsonStr)
-		return
+		return replayFolder
 
 
 
@@ -119,4 +118,4 @@ class EpisodeReplay:
 			instance.Steps.append(step)
 
 		return instance
-#endregion File IO
+# endregion File IO
