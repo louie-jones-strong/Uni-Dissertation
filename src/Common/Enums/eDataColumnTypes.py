@@ -18,7 +18,10 @@ class eDataColumnTypes(enum.Enum):
 
 
 
-def FilterColumns(columnFilter:typing.List[eDataColumnTypes], rows:typing.Tuple[Any, ...]) -> typing.List[Any]:
+def FilterColumns(
+		columnFilter:typing.List[eDataColumnTypes],
+		rows:typing.Tuple[Any, ...]) -> typing.List[Any]:
+
 	columns = []
 	for col in columnFilter:
 
@@ -27,10 +30,13 @@ def FilterColumns(columnFilter:typing.List[eDataColumnTypes], rows:typing.Tuple[
 	return columns
 
 
-def FilterDict(columnFilter:typing.List[eDataColumnTypes], rowsDict) -> typing.List[Any]:
+def FilterDict(
+		columnFilter:typing.List[eDataColumnTypes],
+		rowsDict:typing.Dict[str, Any]) -> typing.List[Any]:
+
 	columns = []
 	for col in columnFilter:
-
 		columns.append(rowsDict[col.name])
+
 	return columns
 

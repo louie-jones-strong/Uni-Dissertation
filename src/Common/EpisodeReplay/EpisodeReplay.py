@@ -3,20 +3,23 @@ import src.Common.Utils.Formatter as Formatter
 import time
 import os
 import pickle
+import typing
+from typing import Optional, Any
+
 
 class EpisodeReplay:
 
-	def __init__(self, replayInfo=None) -> None:
+	def __init__(self, replayInfo:Optional[typing.Dict[str, Any]]=None) -> None:
 
 		self.ReplayInfo = replayInfo
 
-		self.Steps = []
+		self.Steps:typing.List[ERStep] = []
 		self.Terminated = False
 		self.Truncated = False
 
 
 		self.StartTime = time.time_ns()
-		self.EndTime = None
+		self.EndTime:Optional[int] = None
 
 
 		# create a unique id for the episode
@@ -37,7 +40,7 @@ class EpisodeReplay:
 
 
 # region formatting
-	def DurationText(self, endTime=None) -> str:
+	def DurationText(self, endTime:Optional[int]=None) -> str:
 
 		if endTime is None:
 			endTime = self.EndTime
@@ -62,7 +65,7 @@ class EpisodeReplay:
 
 
 # region File IO
-	def SaveToFolder(self, folderPath):
+	def SaveToFolder(self, folderPath:str) -> str:
 
 		# define folder to store all the data for this episode
 		replayFolder = os.path.join(folderPath, self.EpisodeId)
@@ -96,7 +99,7 @@ class EpisodeReplay:
 
 
 	@classmethod
-	def LoadFromFolder(cls, folderPath):
+	def LoadFromFolder(cls, folderPath:str) -> 'EpisodeReplay':
 
 		filePath = os.path.join(folderPath, "data.pkl")
 

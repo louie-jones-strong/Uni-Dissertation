@@ -2,22 +2,23 @@ import src.Common.Store.ExperienceStore.EsBase as EsBase
 import numpy as np
 import os
 import typing
+from typing import Optional, Any
 
 class EsNumpy(EsBase.EsBase):
 
-	def __init__(self, savePath) -> None:
+	def __init__(self, savePath:str) -> None:
 		super().__init__()
 		self.SavePath = savePath
 
 		self.TrajectoriesLens = 1
 
-		self.States = None
-		self.NextStates = None
-		self.Actions = None
-		self.Rewards = None
-		self.FutureRewards = None
-		self.Terminated = None
-		self.Truncated = None
+		self.States:Optional[np.ndarray] = None
+		self.NextStates:Optional[np.ndarray] = None
+		self.Actions:Optional[np.ndarray] = None
+		self.Rewards:Optional[np.ndarray] = None
+		self.FutureRewards:Optional[np.ndarray] = None
+		self.Terminated:Optional[np.ndarray] = None
+		self.Truncated:Optional[np.ndarray] = None
 		return
 
 	def EmptyTransitionBuffer(self) -> None:
@@ -38,7 +39,7 @@ class EsNumpy(EsBase.EsBase):
 		super().EmptyTransitionBuffer()
 		return
 
-	def AddValue(self, npArray:np.ndarray, value:any) -> None:
+	def AddValue(self, npArray:Optional[np.ndarray], value:Any) -> np.ndarray:
 
 		value = np.expand_dims(value, axis=0)
 		if npArray is None:

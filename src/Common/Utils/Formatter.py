@@ -1,7 +1,12 @@
 import datetime
 
 
-def ConvertNsDuration(ns):
+def ConvertNsDuration(ns: int) -> str:
+	"""
+	Converts a duration in nanoseconds to a human readable format
+	:param ns: duration in nanoseconds
+	:return: human readable duration
+	"""
 
 	ms = ns / 1000000
 	s = ms / 1000
@@ -22,7 +27,12 @@ def ConvertNsDuration(ns):
 		return f"{h:.2f}h"
 
 
-def ConvertNsTime(ns):
+def ConvertNsTime(ns: int) -> str:
+	"""
+	Converts a time in nanoseconds to a human readable format
+	:param ns: time in nanoseconds
+	:return: human readable time
+	"""
 
 	date = datetime.datetime.fromtimestamp(ns / 1e9)
 	return date.strftime("%Y-%m-%d-%H-%M-%S.%f")[:-3]
