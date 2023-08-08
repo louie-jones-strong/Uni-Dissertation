@@ -4,26 +4,12 @@ from src.Common.Enums.eModelType import eModelType
 import numpy as np
 from numpy.typing import NDArray
 import src.Common.Utils.ModelHelper as ModelHelper
+import src.Common.Agents.Models.Model as Model
 
-class ForwardModel:
+class ForwardModel(Model.Model):
 	def __init__(self):
-
-		self._ModelHelper = ModelHelper.ModelHelper()
-		self._Model, self._InputColumns, self._OutputColumns, _ = self._ModelHelper.BuildModel(eModelType.Forward)
-		self.HasTrainedModel = False
-
-		self.UpdateModels()
-
+		super().__init__(eModelType.Forward)
 		return
-
-	def UpdateModels(self) -> None:
-		self.HasTrainedModel = self._ModelHelper.FetchNewestWeights(eModelType.Forward, self._Model)
-		print("fetched newest weights", self.HasTrainedModel)
-
-		return
-
-	def CanPredict(self) -> bool:
-		return self.HasTrainedModel
 
 	def Predict(self,
 			states:SCT.State_List,
@@ -37,7 +23,41 @@ class ForwardModel:
 		nextStates = self._ModelHelper.PostProcessSingleColumn(y[0], self._OutputColumns[0])[0]
 		rewards = self._ModelHelper.PostProcessSingleColumn(y[1], self._OutputColumns[1])[0]
 		terminateds = self._ModelHelper.PostProcessSingleColumn(y[2], self._OutputColumns[2])[0]
-
-
-
 		return nextStates, rewards, terminateds
+
+	def Remember(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool) -> None:
+		"""
+		calculates the models' loss and accuracy on the data collected from the environment
+		"""
+
+		x = self._ModelHelper.PreProcessColumns([state, action], self._InputColumns)
+		target = self._ModelHelper.PreProcessColumns([nextState, reward, terminated], self._OutputColumns)
+		postTarget = target
+
+		predictions = self.Model(x)
+
+		metrics = self.ModelHelper.CalculateModelMetrics(self.OutputColumns, predictions, target, postTarget)
+		_, losses, accuracies = metrics
+
+
+		# log the metrics
+		logDict = {}
+		for i in range(len(self.OutputColumns)):
+			col = self.OutputColumns[i]
+			loss = losses[i]
+			accuracy = accuracies[i]
+
+			logDict[f"Val_{col.name}_Loss"] = loss
+
+			if accuracy is not None:
+				logDict[f"Val_{col.name}_Accuracy"] = accuracy
+
+		self._Logger.LogDict(logDict)
+
+		return

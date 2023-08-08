@@ -2,8 +2,9 @@ import numpy as np
 import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 import src.Common.Agents.Models.ForwardModel as ForwardModel
+import src.Common.Agents.Models.ValueModel as ValueModel
 import typing
-from typing import Optional
+from typing import Optional, Tuple
 import math
 import src.Common.Agents.BaseAgent as BaseAgent
 
@@ -13,10 +14,13 @@ class TreeNode:
 			state:SCT.State,
 			episodeStep:int,
 			done:bool,
+			valueModel:ValueModel.ValueModel,
 			parent:Optional['TreeNode'] = None,
 			actionIdxTaken:Optional[int] = None):
 
 		self.State = state
+		self.ValueModelValue = valueModel.Predict([state])
+
 		self.EpisodeStep = episodeStep
 		self.Done = done
 
@@ -48,7 +52,8 @@ class TreeNode:
 
 		return selectedNode.Selection(exploreFactor)
 
-	def Expand(self, actionList:SCT.Action_List, forwardModel:ForwardModel.ForwardModel) -> None:
+	def Expand(self, actionList:SCT.Action_List,
+			forwardModel:ForwardModel.ForwardModel, valueModel:ValueModel.ValueModel) -> None:
 
 		stateList = TreeNode.CloneState(self.State, len(actionList))
 
@@ -62,6 +67,7 @@ class TreeNode:
 				nextStates[i],
 				episodeStep=self.EpisodeStep + 1,
 				done=terminated,
+				valueModel=valueModel,
 				parent=self,
 				actionIdxTaken=i)
 
@@ -99,17 +105,18 @@ class TreeNode:
 		exploreValue = math.sqrt(math.log(parentCounts) / self.Counts)
 		return avgReward + exploreFactor * exploreValue
 
-	def GetActionValues(self) -> Optional[NDArray[np.float32]]:
+	def GetActionValues(self) -> Tuple[Optional[NDArray[np.float32]], Optional[NDArray[np.float32]]]:
 
 		if self.Children is None:
-			return None
+			return None, None
 
 		actionValues = np.zeros(len(self.Children), dtype=np.float32)
+		valueModelValues = np.zeros(len(self.Children), dtype=np.float32)
 
 		for i in range(len(self.Children)):
 			child = self.Children[i]
+			valueModelValues[i] = child.ValueModelValue
 
-			actionValues[i] = 0
 			if child.Counts > 0:
 				actionValues[i] = child.TotalRewards / child.Counts
 
@@ -117,7 +124,7 @@ class TreeNode:
 					actionValues[i] = -1_000
 					continue
 
-		return actionValues
+		return actionValues, valueModelValues
 
 	def GetActionNode(self, action:SCT.Action) -> 'TreeNode':
 		for child in self.Children:

@@ -1,12 +1,12 @@
 {
-	"MaxSecondsPerAction": 10,
-	"MaxSelections": 16,
+	"MaxSecondsPerAction": 60,
+	"MaxSelections": 256,
 	"CacheTree": true,
-	"ExploreFactor": 0.0,
+	"ExploreFactor": 0.5,
 	"RollOutConfig": {
 		"MaxRollOutCount": 1024,
-		"MaxRollOutDepth": 20,
-		"ValueFinalStates": false,
+		"MaxRollOutDepth": 32,
+		"ValueFinalStates": true,
 		"TimeOutAllowed": false
 	}
 }

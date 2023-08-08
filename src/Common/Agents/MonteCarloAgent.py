@@ -5,6 +5,7 @@ from numpy.typing import NDArray
 import time
 from gymnasium.spaces import Discrete, Box
 import src.Common.Agents.Models.ForwardModel as ForwardModel
+import src.Common.Agents.Models.ValueModel as ValueModel
 import src.Common.Agents.TreeNode as TreeNode
 
 
@@ -19,8 +20,11 @@ def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:
 
 class MonteCarloAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool, forwardModel:ForwardModel.ForwardModel):
+	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool,
+				forwardModel:ForwardModel.ForwardModel, valueModel:ValueModel.ValueModel):
+
 		self._ForwardModel = forwardModel
+		self._ValueModel = valueModel
 
 		super().__init__(envConfig, isTrainingMode)
 
@@ -31,6 +35,17 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def UpdateModels(self) -> None:
 		super().UpdateModels()
 		self._ForwardModel.UpdateModels()
+		self._ValueModel.UpdateModels()
+		return
+
+	def Remember(self,
+			state:SCT.State,
+			action:SCT.Action,
+			reward:SCT.Reward,
+			nextState:SCT.State,
+			terminated:bool,
+			truncated:bool) -> None:
+		super().Remember(state, action, reward, nextState, terminated, truncated)
 		return
 
 	def GetAction(self, state:SCT.State) -> SCT.Action:
@@ -58,13 +73,13 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			if rootNode is None or not AreStatesEqual(rootNode.State, state):
 				self._CachedTree = None
-				rootNode = TreeNode.TreeNode(state, self.StepNum, done=False)
+				rootNode = TreeNode.TreeNode(state, self.StepNum, done=False, valueModel=self._ValueModel)
 
 
 
 
 		if rootNode.Children is None:
-			rootNode.Expand(self.ActionList, self._ForwardModel)
+			rootNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel)
 
 		# monte carlo tree search
 		for i in range(self.Config["MaxSelections"]):
@@ -74,7 +89,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			# 2. expansion
 			if selectedNode.Counts > 0 and selectedNode.Children is None:
-				selectedNode.Expand(self.ActionList, self._ForwardModel)
+				selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel)
 				selectedNode = selectedNode.Selection(self.Config["ExploreFactor"])
 
 			# 3. simulation
@@ -99,10 +114,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			return self.ActionSpace.sample(), "MonteCarloAgent Random Action (No Children)"
 
 
-		actionValues = rootNode.GetActionValues()
+		actionValues, valueModelValues = rootNode.GetActionValues()
 		actionReason = {
 			"Type": "MonteCarloAgent",
 			"ActionValues": actionValues,
+			"ValueModelValues": valueModelValues,
 			"Tree": rootNode.ToDict()
 		}
 		return actionValues, actionReason
@@ -135,6 +151,10 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			if timeOutAllowed and time.process_time() < self._StopTime:
 				break
+
+		if self.Config["RollOutConfig"]["ValueFinalStates"] and self._ValueModel.CanPredict():
+			values = self._ValueModel.Predict(states)
+			totalRewards += values * isPlayingMask
 
 		return totalRewards
 

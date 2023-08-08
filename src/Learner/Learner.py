@@ -21,7 +21,7 @@ class Learner:
 		print("build model")
 		# todo make this driven by the env config
 		self.Model, self.InputColumns, self.OutputColumns, self.DataTable = self.ModelHelper.BuildModel(self.ModelType)
-		self.BatchSize = 256
+		self.BatchSize = 2048
 
 		self.UsePriorities = self.ModelType != eModelType.HumanDiscriminator
 
@@ -159,58 +159,36 @@ class Learner:
 
 	def _TuneModelGradTape(self, x, y, post_y) -> None:
 
-		losses = []
-		logDict = {}
-		absErrors = []
-
-		accuracyCal = tf.keras.metrics.Accuracy()
 
 		with tf.GradientTape() as tape:
 			predictions = self.Model(x)
 
-			# loop through each column and calculate the loss
-			for i in range(len(self.OutputColumns)):
-
-				col = self.OutputColumns[i]
-				colY = y[i]
-				colPost_y = post_y[i]
-
-				if len(self.OutputColumns) == 1:
-					colPredictions = predictions
-
-				else:
-					colPredictions = predictions[i]
-
-				lossFunc = tf.keras.losses.MeanSquaredError()
-
-				absError = tf.abs(colY - colPredictions)
-				loss = lossFunc(colY, colPredictions)
-
-				losses.append(loss)
-				absErrors.append(np.mean(absError, axis=1))
+			metrics = self.ModelHelper.CalculateModelMetrics(self.OutputColumns, predictions, y, post_y)
+			absErrors, losses, accuracies = metrics
 
 
-
-				logDict[f"{col.name}_loss"] = loss.numpy()
-
-				if self.ModelHelper.IsColumnDiscrete(col):
-					# reshape the predictions to match the post processed y
-					postPredictions = self.ModelHelper.PostProcessSingleColumn(colPredictions, col)
-					postPredictions = tf.reshape(postPredictions, colPost_y.shape)
-
-					accuracyCal.reset_state()
-					accuracyCal.update_state(colPost_y, postPredictions)
-					accuracy = accuracyCal.result()
-					logDict[f"{col.name}_accuracy"] = accuracy.numpy()
-
-		absErrors = np.array(absErrors)
-		absErrors = np.max(absErrors, axis=0)
-
+		# update the model
 		gradients = tape.gradient(losses, self.Model.trainable_variables)
-
 		self.Model.optimizer.apply_gradients(zip(gradients, self.Model.trainable_variables))
+
+
+		# log the metrics
+		logDict = {}
+		for i in range(len(self.OutputColumns)):
+			col = self.OutputColumns[i]
+			loss = losses[i]
+			accuracy = accuracies[i]
+
+			logDict[f"Train_{col.name}_Loss"] = loss
+
+			if accuracy is not None:
+				logDict[f"Train_{col.name}_Accuracy"] = accuracy
 
 		self._Logger.LogDict(logDict)
 
+
+		# calculate priorities
+		absErrors = np.array(absErrors)
+		absErrors = np.max(absErrors, axis=0)
 
 		return absErrors

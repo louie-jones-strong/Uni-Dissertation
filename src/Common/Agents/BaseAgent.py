@@ -10,6 +10,7 @@ from src.Common.Enums.ePlayMode import ePlayMode
 from gymnasium.spaces import Discrete, Box
 import typing
 import src.Common.Agents.Models.ForwardModel as ForwardModel
+import src.Common.Agents.Models.ValueModel as ValueModel
 
 
 
@@ -29,7 +30,8 @@ def GetAgent(eAgentType:eAgentType,
 		from . import MonteCarloAgent
 
 		forwardModel = ForwardModel.ForwardModel()
-		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel)
+		valueModel = ValueModel.ValueModel()
+		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel, valueModel)
 
 	# elif eAgentType == eAgentType.HardCoded:
 	# 	from . import HardCodedAgent
@@ -61,7 +63,6 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 
 		self.StepNum = 0
 		self.TotalStepNum = 0
-		self.TotalRememberedStep = 0
 		self.EpisodeNum = 0
 		return
 
@@ -92,8 +93,6 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 			nextState:SCT.State,
 			terminated:bool,
 			truncated:bool) -> None:
-
-		self.TotalRememberedStep += 1
 		return
 
 

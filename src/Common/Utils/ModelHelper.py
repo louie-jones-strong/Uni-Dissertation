@@ -6,6 +6,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Utils.ConfigHelper as ConfigHelper
 import src.Common.Utils.Singleton as Singleton
 import typing
+from typing import Optional
 from numpy.typing import NDArray
 from gymnasium import spaces
 from tensorflow.keras.utils import to_categorical
@@ -139,9 +140,68 @@ class ModelHelper(Singleton.Singleton):
 # endregion
 
 
+# region Calculating model metrics
 
+	def CalculateModelMetrics(self, columns, predictions, target, postTarget):
+		absErrors = []
+		losses = []
+		accuracies = []
 
+		for i in range(len(columns)):
 
+			col = columns[i]
+
+			if len(columns) == 1:
+				colPredictions = predictions
+
+			else:
+				colPredictions = predictions[i]
+
+			metrics = self.CalculateColumnMetrics(col, colPredictions, target[i], postTarget[i])
+			absError, loss, accuracy = metrics
+
+			absErrors.append(np.mean(absError, axis=1))
+			losses.append(loss)
+			accuracies.append(accuracy)
+		return absErrors, losses, accuracies
+
+	def CalculateColumnMetrics(self,
+			colType:DCT.eDataColumnTypes,
+			predicted,
+			target,
+			postTarget) -> typing.Tuple[float, float, Optional[float]]:
+
+		absErrors = tf.abs(target - predicted)
+
+		lossFunc = self.LossFuncFactory(colType)
+		loss = lossFunc(target, predicted)
+
+		accuracy = None
+		if self.IsColumnDiscrete(colType):
+			# reshape the predictions to match the post processed y
+			postPredictions = self.PostProcessSingleColumn(predicted, colType)
+			postTarget = self.PostProcessSingleColumn(target, colType)
+
+			postPredictions = tf.reshape(postPredictions, postTarget.shape)
+
+			accuracyFunc = tf.keras.metrics.CategoricalAccuracy()
+			accuracyFunc.reset_state()
+			accuracyFunc.update_state(postTarget, postPredictions)
+			accuracy = accuracyFunc.result()
+
+		return absErrors, loss, accuracy
+
+	def LossFuncFactory(self, colType:DCT.eDataColumnTypes) -> tf.keras.losses.Loss:
+
+		if self.IsColumnDiscrete(colType):
+			lossFunc = tf.keras.losses.CategoricalCrossentropy()
+
+		else:
+			lossFunc = tf.keras.losses.MeanSquaredError()
+
+		return lossFunc
+
+# endregion
 
 
 
@@ -274,7 +334,7 @@ class ModelHelper(Singleton.Singleton):
 
 
 	def PreProcessSingleColumn(self, data:NDArray, label:DCT.eDataColumnTypes) -> NDArray:
-		if len(data) <= 1:
+		if len(data) == 0:
 			raise Exception(f"Data length is too short for column {label.name}")
 
 
@@ -323,6 +383,14 @@ class ModelHelper(Singleton.Singleton):
 				proccessed = proccessed - 1
 			else:
 				proccessed = np.clip(proccessed, self.StepRewardRange[0], self.StepRewardRange[1])
+
+		elif label == DCT.eDataColumnTypes.MaxFutureRewards:
+			proccessed = np.clip(proccessed, self.EpisodeRewardRange[0], self.EpisodeRewardRange[1])
+
+			# round the value if clip rewards is on
+			if self.Config["ClipRewards"]:
+				proccessed = np.round(proccessed, decimals=0)
+
 
 		elif label == DCT.eDataColumnTypes.Action and \
 				isinstance(self.ActionSpace, spaces.Discrete):

@@ -114,7 +114,7 @@ aside > ul > li p{
 
 aside > ul > li > ul {
 	overflow-y: auto;
-	max-height: 30em;
+	max-height: 50em;
 }
 
 aside > ul > li > ul p{

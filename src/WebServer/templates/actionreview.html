@@ -43,6 +43,7 @@
 			</p>
 		</div>
 	</div>
+
 	<div class="row">
 		<div class="card shadow">
 			<h2>Human State</h2>
@@ -68,6 +69,9 @@
 					<th>
 						Value
 					</th>
+					<th>
+						ValueModel Value
+					</th>
 				</tr>
 
 				{%for key, value in ActionLabels.items() %}
@@ -80,6 +84,9 @@
 					</td>
 					<td>
 						{{actionData.ActionReason.ActionValues[key]}}
+					</td>
+					<td>
+						{{actionData.ActionReason.ValueModelValues[key]}}
 					</td>
 				</tr>
 				{% endfor %}
