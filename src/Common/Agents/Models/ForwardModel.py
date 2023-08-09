@@ -39,16 +39,16 @@ class ForwardModel(Model.Model):
 		target = self._ModelHelper.PreProcessColumns([nextState, reward, terminated], self._OutputColumns)
 		postTarget = target
 
-		predictions = self.Model(x)
+		predictions = self._Model(x)
 
-		metrics = self.ModelHelper.CalculateModelMetrics(self.OutputColumns, predictions, target, postTarget)
+		metrics = self._ModelHelper.CalculateModelMetrics(self._OutputColumns, predictions, target, postTarget)
 		_, losses, accuracies = metrics
 
 
 		# log the metrics
 		logDict = {}
-		for i in range(len(self.OutputColumns)):
-			col = self.OutputColumns[i]
+		for i in range(len(self._OutputColumns)):
+			col = self._OutputColumns[i]
 			loss = losses[i]
 			accuracy = accuracies[i]
 

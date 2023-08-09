@@ -16,7 +16,7 @@ import src.Common.Agents.Models.ValueModel as ValueModel
 
 def GetAgent(eAgentType:eAgentType,
 		overrideConfig:SCT.Config,
-		isTrainingMode:bool) -> object:
+		isTrainingMode:bool) -> 'BaseAgent':
 
 	if eAgentType == eAgentType.Random:
 		from . import RandomAgent
@@ -96,13 +96,13 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		return
 
 
-	def GetAction(self, state:SCT.State) -> SCT.Action:
+	def GetAction(self, state:SCT.State) -> typing.Tuple[SCT.Action, str]:
 		self.StepNum += 1
 		self.TotalStepNum += 1
 
 		return 0, "BaseAgent"
 
-	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
+	def GetActionValues(self, state:SCT.State) -> typing.Tuple[NDArray[np.float32], str]:
 		shape = SCT.JoinTuples(self.ActionSpace.shape, None)
 		return np.ones(shape, dtype=np.float32), "BaseAgent"
 

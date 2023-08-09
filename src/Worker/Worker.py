@@ -64,7 +64,7 @@ class Worker:
 		print("Worker finished")
 		return
 
-	def _GetActions(self, stateList:typing.List[SCT.State]) -> typing.List[SCT.Action]:
+	def _GetActions(self, stateList:typing.List[SCT.State]) -> typing.Tuple[typing.List[SCT.Action], typing.List[str]]:
 		actions = []
 		actionReasons = []
 
@@ -75,7 +75,7 @@ class Worker:
 
 		return actions, actionReasons
 
-	def _StepEnvs(self, actions:typing.List[SCT.Action], actionReasons) -> typing.List[SCT.State]:
+	def _StepEnvs(self, actions:typing.List[SCT.Action], actionReasons) -> typing.Tuple[typing.List[SCT.State], int]:
 		"""
 		Makes the chosen actions in the environments.
 

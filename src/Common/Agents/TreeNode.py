@@ -126,7 +126,7 @@ class TreeNode:
 
 		return actionValues, valueModelValues
 
-	def GetActionNode(self, action:SCT.Action) -> 'TreeNode':
+	def GetActionNode(self, action:SCT.Action) -> Optional['TreeNode']:
 		for child in self.Children:
 			if child.ActionTaken == action:
 				return child

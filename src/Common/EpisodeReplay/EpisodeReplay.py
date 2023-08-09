@@ -9,7 +9,7 @@ from typing import Optional, Any
 
 class EpisodeReplay:
 
-	def __init__(self, replayInfo:Optional[typing.Dict[str, Any]]=None) -> None:
+	def __init__(self, replayInfo:Optional[typing.Dict[str, Any]] = None) -> None:
 
 		self.ReplayInfo = replayInfo
 
@@ -40,7 +40,7 @@ class EpisodeReplay:
 
 
 # region formatting
-	def DurationText(self, endTime:Optional[int]=None) -> str:
+	def DurationText(self, endTime:Optional[int] = None) -> str:
 
 		if endTime is None:
 			endTime = self.EndTime
@@ -78,7 +78,6 @@ class EpisodeReplay:
 
 		with open(filePath, 'wb') as f:
 			selfDict = {
-				"Steps": [],
 				"Terminated": self.Terminated,
 				"Truncated": self.Truncated,
 				"EpisodeId": self.EpisodeId,
@@ -86,10 +85,13 @@ class EpisodeReplay:
 				"EndTime": self.EndTime,
 				"ReplayInfo": self.ReplayInfo
 			}
+			stepsData = []
 
 			for step in self.Steps:
 				stepDict = step.Save(replayFolder)
-				selfDict["Steps"].append(stepDict)
+				stepsData.append(stepDict)
+
+			selfDict["Steps"] = stepsData
 
 			pickle.dump(selfDict, f)
 			# f.write(jsonStr)

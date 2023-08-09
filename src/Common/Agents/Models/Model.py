@@ -1,5 +1,7 @@
 import src.Common.Utils.ModelHelper as ModelHelper
 from src.Common.Enums.eModelType import eModelType
+import src.Common.Utils.Metrics.Logger as Logger
+
 
 class Model:
 
@@ -9,6 +11,8 @@ class Model:
 		self._ModelHelper = ModelHelper.ModelHelper()
 		self._Model, self._InputColumns, self._OutputColumns, _ = self._ModelHelper.BuildModel(self._ModelType)
 		self.HasTrainedModel = False
+
+		self._Logger = Logger.Logger()
 
 		self.UpdateModels()
 		return

@@ -30,7 +30,8 @@ class ModelHelper(Singleton.Singleton):
 	def BuildModel(self, modeType:eModelType) -> typing.Tuple[
 			tf.keras.models.Model,
 			typing.List[DCT.eDataColumnTypes],
-			typing.List[DCT.eDataColumnTypes]]:
+			typing.List[DCT.eDataColumnTypes],
+			str]:
 
 		inputColumns = []
 		outputColumns = []

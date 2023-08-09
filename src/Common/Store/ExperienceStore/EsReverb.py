@@ -27,7 +27,7 @@ class EsReverb(EsBase.EsBase):
 
 	_ReverbConnection = None
 
-	def Get_ReverbConnection(self):
+	def Get_ReverbConnection(self) -> reverb.Client:
 		if type(self)._ReverbConnection is None:
 			type(self)._ReverbConnection = reverb.Client(f"experience-store:{5001}")
 
