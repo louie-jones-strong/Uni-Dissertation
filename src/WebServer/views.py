@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect
 import typing
 import os
 import src.Common.Utils.PathHelper as PathHelper
+import src.Common.Utils.ConfigHelper as ConfigHelper
 import src.Common.EpisodeReplay.EpisodeReplay as ER
 import src.WebServer.AssetCreator as AssetCreator
 import json
@@ -164,6 +165,29 @@ def Setup(envConfig) -> None:
 	def Metrics() -> str:
 		# redirect to wandb page
 		return redirect("https://wandb.ai/louiej-s/Dissertation", code=302)
+
+	@views.route("/config")
+	def Config() -> str:
+		data = GetCommonData()
+
+		configFolder = os.path.join(rootPath, "Config")
+
+		# config = ConfigHelper.LoadConfig(data["envConfig"]["ConfigPath"])
+		data["envConfigStr"] = ConfigHelper.PrintConfig(data["envConfig"])
+
+		modelHelperConfigPath = os.path.join(configFolder, "ModelHelper.json")
+		config = ConfigHelper.LoadConfig(modelHelperConfigPath)
+		data["modelHelperConfigStr"] = ConfigHelper.PrintConfig(config)
+
+		monteCarloAgentConfigPath = os.path.join(configFolder, "MonteCarloAgent.json")
+		config = ConfigHelper.LoadConfig(monteCarloAgentConfigPath)
+		data["monteCarloAgentConfigStr"] = ConfigHelper.PrintConfig(config)
+
+		learnerConfigPath = os.path.join(configFolder, "Learner.json")
+		config = ConfigHelper.LoadConfig(learnerConfigPath)
+		data["learnerConfigStr"] = ConfigHelper.PrintConfig(config)
+
+		return render_template("config.html", **data)
 
 
 	@views.route("/episodereview/<episode>")

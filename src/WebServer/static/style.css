@@ -258,3 +258,10 @@ main{
 	padding:0.5em;
 	border: 2px solid #1d2543;
 }
+
+
+
+pre{
+	padding: 1em;
+	border-radius: 1em;
+}
