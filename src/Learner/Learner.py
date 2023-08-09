@@ -10,18 +10,21 @@ import src.Common.Store.ExperienceStore.EsReverb as EsReverb
 import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
 import numpy as np
 from tensorflow.keras.utils import to_categorical
+import src.Common.Utils.ConfigHelper as ConfigHelper
 
-class Learner:
+class Learner(ConfigHelper.ConfigurableClass):
 
 	def __init__(self, envConfig:SCT.Config, modelType:eModelType, loadModel:bool, examplePath:str):
-		self.Config = envConfig
+		self.LoadConfig(envConfig)
+
+		self.EnvConfig = envConfig
 		self.ModelType = modelType
-		self.ModelHelper = ModelHelper.ModelHelper(envConfig)
+
+		self.ModelHelper = ModelHelper.ModelHelper(self.EnvConfig)
 
 		print("build model")
-		# todo make this driven by the env config
-		self.Model, self.InputColumns, self.OutputColumns, self.DataTable = self.ModelHelper.BuildModel(self.ModelType)
-		self.BatchSize = 2048
+		modelData = self.ModelHelper.BuildModel(self.ModelType)
+		self.Model, self.InputColumns, self.OutputColumns, self.ModelConfig = modelData
 
 		self.UsePriorities = self.ModelType != eModelType.HumanDiscriminator
 
@@ -40,21 +43,23 @@ class Learner:
 
 		self._ConnectToExperienceStore()
 
-		self._ModelUpdateTime = time.time() + self.Config["SecsPerModelPush"]
+		self._ModelUpdateTime = time.time() + self.EnvConfig["SecsPerModelPush"]
 		self._Logger = Logger.Logger()
 		return
 
 	def _ConnectToExperienceStore(self) -> None:
-		dataCollectionMultiplier = 1
+
+		maxInFlightSamples = self.Config["MaxInFlightSamples"]
+		batchSize = self.ModelConfig["TrainingBatchSize"]
+		dataCollectionMultiplier = self.Config["DataCollectionMultiplier"]
 
 		# connect to the experience store dataset
 		trajectoryDataset = reverb.TrajectoryDataset.from_table_signature(
 			server_address=f'experience-store:{5001}',
-			table=self.DataTable,
-			max_in_flight_samples_per_worker=3)
+			table=self.ModelConfig["DataTable"],
+			max_in_flight_samples_per_worker=maxInFlightSamples)
 
-
-		self.BatchedTrajectoryDataset = trajectoryDataset.batch(self.BatchSize * dataCollectionMultiplier)
+		self.BatchedTrajectoryDataset = trajectoryDataset.batch(batchSize * dataCollectionMultiplier)
 
 
 		self.EsStore = EsReverb.EsReverb()
@@ -76,7 +81,7 @@ class Learner:
 				absErrors = self._TuneModelGradTape(x, y, post_y)
 
 				self._Logger.LogDict({"out_priority": absErrors})
-				self.EsStore.UpdatePriorities(self.DataTable, batchInfo.key, absErrors)
+				self.EsStore.UpdatePriorities(self.ModelConfig["DataTable"], batchInfo.key, absErrors)
 
 			else:  # not using priorities
 				self._TuneModelFit(x, y, post_y)
@@ -85,7 +90,7 @@ class Learner:
 
 			# should we save the model?
 			if time.time() >= self._ModelUpdateTime:
-				self._ModelUpdateTime = time.time() + self.Config["SecsPerModelPush"]
+				self._ModelUpdateTime = time.time() + self.EnvConfig["SecsPerModelPush"]
 
 				print("Saving model")
 				self.ModelHelper.PushModel(self.ModelType, self.Model)
@@ -145,15 +150,15 @@ class Learner:
 
 
 	def _TuneModelFit(self, x, y, post_y) -> None:
-		history = self.Model.fit(x, y, epochs=1, batch_size=self.BatchSize)
+		history = self.Model.fit(x, y, epochs=1, batch_size=self.ModelConfig["TrainingBatchSize"])
 
 		accuracy = history.history["accuracy"][0]
 		loss = history.history["loss"][0]
 
 		col = self.OutputColumns[0]
 		self._Logger.LogDict({
-				f"{col.name}_accuracy": accuracy,
-				f"{col.name}_loss": loss
+				f"Train_{col.name}_accuracy": accuracy,
+				f"Train_{col.name}_loss": loss
 			})
 		return
 

@@ -1,0 +1,39 @@
+{
+	"ModelConfigs": {
+		"Value": {
+			"TrainingBatchSize": 2048,
+			"MaxDeploymentBatchSize": 2048,
+			"DataTable": "Value_Trajectories",
+			"LearningRate": 0.0001,
+			"DenseLayers": [256, 256],
+			"Activations": "relu",
+			"Dropout": 0.5,
+			"L1": 0.0,
+			"L2": 0.0
+		},
+		"Forward": {
+			"TrainingBatchSize": 2048,
+			"MaxDeploymentBatchSize": 2048,
+			"DataTable": "Forward_Trajectories",
+			"LearningRate": 0.0001,
+			"DenseLayers": [256, 256],
+			"Activations": "relu",
+			"Dropout": 0.5,
+			"L1": 0.0,
+			"L2": 0.0
+
+		},
+		"HumanDiscriminator": {
+			"TrainingBatchSize": 2048,
+			"MaxDeploymentBatchSize": 2048,
+			"DataTable": "Human_Trajectories",
+			"LearningRate": 0.0001,
+			"DenseLayers": [256, 256],
+			"Activations": "relu",
+			"Dropout": 0.5,
+			"L1": 0.0,
+			"L2": 0.0
+
+		}
+	}
+}

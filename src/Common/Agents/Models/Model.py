@@ -9,7 +9,9 @@ class Model:
 		self._ModelType = modelType
 
 		self._ModelHelper = ModelHelper.ModelHelper()
-		self._Model, self._InputColumns, self._OutputColumns, _ = self._ModelHelper.BuildModel(self._ModelType)
+		modelData = self._ModelHelper.BuildModel(self._ModelType)
+		self._Model, self._InputColumns, self._OutputColumns, self._ModelConfig = modelData
+
 		self.HasTrainedModel = False
 
 		self._Logger = Logger.Logger()

@@ -11,13 +11,18 @@ from numpy.typing import NDArray
 from gymnasium import spaces
 from tensorflow.keras.utils import to_categorical
 import src.Common.Store.ModelStore.MsBase as MsBase
+import os
+from src.Common.Utils.PathHelper import GetRootPath
 
 
 class ModelHelper(Singleton.Singleton):
 
 
 	def Setup(self, envConfig:SCT.Config, modelStore:MsBase.MsBase) -> None:
-		self.Config = envConfig
+		self.EnvConfig = envConfig
+
+		configPath = os.path.join(GetRootPath(), "Config", "ModelHelper.json")
+		self.Config = ConfigHelper.LoadConfig(configPath)
 
 		self.ActionSpace = ConfigHelper.ConfigToSpace(envConfig["ActionSpace"])
 		self.ObservationSpace = ConfigHelper.ConfigToSpace(envConfig["ObservationSpace"])
@@ -31,37 +36,35 @@ class ModelHelper(Singleton.Singleton):
 			tf.keras.models.Model,
 			typing.List[DCT.eDataColumnTypes],
 			typing.List[DCT.eDataColumnTypes],
-			str]:
+			SCT.Config]:
 
 		inputColumns = []
 		outputColumns = []
 
+
+		modelConfig = self.Config["ModelConfigs"][modeType.name]
 
 		if modeType == eModelType.Forward:
 			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
 			outputColumns = [DCT.eDataColumnTypes.NextState,
 							DCT.eDataColumnTypes.Reward,
 							DCT.eDataColumnTypes.Terminated]
-			dataTable = "Forward_Trajectories"
 
-			model = self._Build_Model(inputColumns, outputColumns)
+			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
 
 		elif modeType == eModelType.Value:
 			inputColumns = [DCT.eDataColumnTypes.CurrentState]
 			outputColumns = [DCT.eDataColumnTypes.MaxFutureRewards]
-			dataTable = "Value_Trajectories"
 
-			model = self._Build_Model(inputColumns, outputColumns)
+			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
 
 
 		elif modeType == eModelType.HumanDiscriminator:
 			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
 			outputColumns = [DCT.eDataColumnTypes.PlayStyleTag]
-			dataTable = "Human_Trajectories"
-			model = self._Build_Model(inputColumns, outputColumns)
+			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
 
-
-		return model, inputColumns, outputColumns, dataTable
+		return model, inputColumns, outputColumns, modelConfig
 
 
 	def FetchNewestWeights(self, eModelType:eModelType, model:tf.keras.models.Model) -> bool:
@@ -89,20 +92,36 @@ class ModelHelper(Singleton.Singleton):
 # region Build Models
 	def _Build_Model(self,
 			inputColumns:typing.List[DCT.eDataColumnTypes],
-			outputColumns:typing.List[DCT.eDataColumnTypes]) -> tf.keras.models.Model:
+			outputColumns:typing.List[DCT.eDataColumnTypes],
+			modelConfig:SCT.Config) -> tf.keras.models.Model:
 
 		inputShape = self.GetColumnsShape(inputColumns)
 
 
-
 		inputLayer = tf.keras.layers.Input(shape=inputShape)
-		flattenLayer = tf.keras.layers.Flatten()(inputLayer)
+		lastLayer = tf.keras.layers.Flatten()(inputLayer)
 
 
 		# hidden layers
-		hiddenLayer = tf.keras.layers.Dense(256, activation="relu")(flattenLayer)
-		hiddenLayer = tf.keras.layers.Dense(256, activation="relu")(hiddenLayer)
+		def AddLayer(parent, size, activation, dropout, l1, l2):
+			layer = tf.keras.layers.Dense(size, activation=activation)(parent)
 
+			if dropout > 0:
+				layer = tf.keras.layers.Dropout(rate=dropout)(layer)
+
+			if l1 > 0 or l2 > 0:
+				layer = tf.keras.regularizers.L1L2(l1=l1, l2=l2)(layer)
+
+			return layer
+
+		activation = modelConfig["Activations"]
+		dropout = modelConfig["Dropout"]
+		l1 = modelConfig["L1"]
+		l2 = modelConfig["L2"]
+
+		layerSizes = modelConfig["DenseLayers"]
+		for layerSize in layerSizes:
+			lastLayer = AddLayer(lastLayer, layerSize, activation, dropout, l1, l2)
 
 		# output layers
 		outputLayers = []
@@ -124,7 +143,7 @@ class ModelHelper(Singleton.Singleton):
 				metrics[layerName] = ["mae"]
 
 			outputShape = self.GetColumnsShape([column])
-			outputLayer = tf.keras.layers.Dense(outputShape, name=layerName, activation=activation)(hiddenLayer)
+			outputLayer = tf.keras.layers.Dense(outputShape, name=layerName, activation=activation)(lastLayer)
 			outputLayers.append(outputLayer)
 
 		# create model
@@ -132,7 +151,7 @@ class ModelHelper(Singleton.Singleton):
 
 
 		# optimizer
-		optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
+		optimizer = tf.keras.optimizers.Adam(learning_rate=modelConfig["LearningRate"])
 
 		# compile the network
 		model.compile(optimizer=optimizer, loss=losses, metrics=metrics)
@@ -179,15 +198,9 @@ class ModelHelper(Singleton.Singleton):
 
 		accuracy = None
 		if self.IsColumnDiscrete(colType):
-			# reshape the predictions to match the post processed y
-			postPredictions = self.PostProcessSingleColumn(predicted, colType)
-			postTarget = self.PostProcessSingleColumn(target, colType)
-
-			postPredictions = tf.reshape(postPredictions, postTarget.shape)
-
 			accuracyFunc = tf.keras.metrics.CategoricalAccuracy()
 			accuracyFunc.reset_state()
-			accuracyFunc.update_state(postTarget, postPredictions)
+			accuracyFunc.update_state(target, predicted)
 			accuracy = accuracyFunc.result()
 
 		return absErrors, loss, accuracy
@@ -207,7 +220,6 @@ class ModelHelper(Singleton.Singleton):
 
 
 
-
 # region pre and post process columns
 
 # region get column characteristics
@@ -223,7 +235,7 @@ class ModelHelper(Singleton.Singleton):
 
 
 			elif label == DCT.eDataColumnTypes.Reward:
-				if self.Config["ClipRewards"]:
+				if self.EnvConfig["ClipRewards"]:
 					shapes.append([3])
 				else:
 					shapes.append([1])
@@ -267,7 +279,7 @@ class ModelHelper(Singleton.Singleton):
 			isDiscrete = True
 
 		elif label == DCT.eDataColumnTypes.Reward:
-			if self.Config["ClipRewards"]:
+			if self.EnvConfig["ClipRewards"]:
 				isDiscrete = True
 
 		elif label == DCT.eDataColumnTypes.Action and \
@@ -348,7 +360,7 @@ class ModelHelper(Singleton.Singleton):
 			proccessed = to_categorical(intBools, num_classes=2)
 
 		elif label == DCT.eDataColumnTypes.Reward:
-			if self.Config["ClipRewards"]:
+			if self.EnvConfig["ClipRewards"]:
 				data = np.sign(data)
 				proccessed = to_categorical(data+1, num_classes=3)
 
@@ -379,7 +391,7 @@ class ModelHelper(Singleton.Singleton):
 			proccessed = np.array([bool(i) for i in intBools])
 
 		elif label == DCT.eDataColumnTypes.Reward:
-			if self.Config["ClipRewards"]:
+			if self.EnvConfig["ClipRewards"]:
 				proccessed = np.argmax(data, axis=1)
 				proccessed = proccessed - 1
 			else:
@@ -389,7 +401,7 @@ class ModelHelper(Singleton.Singleton):
 			proccessed = np.clip(proccessed, self.EpisodeRewardRange[0], self.EpisodeRewardRange[1])
 
 			# round the value if clip rewards is on
-			if self.Config["ClipRewards"]:
+			if self.EnvConfig["ClipRewards"]:
 				proccessed = np.round(proccessed, decimals=0)
 
 

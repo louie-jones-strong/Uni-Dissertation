@@ -7,7 +7,7 @@ from gymnasium.spaces import Discrete, Box
 import src.Common.Agents.Models.ForwardModel as ForwardModel
 import src.Common.Agents.Models.ValueModel as ValueModel
 import src.Common.Agents.TreeNode as TreeNode
-
+import typing
 
 def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:
 
@@ -48,12 +48,12 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		super().Remember(state, action, reward, nextState, terminated, truncated)
 		return
 
-	def GetAction(self, state:SCT.State) -> SCT.Action:
+	def GetAction(self, state:SCT.State) -> typing.Tuple[SCT.Action, str]:
 		super().GetAction(state)
 		actionValues, actionReason = self.GetActionValues(state)
 		return BaseAgent.BaseAgent._GetMaxValues(actionValues), actionReason
 
-	def GetActionValues(self, state:SCT.State) -> NDArray[np.float32]:
+	def GetActionValues(self, state:SCT.State) -> typing.Tuple[NDArray[np.float32], str]:
 		super().GetActionValues(state)
 
 		if not self._ForwardModel.CanPredict():

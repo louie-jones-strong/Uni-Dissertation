@@ -141,8 +141,11 @@ class GymEnv(BaseEnv.BaseEnv):
 
 
 
-	def Render(self) -> None:
+	def Render(self) -> Optional[Any]:
 		super().Render()
 
-		rendered = self._RenderCopy.render()
+		if self._RenderCopy is None:
+			return None
+
+		rendered:Any = self._RenderCopy.render()
 		return rendered
