@@ -12,6 +12,8 @@ import typing
 import src.Common.Agents.Models.ForwardModel as ForwardModel
 import src.Common.Agents.Models.ValueModel as ValueModel
 
+import os
+from src.Common.Utils.PathHelper import GetRootPath
 
 
 def GetAgent(eAgentType:eAgentType,
@@ -33,9 +35,21 @@ def GetAgent(eAgentType:eAgentType,
 		valueModel = ValueModel.ValueModel()
 		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel, valueModel)
 
-	# elif eAgentType == eAgentType.HardCoded:
-	# 	from . import HardCodedAgent
-	# 	return HardCodedAgent.HardCodedAgent(overrideConfig, isTrainingMode)
+	elif eAgentType == eAgentType.HardCoded:
+		import importlib.util
+
+		def ImportPath(name:str, path:str):
+			spec = importlib.util.spec_from_file_location(name, path)
+			module = importlib.util.module_from_spec(spec)
+			spec.loader.exec_module(module)
+			return module
+
+		fileName = overrideConfig["Name"] + "Ai.py"
+		agentPath = os.path.join(GetRootPath(), "src", "Common", "Agents", "HardCoded", fileName)
+
+		agent = ImportPath("HardCodedAgent", agentPath)
+
+		return agent.HardCodedAi(overrideConfig, isTrainingMode)
 
 
 

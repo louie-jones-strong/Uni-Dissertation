@@ -43,6 +43,8 @@ class EsReverb(EsBase.EsBase):
 
 
 	def EmptyTransitionBuffer(self) -> None:
+		if len(self._TransitionBuffer) == 0:
+			return
 
 		numTransitions = len(self._TransitionBuffer)
 		with self.ReverbConnection.trajectory_writer(num_keep_alive_refs=numTransitions) as writer:

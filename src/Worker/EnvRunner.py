@@ -12,7 +12,7 @@ class EnvRunner:
 		self.ReplayFolder = replayFolder
 		self.ReplayInfo = replayInfo
 
-		self.State = self.Env.Reset()
+		self.State = self.Reset()
 		self.StepCount = 0
 		self.TotalReward = 0
 		self.EpisodeReplay = None
@@ -67,7 +67,7 @@ class EnvRunner:
 				"EpisodeSteps": self.StepCount},
 				commit=True)
 
-			self.Reset()
+
 
 		return nextState, terminated or truncated
 

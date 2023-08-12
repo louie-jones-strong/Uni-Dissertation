@@ -28,6 +28,21 @@
 				// "--rungroup", "dev",
 				"--subsystem", "Webserver"
 			]
-		}
+		},
+		{
+			"name": "Hard Coded AI",
+			"type": "python",
+			"request": "launch",
+			"program": "main.py",
+			"console": "integratedTerminal",
+			"justMyCode": true,
+			"args": [
+				"--wandb", "False",
+				"--load", "False",
+				"--rungroup", "dev",
+				"--subsystem", "Worker",
+				"--agent", "HardCoded"
+			]
+		},
 	]
 }

@@ -23,7 +23,6 @@ class EpisodeReplay:
 
 
 		# create a unique id for the episode
-		# self.EpisodeId = str(uuid.uuid4())
 		# self.EpisodeId = str(self.StartTime)
 		self.EpisodeId = Formatter.ConvertNsTime(self.StartTime)
 		return
