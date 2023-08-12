@@ -103,7 +103,10 @@ class ModelHelper(Singleton.Singleton):
 
 
 		# hidden layers
+
+
 		def AddLayer(parent, size, activation, dropout, l1, l2):
+
 			layer = tf.keras.layers.Dense(size, activation=activation)(parent)
 
 			if dropout > 0:
