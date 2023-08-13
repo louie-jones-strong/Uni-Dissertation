@@ -35,5 +35,5 @@ def ConvertNsTime(ns: int) -> str:
 	"""
 
 	date = datetime.datetime.fromtimestamp(ns / 1e9)
-	return date.strftime("%Y-%m-%d-%H-%M-%S.%f")[:-3]
+	return date.strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
 

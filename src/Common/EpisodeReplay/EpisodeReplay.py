@@ -5,6 +5,7 @@ import os
 import pickle
 import typing
 from typing import Optional, Any
+import src.Common.Utils.PathHelper as PathHelper
 
 
 class EpisodeReplay:
@@ -69,9 +70,7 @@ class EpisodeReplay:
 		# define folder to store all the data for this episode
 		replayFolder = os.path.join(folderPath, self.EpisodeId)
 
-		# create the run path
-		if not os.path.exists(replayFolder):
-			os.makedirs(replayFolder)
+		PathHelper.EnsurePathExists(replayFolder)
 
 		filePath = os.path.join(replayFolder, "data.pkl")
 
@@ -104,11 +103,14 @@ class EpisodeReplay:
 
 		filePath = os.path.join(folderPath, "data.pkl")
 
+		PathHelper.EnsurePathExists(filePath)
+
 		with open(filePath, 'rb') as f:
 			data = pickle.load(f)
 
 		instance = cls()
 
+		instance.ReplayInfo = data.get("ReplayInfo", None)
 		instance.Terminated = data.get("Terminated", False)
 		instance.Truncated = data.get("Truncated", False)
 		instance.EpisodeId = data.get("EpisodeId", None)

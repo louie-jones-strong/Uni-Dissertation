@@ -84,6 +84,8 @@ class ArgParser:
 		argSettings = self.ArgSettings[key]
 
 		valueStr, validated = args[key]
+
+		value = valueStr
 		if not validated:
 			value = self._ValidateValue(valueStr, argSettings)
 

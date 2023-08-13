@@ -67,11 +67,12 @@ class Test_EpisodeReplay(unittest.TestCase):
 
 	def test_SaveAndLoad(self):
 
+		agentState = np.array([1,2,3,4,5])
 		humanState = np.array([1,2,3,4,5])
 
 		er = ER.EpisodeReplay()
-		er.AddStep(ERStep.EpisodeReplayStep(None, humanState, None, None, None, None))
-		er.AddStep(ERStep.EpisodeReplayStep(None, humanState, None, None, None, None))
+		er.AddStep(ERStep.EpisodeReplayStep(None, humanState, agentState, None, None, None))
+		er.AddStep(ERStep.EpisodeReplayStep(None, humanState, agentState, None, None, None))
 		er.EpisodeEnd(terminated=True, truncated=False)
 
 		savePath = os.path.join(GetRootPath(), "Tests", "SaveFolder")

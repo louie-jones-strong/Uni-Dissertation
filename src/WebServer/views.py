@@ -66,9 +66,16 @@ def Setup(envConfig) -> None:
 		if not os.path.exists(ReplaysFolder):
 			os.makedirs(ReplaysFolder)
 
-		replays = os.listdir(ReplaysFolder)
+		replayFolders = {}
+		agentFolders = os.listdir(ReplaysFolder)
+		for i in range(len(agentFolders)):
+			agentFolder = os.path.join(ReplaysFolder, agentFolders[i])
+			agentReplays = os.listdir(agentFolder)
 
-		data["EpisodeReplays"] = replays
+			replayFolders[agentFolders[i]] = agentReplays
+
+
+		data["EpisodeReplays"] = replayFolders
 		data["envConfig"] = envConfig
 
 		data["ActionLabels"] = ActionLabels
@@ -80,10 +87,10 @@ def Setup(envConfig) -> None:
 		actionReason = actionData.ActionReason
 
 		if actionReason is None:
-			return None
+			return data
 
 		if "Tree" not in actionReason:
-			return None
+			return data
 
 		treeRoot = actionReason["Tree"]
 
@@ -190,17 +197,30 @@ def Setup(envConfig) -> None:
 		return render_template("config.html", **data)
 
 
-	@views.route("/episodereview/<episode>")
-	def EpisodeReview(episode) -> str:
+	@views.route("/episodereview")
+	def EpisodesToReview() -> str:
 		data = GetCommonData()
 
-		if episode not in data["EpisodeReplays"]:
-			return "Episode not found"
+		return render_template("episodestoreview.html", **data)
 
-		replayPath = os.path.join(ReplaysFolder, episode)
+
+	@views.route("/episodereview/<folder>/<episode>")
+	def EpisodeReview(folder, episode) -> str:
+		data = GetCommonData()
+
+		if folder not in data["EpisodeReplays"]:
+			return "folder Not found"
+
+		if episode not in data["EpisodeReplays"][folder]:
+			return "episode Not found"
+
+		replayPath = os.path.join(ReplaysFolder, folder, episode)
 		replay = ER.EpisodeReplay.LoadFromFolder(replayPath)
 
 		data["replayData"] = replay
+		data["episodeFolder"] = folder
+		data["episodeId"] = episode
+
 
 		# make video for replay
 		AssetCreator.CreateVideo(replay)
@@ -208,25 +228,28 @@ def Setup(envConfig) -> None:
 		return render_template("episodereview.html", **data)
 
 
-	@views.route("/episodereview/<episode>/action/<action>")
-	def ReviewAction(episode, action) -> str:
-		action = int(action)
-
+	@views.route("/episodereview/<folder>/<episode>/action/<action>")
+	def ReviewAction(folder, episode, action) -> str:
 		data = GetCommonData()
 
-		if episode not in data["EpisodeReplays"]:
-			return "Episode not found"
+		if folder not in data["EpisodeReplays"]:
+			return "folder Not found"
 
-		replayPath = os.path.join(ReplaysFolder, episode)
+		if episode not in data["EpisodeReplays"][folder]:
+			return "episode Not found"
+
+		replayPath = os.path.join(ReplaysFolder, folder, episode)
 		replay = ER.EpisodeReplay.LoadFromFolder(replayPath)
 
+		action = int(action)
 		action = min(action, len(replay.Steps) - 1)
 		action = max(action, 0)
 
 		data["replayData"] = replay
+		data["episodeFolder"] = folder
+		data["episodeId"] = episode
 		data["actionData"] = replay.Steps[action]
 		data["actionIndex"] = action
-		data["monteCarloTreeTable"] = GetMonteCarloData(replay.Steps[action], data)
 
 		data = GetMonteCarloData(replay.Steps[action], data)
 
@@ -234,6 +257,15 @@ def Setup(envConfig) -> None:
 		AssetCreator.CreateImage(replay, action)
 
 		return render_template("actionreview.html", **data)
+
+
+
+	@views.route("/feedback/humanlike")
+	def HumanLikeFeedback() -> str:
+		data = GetCommonData()
+
+		return render_template("humanlikefeedback.html", **data)
+
 # endregion endpoints
 
 	@views.route("/api/saveTrajectories", methods=["POST"])

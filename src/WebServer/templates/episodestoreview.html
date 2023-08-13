@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Episodes To Review{% endblock %}
+
+{% block content %}
+<div>
+	<div class="row">
+		{%for folder in EpisodeReplays%}
+		<div class="card shadow">
+			<h2>{{folder}} Replays</h2>
+			<hr>
+			<ol>
+				{%for replay in EpisodeReplays[folder]%}
+
+				<li class="highlightOnHover">
+					<a href="\episodereview\{{folder}}\{{replay}}">
+						<p>{{replay}}</p>
+					</a>
+				</li>
+				{%endfor%}
+			</ol>
+		</div>
+		{% endfor %}
+
+	</div>
+</div>
+{% endblock %}

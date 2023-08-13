@@ -3,6 +3,7 @@ import numpy as np
 import os
 import typing
 from typing import Optional, Any
+import src.Common.Utils.PathHelper as PathHelper
 
 class EsNumpy(EsBase.EsBase):
 
@@ -27,6 +28,9 @@ class EsNumpy(EsBase.EsBase):
 			transition = self.PopTransition()
 			state, nextState, action, reward, futureRewards, terminated, truncated = transition
 
+			if state is None:
+				continue
+
 			self.States = self.AddValue(self.States, state)
 			self.NextStates = self.AddValue(self.NextStates, nextState)
 			self.Actions = self.AddValue(self.Actions, action)
@@ -49,6 +53,8 @@ class EsNumpy(EsBase.EsBase):
 		return npArray
 
 	def Save(self) -> None:
+
+		PathHelper.EnsurePathExists(self.SavePath)
 
 		np.save(os.path.join(self.SavePath, "States.npy"), self.States)
 		np.save(os.path.join(self.SavePath, "NextStates.npy"), self.NextStates)

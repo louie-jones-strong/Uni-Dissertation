@@ -22,6 +22,7 @@ class EnvRunner:
 		return
 
 	def GetState(self):
+		self.Env.Render()
 		return self.State
 
 	def Step(self, action, actionReason=None):

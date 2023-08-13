@@ -26,7 +26,7 @@ def CreateVideo(replay:ER.EpisodeReplay) -> None:
 
 	width = firstFrame.shape[1]
 	height = firstFrame.shape[0]
-	frameDups = 15
+	frameDups = 3
 
 
 	# create the video
