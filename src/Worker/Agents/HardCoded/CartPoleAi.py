@@ -1,4 +1,4 @@
-import src.Worker.agents.BaseAgent as BaseAgent
+import src.Worker.Agents.BaseAgent as BaseAgent
 import src.Common.Utils.SharedCoreTypes as SCT
 import typing
 

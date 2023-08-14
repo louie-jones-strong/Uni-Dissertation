@@ -3,7 +3,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 from src.Common.Enums.eModelType import eModelType
 import numpy as np
 from numpy.typing import NDArray
-import src.Worker.agents.Models.Model as Model
+import src.Worker.Agents.Models.Model as Model
 
 class ForwardModel(Model.Model):
 	def __init__(self):

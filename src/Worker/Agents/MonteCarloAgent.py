@@ -1,12 +1,12 @@
-import src.Worker.agents.BaseAgent as BaseAgent
+import src.Worker.Agents.BaseAgent as BaseAgent
 import numpy as np
 import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 import time
 from gymnasium.spaces import Discrete, Box
-import src.Worker.agents.Models.ForwardModel as ForwardModel
-import src.Worker.agents.Models.ValueModel as ValueModel
-import src.Worker.agents.TreeNode as TreeNode
+import src.Worker.Agents.Models.ForwardModel as ForwardModel
+import src.Worker.Agents.Models.ValueModel as ValueModel
+import src.Worker.Agents.TreeNode as TreeNode
 import typing
 
 def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:

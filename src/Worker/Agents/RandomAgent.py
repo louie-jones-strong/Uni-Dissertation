@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
-from src.Worker.agents.BaseAgent import BaseAgent
+from src.Worker.Agents.BaseAgent import BaseAgent
 
 
 class RandomAgent(BaseAgent):

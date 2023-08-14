@@ -9,8 +9,8 @@ from src.Common.Enums.eAgentType import eAgentType
 from src.Common.Enums.ePlayMode import ePlayMode
 from gymnasium.spaces import Discrete, Box
 import typing
-import src.Worker.agents.Models.ForwardModel as ForwardModel
-import src.Worker.agents.Models.ValueModel as ValueModel
+import src.Worker.Agents.Models.ForwardModel as ForwardModel
+import src.Worker.Agents.Models.ValueModel as ValueModel
 
 import os
 from src.Common.Utils.PathHelper import GetRootPath

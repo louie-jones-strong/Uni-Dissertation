@@ -3,7 +3,7 @@ import time
 import keyboard
 import src.Common.Utils.SharedCoreTypes as SCT
 
-import src.Worker.agents.BaseAgent as BaseAgent
+import src.Worker.Agents.BaseAgent as BaseAgent
 
 
 class HumanAgent(BaseAgent.BaseAgent):
