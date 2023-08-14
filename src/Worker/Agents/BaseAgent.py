@@ -45,7 +45,7 @@ def GetAgent(eAgentType:eAgentType,
 			return module
 
 		fileName = overrideConfig["Name"] + "Ai.py"
-		agentPath = os.path.join(GetRootPath(), "src", "Common", "Agents", "HardCoded", fileName)
+		agentPath = os.path.join(GetRootPath(), "src", "Worker", "Agents", "HardCoded", fileName)
 
 		agent = ImportPath("HardCodedAgent", agentPath)
 

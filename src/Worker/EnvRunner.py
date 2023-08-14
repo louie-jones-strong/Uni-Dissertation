@@ -67,7 +67,6 @@ class EnvRunner:
 				"EpisodeSteps": self.StepCount},
 				commit=True)
 
-			self.Reset()
 
 		return nextState, terminated or truncated
 

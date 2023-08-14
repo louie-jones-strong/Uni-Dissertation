@@ -30,7 +30,36 @@
 			]
 		},
 		{
-			"name": "Hard Coded AI",
+			"name": "Worker",
+			"type": "python",
+			"request": "launch",
+			"program": "main.py",
+			"console": "integratedTerminal",
+			"justMyCode": true,
+			"args": [
+				"--wandb", "False",
+				"--load", "False",
+				"--rungroup", "dev",
+				"--subsystem", "Worker",
+			]
+		},
+		{
+			"name": "Worker: Random",
+			"type": "python",
+			"request": "launch",
+			"program": "main.py",
+			"console": "integratedTerminal",
+			"justMyCode": true,
+			"args": [
+				"--wandb", "False",
+				"--load", "False",
+				"--rungroup", "dev",
+				"--subsystem", "Worker",
+				"--agent", "Random"
+			]
+		},
+		{
+			"name": "Worker: Hardcoded",
 			"type": "python",
 			"request": "launch",
 			"program": "main.py",
@@ -43,21 +72,6 @@
 				"--subsystem", "Worker",
 				"--agent", "HardCoded"
 			]
-		},
-		{
-			"name": "Human",
-			"type": "python",
-			"request": "launch",
-			"program": "main.py",
-			"console": "integratedTerminal",
-			"justMyCode": true,
-			"args": [
-				"--wandb", "False",
-				"--load", "False",
-				"--rungroup", "dev",
-				"--subsystem", "Worker",
-				"--agent", "Human"
-			]
-		},
+		}
 	]
 }

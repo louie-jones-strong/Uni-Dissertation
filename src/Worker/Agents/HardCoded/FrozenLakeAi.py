@@ -8,6 +8,13 @@ class HardCodedAi(BaseAgent.BaseAgent):
 
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
 		super().__init__(envConfig, isTrainingMode)
+
+		self.ActionLookup = [
+			2, 2, 1, 0,
+			1, 0, 1, 0,
+			2, 1, 1, 0,
+			2, 2, 2, 0
+		]
 		return
 
 	def Reset(self) -> None:
@@ -39,4 +46,6 @@ class HardCodedAi(BaseAgent.BaseAgent):
 	def GetAction(self, state:SCT.State) -> typing.Tuple[SCT.Action, str]:
 		super().GetAction(state)
 
-		return 0, "HardCoded"
+		action = self.ActionLookup[state]
+
+		return action, "HardCoded"
