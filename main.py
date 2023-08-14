@@ -6,6 +6,7 @@ from src.Common.Enums.eModelType import eModelType
 from src.Common.Enums.eSubSystemType import eSubSystemType
 from src.Common.Utils.PathHelper import GetRootPath
 import src.Common.Utils.ConfigHelper as ConfigHelper
+import platform
 
 import time
 
@@ -71,11 +72,16 @@ def Setup_Learner(parser, envConfig, runPath, envDataPath):
 def Setup_Worker(parser, envConfig, runPath, envDataPath):
 	import src.Worker.Worker as Worker
 	import src.Common.Utils.ModelHelper as ModelHelper
+	import src.Common.Store.ModelStore.MsBase as MsBase
 	import src.Common.Store.ModelStore.MsRedis as MsRedis
 	import src.Worker.EnvRunner as EnvRunner
 	import src.Worker.Environments.BaseEnv as BaseEnv
 
-	modelStore = MsRedis.MsRedis()
+	if platform.system() == "Linux":
+		modelStore = MsRedis.MsRedis()
+	else:
+		modelStore = MsBase.MsBase()
+
 
 
 	modelHelper = ModelHelper.ModelHelper()
