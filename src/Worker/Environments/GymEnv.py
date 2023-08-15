@@ -10,15 +10,22 @@ import typing
 from src.Worker.Environments.Wrappers import FireResetEnv, FrameStack, ActionDup
 
 
-def WrapGym(wrappers:typing.List[str], gymEnv:gym.Env, renderEnv:gym.Env) -> typing.Tuple[gym.Env, gym.Env]:
+def WrapGym(
+		wrappers:typing.List[str],
+		gymEnv:gym.Env,
+		rgbRenderEnv:gym.Env,
+		humanRenderEnv:gym.Env,
+		) -> typing.Tuple[gym.Env, gym.Env]:
+
 	if wrappers is None:
-		return gymEnv, renderEnv
+		return gymEnv, rgbRenderEnv, humanRenderEnv
 
 	for wrapper in wrappers:
 
 		if "FireResetEnv" in wrapper:
 			gymEnv = FireResetEnv.FireResetEnv(gymEnv)
-			renderEnv = FireResetEnv.FireResetEnv(renderEnv)
+			rgbRenderEnv = FireResetEnv.FireResetEnv(rgbRenderEnv)
+			humanRenderEnv = FireResetEnv.FireResetEnv(humanRenderEnv)
 
 		elif "Atari" in wrapper:
 
@@ -36,12 +43,13 @@ def WrapGym(wrappers:typing.List[str], gymEnv:gym.Env, renderEnv:gym.Env) -> typ
 
 		elif "ActionDup" in wrapper:
 			gymEnv = ActionDup.ActionDup(gymEnv, 2)
-			renderEnv = ActionDup.ActionDup(renderEnv, 2)
+			rgbRenderEnv = ActionDup.ActionDup(rgbRenderEnv, 2)
+			humanRenderEnv = ActionDup.ActionDup(humanRenderEnv, 2)
 
 		else:
 			raise Exception(f"Unknown wrapper: {wrapper}")
 
-	return gymEnv, renderEnv
+	return gymEnv, rgbRenderEnv, humanRenderEnv
 
 
 
@@ -50,7 +58,8 @@ class GymEnv(BaseEnv.BaseEnv):
 	def __init__(self, envConfig:SCT.Config, gymEnv:Optional[gym.Env] = None):
 		super().__init__(envConfig)
 
-		self._RenderCopy = None
+		self._RgbRenderCopy = None
+		self._HumanRenderCopy = None
 
 		if gymEnv is None:
 
@@ -64,24 +73,29 @@ class GymEnv(BaseEnv.BaseEnv):
 
 			# create a copy of the environment for rendering
 			# this is because you cannot copy the env if it has been rendered
-			self._RenderCopy = gym.make(gymId, render_mode=gymConfig["RenderMode"], **kargs)
+			self._RgbRenderCopy = gym.make(gymId, render_mode="rgb_array", **kargs)
+			self._HumanRenderCopy = gym.make(gymId, render_mode="human", **kargs)
 
 			# wrap the environments
-			self._GymEnv, self._RenderCopy = WrapGym(wrappers, self._GymEnv, self._RenderCopy)
+			envs = WrapGym(wrappers, self._GymEnv, self._RgbRenderCopy, self._HumanRenderCopy)
+			self._GymEnv, self._RgbRenderCopy, self._HumanRenderCopy = envs
 
 
 			# make sure both environments are seeded the same
 			seed = random.randint(0, 100000)
 			self._GymEnv.reset(seed=seed)
-			self._RenderCopy.reset(seed=seed)
+			self._RgbRenderCopy.reset(seed=seed)
+			self._HumanRenderCopy.reset(seed=seed)
 
 			# set the render fps to a high number so that it renders as fast as possible
 			self._GymEnv.metadata["render_fps"] = 100_000
-			self._RenderCopy.metadata["render_fps"] = 100_000
+			self._RgbRenderCopy.metadata["render_fps"] = 100_000
+			self._HumanRenderCopy.metadata["render_fps"] = 100_000
 
 		else:
 			self._GymEnv = gymEnv
-			self._RenderCopy = None
+			self._RgbRenderCopy = None
+			self._HumanRenderCopy = None
 
 
 		obsSpace = self._GymEnv.observation_space
@@ -115,8 +129,11 @@ class GymEnv(BaseEnv.BaseEnv):
 
 		nextState, reward, terminated, truncated, _ = self._GymEnv.step(action)
 
-		if self._RenderCopy is not None:
-			self._RenderCopy.step(action)
+		if self._RgbRenderCopy is not None:
+			self._RgbRenderCopy.step(action)
+
+		if self._HumanRenderCopy is not None:
+			self._HumanRenderCopy.step(action)
 
 		self._Done = terminated or truncated
 
@@ -134,8 +151,13 @@ class GymEnv(BaseEnv.BaseEnv):
 		super().Reset()
 
 		state, _ = self._GymEnv.reset()
-		if self._RenderCopy is not None:
-			self._RenderCopy.reset()
+
+		if self._RgbRenderCopy is not None:
+			self._RgbRenderCopy.reset()
+
+
+		if self._HumanRenderCopy is not None:
+			self._HumanRenderCopy.reset()
 
 		return state
 
@@ -144,8 +166,9 @@ class GymEnv(BaseEnv.BaseEnv):
 	def Render(self) -> Optional[Any]:
 		super().Render()
 
-		if self._RenderCopy is None:
+		if self._RgbRenderCopy is None:
 			return None
 
-		rendered:Any = self._RenderCopy.render()
+		self._HumanRenderCopy.render()
+		rendered:Any = self._RgbRenderCopy.render()
 		return rendered
