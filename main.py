@@ -89,24 +89,27 @@ def Setup_Worker(parser, envConfig, runPath, envDataPath):
 
 	agent = parser.Get("agent")
 
-	replayInfo = None
-	replayFolder = None
-	isTrainingMode = False
-	numEnvs = envConfig["NumEnvsPerWorker"]
 
+	numEnvs = envConfig["NumEnvsPerWorker"]
 	if agent == eAgentType.Human:
 		numEnvs = 1
 
+	isTrainingMode = False
 	if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
 		isTrainingMode = not parser.Get("play")
 
 		if not isTrainingMode:
 			numEnvs = 1
 
-	replayFolder = os.path.join(runPath, "replays", agent.name)
 	replayInfo = {
-		"Agent": agent.name
+		"Agent": agent.name,
+		"IsTrainingMode": isTrainingMode,
+		"NumEnvs": numEnvs
 	}
+
+	replayFolder = None
+	if agent == eAgentType.Human or agent == eAgentType.ML:
+		replayFolder = os.path.join(runPath, "replays", agent.name)
 
 
 	envRunners = []

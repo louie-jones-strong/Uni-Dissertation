@@ -1,4 +1,4 @@
 tensorflow==2.12.0
 tensorboard==2.12.0
-Gymnasium==0.26.3
+gymnasium==0.26.3
 dm-reverb==0.11.0; sys_platform=="linux"

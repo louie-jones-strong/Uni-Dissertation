@@ -21,7 +21,7 @@ def GetEnv(envConfig:SCT.Config) -> 'BaseEnv':
 
 class BaseEnv:
 	def __init__(self, envConfig:SCT.Config):
-		self.LoadConfig(envConfig)
+		self._Config = envConfig
 
 		self.ObservationSpace:SCT.StateSpace = gym.spaces.Box(low=0, high=1, shape=(1, 2), dtype=np.uint8)
 		self.ActionSpace:SCT.ActionSpace = gym.spaces.Discrete(1)
@@ -30,12 +30,6 @@ class BaseEnv:
 		self._CurrentStep = 0
 		self._Done = False
 		return
-
-	def LoadConfig(self, envConfig:SCT.Config) -> None:
-		self._Config = envConfig
-
-		return
-
 
 	def Clone(self) -> 'BaseEnv':
 		return deepcopy(self)

@@ -14,12 +14,6 @@ class EsReverb(EsBase.EsBase):
 
 	def __init__(self) -> None:
 		super().__init__()
-
-		self.TableTrajectoriesLens = {
-			"Forward_Trajectories": 1,
-			"Value_Trajectories": 1,
-			"Human_Trajectories": 1,
-		}
 		return
 
 
@@ -65,20 +59,35 @@ class EsReverb(EsBase.EsBase):
 					Truncated_Name: truncated
 				})
 
-				for tableKey, tableLen in self.TableTrajectoriesLens.items():
+
+
+				for dataTable in self.Config["DataTables"]:
+					tableLen = dataTable["StepCount"]
+					columns = dataTable["Columns"]
+
 					if i+1 >= tableLen:
+
+						dataColumns = {
+							CurrentState_Name: writer.history[CurrentState_Name][-tableLen:],
+							NextState_Name: writer.history[NextState_Name][-tableLen:],
+							Action_Name: writer.history[Action_Name][-tableLen:],
+							Reward_Name: writer.history[Reward_Name][-tableLen:],
+							MaxFutureRewards_Name: writer.history[MaxFutureRewards_Name][-tableLen:],
+							Terminated_Name: writer.history[Terminated_Name][-tableLen:],
+							Truncated_Name: writer.history[Truncated_Name][-tableLen:],
+						}
+
+						# trajectory = {key: dataColumns[key] for key in columns if key in dataColumns}
+						trajectory = {}
+						for key, value in dataColumns.items():
+							if key in columns:
+								trajectory[key] = value
+
+
 						writer.create_item(
-							table=tableKey,
+							table=dataTable["TableName"],
 							priority=1,
-							trajectory={
-								CurrentState_Name: writer.history[CurrentState_Name][-tableLen:],
-								NextState_Name: writer.history[NextState_Name][-tableLen:],
-								Action_Name: writer.history[Action_Name][-tableLen:],
-								Reward_Name: writer.history[Reward_Name][-tableLen:],
-								MaxFutureRewards_Name: writer.history[MaxFutureRewards_Name][-tableLen:],
-								Terminated_Name: writer.history[Terminated_Name][-tableLen:],
-								Truncated_Name: writer.history[Truncated_Name][-tableLen:],
-							})
+							trajectory=trajectory)
 
 
 			writer.end_episode(timeout_ms=1000)

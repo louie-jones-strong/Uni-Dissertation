@@ -58,7 +58,7 @@ def GetAgent(eAgentType:eAgentType,
 
 class BaseAgent(ConfigHelper.ConfigurableClass):
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
-		self.LoadConfig(envConfig)
+		self.LoadConfig()
 		self.EnvConfig = envConfig
 		self.Mode = ePlayMode.Train if isTrainingMode else ePlayMode.Play
 

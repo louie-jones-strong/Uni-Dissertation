@@ -2,9 +2,11 @@ from collections import deque
 import src.Common.Utils.SharedCoreTypes as SCT
 import typing
 import numpy as np
+import src.Common.Utils.ConfigHelper as ConfigHelper
 
-class EsBase():
+class EsBase(ConfigHelper.ConfigurableClass):
 	def __init__(self) -> None:
+		self.LoadConfig()
 
 		self._TransitionBuffer = deque()
 		self._TotalReward = 0

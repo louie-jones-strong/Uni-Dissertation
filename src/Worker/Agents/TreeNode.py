@@ -7,9 +7,10 @@ import typing
 from typing import Optional, Tuple
 import math
 import src.Worker.Agents.BaseAgent as BaseAgent
+import src.Common.Utils.ConfigHelper as ConfigHelper
 
 
-class TreeNode:
+class TreeNode(ConfigHelper.ConfigurableClass):
 	def __init__(self,
 			state:SCT.State,
 			episodeStep:int,
@@ -17,6 +18,8 @@ class TreeNode:
 			valueModel:ValueModel.ValueModel,
 			parent:Optional['TreeNode'] = None,
 			actionIdxTaken:Optional[int] = None):
+
+		self.LoadConfig()
 
 		self.State = state
 		self.ValueModelValue = valueModel.Predict([state])

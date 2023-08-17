@@ -9,14 +9,9 @@ import numpy as np
 
 class ConfigurableClass:
 
-	def LoadConfig(self, overrideConfig:SCT.Config) -> None:
-		self.Config = LoadAndMergeConfig(self.__class__.__name__, overrideConfig)
-
-		# get base config from base classes
-		for b in self.__class__.__bases__:
-			if issubclass(b, ConfigurableClass) and b != ConfigurableClass:
-				self.Config = LoadAndMergeConfig(b.__name__, self.Config, allowJoining=True)
-
+	def LoadConfig(self) -> None:
+		path = GetClassConfigPath("MLConfig")
+		self.Config = LoadConfig(path)
 		return
 
 def LoadAndMergeConfig(className:str, overrideConfig:SCT.Config, allowJoining:bool = False) -> SCT.Config:

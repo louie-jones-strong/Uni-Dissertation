@@ -15,7 +15,7 @@ import src.Common.Utils.ConfigHelper as ConfigHelper
 class Learner(ConfigHelper.ConfigurableClass):
 
 	def __init__(self, envConfig:SCT.Config, modelType:eModelType, loadModel:bool, examplePath:str):
-		self.LoadConfig(envConfig)
+		self.LoadConfig()
 
 		self.EnvConfig = envConfig
 		self.ModelType = modelType
@@ -26,10 +26,10 @@ class Learner(ConfigHelper.ConfigurableClass):
 		modelData = self.ModelHelper.BuildModel(self.ModelType)
 		self.Model, self.InputColumns, self.OutputColumns, self.ModelConfig = modelData
 
-		self.UsePriorities = self.ModelType != eModelType.HumanDiscriminator
+		self.UsePriorities = self.ModelType != eModelType.PlayStyleDiscriminator
 
 		self.HumanData = None
-		if self.ModelType == eModelType.HumanDiscriminator:
+		if self.ModelType == eModelType.PlayStyleDiscriminator:
 
 			self.HumanData = EsNumpy.EsNumpy(examplePath)
 			self.HumanData.Load()
@@ -106,7 +106,7 @@ class Learner(ConfigHelper.ConfigurableClass):
 		raw_x = DCT.FilterDict(self.InputColumns, batch.data)
 		x = self.ModelHelper.PreProcessColumns(raw_x, self.InputColumns)
 
-		if self.ModelType == eModelType.HumanDiscriminator:
+		if self.ModelType == eModelType.PlayStyleDiscriminator:
 
 			# add the human data concatenated to the end of the batch
 

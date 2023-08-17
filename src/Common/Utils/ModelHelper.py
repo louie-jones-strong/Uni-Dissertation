@@ -21,7 +21,7 @@ class ModelHelper(Singleton.Singleton):
 	def Setup(self, envConfig:SCT.Config, modelStore:MsBase.MsBase) -> None:
 		self.EnvConfig = envConfig
 
-		configPath = os.path.join(GetRootPath(), "Config", "ModelHelper.json")
+		configPath = os.path.join(GetRootPath(), "Config", "MLConfig.json")
 		self.Config = ConfigHelper.LoadConfig(configPath)
 
 		self.ActionSpace = ConfigHelper.ConfigToSpace(envConfig["ActionSpace"])
@@ -59,7 +59,7 @@ class ModelHelper(Singleton.Singleton):
 			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
 
 
-		elif modeType == eModelType.HumanDiscriminator:
+		elif modeType == eModelType.PlayStyleDiscriminator:
 			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
 			outputColumns = [DCT.eDataColumnTypes.PlayStyleTag]
 			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
@@ -107,13 +107,15 @@ class ModelHelper(Singleton.Singleton):
 
 		def AddLayer(parent, size, activation, dropout, l1, l2):
 
-			layer = tf.keras.layers.Dense(size, activation=activation)(parent)
+			regularizer = None
+			if l1 > 0 or l2 > 0:
+				regularizer = tf.keras.regularizers.L1L2(l1=l1, l2=l2)
+
+			layer = tf.keras.layers.Dense(size, activation=activation, kernel_regularizer=regularizer)(parent)
 
 			if dropout > 0:
 				layer = tf.keras.layers.Dropout(rate=dropout)(layer)
 
-			if l1 > 0 or l2 > 0:
-				layer = tf.keras.regularizers.L1L2(l1=l1, l2=l2)(layer)
 
 			return layer
 

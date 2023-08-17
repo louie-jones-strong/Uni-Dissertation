@@ -6,7 +6,7 @@ xgboost==1.7.5
 
 numpy==1.23.5
 opencv-python-headless==4.7.0.72
-Gymnasium==0.26.3
+gymnasium==0.26.3
 gymnasium[other]
 gymnasium[accept-rom-license]
 gymnasium[atari]
