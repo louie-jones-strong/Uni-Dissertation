@@ -117,33 +117,6 @@ services:
 
     entrypoint: python main.py --subsystem Learner --model Value --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
 
-  learner-forward:
-    image: learner
-
-    volumes:
-      - ./Data:/app/Data
-      - ./src:/app/src
-      - ./Config:/app/Config
-
-    working_dir: /app
-    networks:
-      - projectNetwork
-
-    deploy:
-      replicas: 1
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
-    env_file:
-      - secrets.env
-
-    entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
-    # tty: true
-
   learner-humanlike:
     image: learner
 
@@ -170,6 +143,110 @@ services:
 
     entrypoint: python main.py --subsystem Learner --model PlayStyleDiscriminator --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
     # tty: true
+
+  # learner-forward:
+  #   image: learner
+
+  #   volumes:
+  #     - ./Data:/app/Data
+  #     - ./src:/app/src
+  #     - ./Config:/app/Config
+
+  #   working_dir: /app
+  #   networks:
+  #     - projectNetwork
+
+  #   deploy:
+  #     replicas: 1
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+
+  #   env_file:
+  #     - secrets.env
+
+  #   entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
+
+  learner-Forward-NextState:
+    image: learner
+
+    volumes:
+      - ./Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model Forward_NextState --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
+
+  learner-Forward-Reward:
+    image: learner
+
+    volumes:
+      - ./Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model Forward_Reward --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
+
+  learner-Forward-Terminated:
+    image: learner
+
+    volumes:
+      - ./Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model Forward_Terminated --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
 
 
 # ===== Workers =====

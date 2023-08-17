@@ -27,7 +27,40 @@
 			"TrainingBatchSize": 2048,
 			"MaxDeploymentBatchSize": 2048,
 			"DataTable": "Forward_Trajectories",
-			"LearningRate": 0.0001,
+			"LearningRate": 0.001,
+			"DenseLayers": [256, 256],
+			"Activations": "relu",
+			"Dropout": 0.5,
+			"L1": 0.5,
+			"L2": 0.5
+		},
+		"Forward_NextState": {
+			"TrainingBatchSize": 2048,
+			"MaxDeploymentBatchSize": 2048,
+			"DataTable": "Forward_NextState_Trajectories",
+			"LearningRate": 0.001,
+			"DenseLayers": [256, 256],
+			"Activations": "relu",
+			"Dropout": 0.5,
+			"L1": 0.5,
+			"L2": 0.5
+		},
+		"Forward_Reward": {
+			"TrainingBatchSize": 2048,
+			"MaxDeploymentBatchSize": 2048,
+			"DataTable": "Forward_Reward_Trajectories",
+			"LearningRate": 0.001,
+			"DenseLayers": [256, 256],
+			"Activations": "relu",
+			"Dropout": 0.5,
+			"L1": 0.5,
+			"L2": 0.5
+		},
+		"Forward_Terminated": {
+			"TrainingBatchSize": 2048,
+			"MaxDeploymentBatchSize": 2048,
+			"DataTable": "Forward_Terminated_Trajectories",
+			"LearningRate": 0.001,
 			"DenseLayers": [256, 256],
 			"Activations": "relu",
 			"Dropout": 0.5,
@@ -50,6 +83,54 @@
 	"DataTables": [
 		{
 			"TableName": "Forward_Trajectories",
+			"StepCount": 1,
+			"MinCount": 1000,
+			"MaxCount": 1000000,
+			"PriorityExponent": 0.8,
+			"Columns": [
+				"CurrentState",
+				"NextState",
+				"Action",
+				"Reward",
+				"MaxFutureRewards",
+				"Terminated",
+				"Truncated"
+			]
+		},
+		{
+			"TableName": "Forward_NextState_Trajectories",
+			"StepCount": 1,
+			"MinCount": 1000,
+			"MaxCount": 1000000,
+			"PriorityExponent": 0.8,
+			"Columns": [
+				"CurrentState",
+				"NextState",
+				"Action",
+				"Reward",
+				"MaxFutureRewards",
+				"Terminated",
+				"Truncated"
+			]
+		},
+		{
+			"TableName": "Forward_Reward_Trajectories",
+			"StepCount": 1,
+			"MinCount": 1000,
+			"MaxCount": 1000000,
+			"PriorityExponent": 0.8,
+			"Columns": [
+				"CurrentState",
+				"NextState",
+				"Action",
+				"Reward",
+				"MaxFutureRewards",
+				"Terminated",
+				"Truncated"
+			]
+		},
+		{
+			"TableName": "Forward_Terminated_Trajectories",
 			"StepCount": 1,
 			"MinCount": 1000,
 			"MaxCount": 1000000,

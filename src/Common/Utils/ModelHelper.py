@@ -47,9 +47,24 @@ class ModelHelper(Singleton.Singleton):
 		if modeType == eModelType.Forward:
 			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
 			outputColumns = [DCT.eDataColumnTypes.NextState,
-							DCT.eDataColumnTypes.Reward,
-							DCT.eDataColumnTypes.Terminated]
+				DCT.eDataColumnTypes.Reward,
+				DCT.eDataColumnTypes.Terminated]
 
+			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
+
+		elif modeType == eModelType.Forward_NextState:
+			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
+			outputColumns = [DCT.eDataColumnTypes.NextState]
+			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
+
+		elif modeType == eModelType.Forward_Reward:
+			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
+			outputColumns = [DCT.eDataColumnTypes.Reward]
+			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
+
+		elif modeType == eModelType.Forward_Terminated:
+			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
+			outputColumns = [DCT.eDataColumnTypes.Terminated]
 			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
 
 		elif modeType == eModelType.Value:

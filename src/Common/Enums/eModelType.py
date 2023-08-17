@@ -3,5 +3,8 @@ import enum
 class eModelType(enum.Enum):
 	Policy = 0
 	Value = 1
-	Forward = 2,
-	PlayStyleDiscriminator = 3
+	PlayStyleDiscriminator = 2,
+	Forward = 3,
+	Forward_NextState = 4,
+	Forward_Reward = 5,
+	Forward_Terminated = 6

@@ -10,12 +10,9 @@ class ValueModel(Model.Model):
 		super().__init__(eModelType.Value)
 		return
 
-	def Predict(self, states:SCT.State_List) -> typing.Tuple[SCT.State_List, SCT.Reward_List, NDArray[np.bool_]]:
+	def Predict(self, states:SCT.State_List) -> typing.Tuple[SCT.Reward_List]:
 
-		x = self._ModelHelper.PreProcessSingleColumn(states, self._InputColumns[0])
-
-		y = self._Model.predict(x, batch_size=len(states), verbose=0)
-
-		values = self._ModelHelper.PostProcessSingleColumn(y[0], self._OutputColumns[0])[0]
+		x = [states]
+		values, _ = self.StateModel.Predict(x)
 
 		return values
