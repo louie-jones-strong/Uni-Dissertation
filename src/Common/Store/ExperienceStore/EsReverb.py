@@ -77,7 +77,6 @@ class EsReverb(EsBase.EsBase):
 							Truncated_Name: writer.history[Truncated_Name][-tableLen:],
 						}
 
-						# trajectory = {key: dataColumns[key] for key in columns if key in dataColumns}
 						trajectory = {}
 						for key, value in dataColumns.items():
 							if key in columns:

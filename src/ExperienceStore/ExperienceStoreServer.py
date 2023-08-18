@@ -5,6 +5,7 @@ import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Utils.ConfigHelper as ConfigHelper
 import gymnasium as gym
+import typing
 
 class ExperienceStoreServer(ConfigHelper.ConfigurableClass):
 	def __init__(self, envConfig:SCT.Config):
@@ -23,16 +24,40 @@ class ExperienceStoreServer(ConfigHelper.ConfigurableClass):
 			minSize = table["MinCount"]
 			maxSize = table["MaxCount"]
 			priorityExponent = table["PriorityExponent"]
-			self.AddTableTrajectory(tableName, stepCount, minSize, maxSize, priorityExponent)
+			columns = table["Columns"]
+			self.AddTableTrajectory(tableName, stepCount, minSize, maxSize, priorityExponent, columns)
 
 		return
 
-	def AddTableTrajectory(self, tableName:str, stepCount:int, minSize:int, maxSize:int, priorityExponent:float) -> None:
+	def AddTableTrajectory(self,
+			tableName:str,
+			stepCount:int,
+			minSize:int,
+			maxSize:int,
+			priorityExponent:float,
+			columns:typing.List[str]) -> None:
+
 		state_Spec = self.SpaceToSpec(self.ObservationSpace, stepCount)
 		action_Spec = self.SpaceToSpec(self.ActionSpace, stepCount)
 
 		reward_Spec = tf.TensorSpec([stepCount], tf.double)
 		endFlag_Spec = tf.TensorSpec([stepCount], tf.bool)
+
+
+		signature = {
+				DCT.eDataColumnTypes.CurrentState.name: state_Spec,
+				DCT.eDataColumnTypes.NextState.name: state_Spec,
+				DCT.eDataColumnTypes.Action.name: action_Spec,
+				DCT.eDataColumnTypes.Reward.name: reward_Spec,
+				DCT.eDataColumnTypes.MaxFutureRewards.name: reward_Spec,
+				DCT.eDataColumnTypes.Terminated.name: endFlag_Spec,
+				DCT.eDataColumnTypes.Truncated.name: endFlag_Spec
+			}
+
+		filteredSignature = {}
+		for key, value in signature.items():
+			if key in columns:
+				filteredSignature[key] = value
 
 
 		table = reverb.Table(
@@ -41,15 +66,7 @@ class ExperienceStoreServer(ConfigHelper.ConfigurableClass):
 			remover=reverb.selectors.Fifo(),
 			max_size=maxSize,
 			rate_limiter=reverb.rate_limiters.MinSize(minSize),
-			signature={
-				DCT.eDataColumnTypes.CurrentState.name: state_Spec,
-				DCT.eDataColumnTypes.NextState.name: state_Spec,
-				DCT.eDataColumnTypes.Action.name: action_Spec,
-				DCT.eDataColumnTypes.Reward.name: reward_Spec,
-				DCT.eDataColumnTypes.MaxFutureRewards.name: reward_Spec,
-				DCT.eDataColumnTypes.Terminated.name: endFlag_Spec,
-				DCT.eDataColumnTypes.Truncated.name: endFlag_Spec
-			})
+			signature=filteredSignature)
 
 		self.Tables.append(table)
 		return
