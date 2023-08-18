@@ -78,7 +78,8 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			if rootNode is None or not AreStatesEqual(rootNode.State, state):
 				self._CachedTree = None
-				rootNode = TreeNode.TreeNode(state, self.StepNum, done=False, valueModel=self._ValueModel, playStyleModel=self._PlayStyleModel)
+				rootNode = TreeNode.TreeNode(state, self.StepNum, done=False,
+					valueModel=self._ValueModel, playStyleModel=self._PlayStyleModel)
 
 
 
