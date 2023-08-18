@@ -31,4 +31,4 @@ class ForwardModel(Model.Model):
 		rewards, _ = self.RewardModel.Predict(x)
 		terminateds, _ = self.TerminatedModel.Predict(x)
 
-		return nextStates, rewards, terminateds
+		return nextStates[0], rewards[0], terminateds[0]

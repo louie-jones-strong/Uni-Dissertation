@@ -11,6 +11,7 @@ from gymnasium.spaces import Discrete, Box
 import typing
 import src.Worker.Agents.Models.ForwardModel as ForwardModel
 import src.Worker.Agents.Models.ValueModel as ValueModel
+import src.Worker.Agents.Models.PlayStyleModel as PlayStyleModel
 
 import os
 from src.Common.Utils.PathHelper import GetRootPath
@@ -33,7 +34,8 @@ def GetAgent(eAgentType:eAgentType,
 
 		forwardModel = ForwardModel.ForwardModel()
 		valueModel = ValueModel.ValueModel()
-		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel, valueModel)
+		playStyleModel = PlayStyleModel.PlayStyleModel()
+		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel, valueModel, playStyleModel)
 
 	elif eAgentType == eAgentType.HardCoded:
 		import importlib.util

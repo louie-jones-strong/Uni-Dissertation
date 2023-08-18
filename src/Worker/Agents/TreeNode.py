@@ -3,6 +3,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 import src.Worker.Agents.Models.ForwardModel as ForwardModel
 import src.Worker.Agents.Models.ValueModel as ValueModel
+import src.Worker.Agents.Models.PlayStyleModel as PlayStyleModel
 import typing
 from typing import Optional, Tuple
 import math
@@ -16,13 +17,21 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 			episodeStep:int,
 			done:bool,
 			valueModel:ValueModel.ValueModel,
+			playStyleModel:PlayStyleModel.PlayStyleModel,
 			parent:Optional['TreeNode'] = None,
 			actionIdxTaken:Optional[int] = None):
 
 		self.LoadConfig()
 
 		self.State = state
-		self.ValueModelValue = valueModel.Predict([state])
+
+		self.ValueModelValue = None
+		if valueModel.CanPredict():
+			self.ValueModelValue = valueModel.Predict([state])
+
+		self.PlayStyleModelValue = None
+		if playStyleModel.CanPredict():
+			self.PlayStyleModelValue = playStyleModel.Predict([state], [actionIdxTaken])[0]
 
 		self.EpisodeStep = episodeStep
 		self.Done = done
@@ -56,7 +65,9 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 		return selectedNode.Selection(exploreFactor)
 
 	def Expand(self, actionList:SCT.Action_List,
-			forwardModel:ForwardModel.ForwardModel, valueModel:ValueModel.ValueModel) -> None:
+			forwardModel:ForwardModel.ForwardModel,
+			valueModel:ValueModel.ValueModel,
+			playStyleModel:PlayStyleModel.PlayStyleModel) -> None:
 
 		stateList = TreeNode.CloneState(self.State, len(actionList))
 
@@ -71,6 +82,7 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 				episodeStep=self.EpisodeStep + 1,
 				done=terminated,
 				valueModel=valueModel,
+				playStyleModel=playStyleModel,
 				parent=self,
 				actionIdxTaken=i)
 
@@ -95,18 +107,41 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 		if self.Counts == 0:
 			return float('inf')
 
+		# if the node is done then we don't want to explore it further
 		if self.Done:
 			return float('-inf')
 
+		# get this node's value
+		rolloutRewards = self.TotalRewards / self.Counts
 
+		predictedValue = 0
+		if self.ValueModelValue is not None:
+			predictedValue = self.ValueModelValue
+
+		styleValue = 0
+		if self.PlayStyleModelValue is not None:
+			styleValue = self.PlayStyleModelValue
+
+		nodeScoreConfig = self.Config["NodeScoreConfig"]
+
+		nodeValue = 0
+		nodeValue += rolloutRewards * nodeScoreConfig["RolloutRewardsMultiplier"]
+		nodeValue += predictedValue * nodeScoreConfig["PredictedValueMultiplier"]
+		nodeValue += styleValue * nodeScoreConfig["StyleValueMultiplier"]
+
+
+
+
+
+		# get the explore value relative to the other children of our parent
 		parentCounts = self.Counts
 		if self.Parent is not None:
 			parentCounts = self.Parent.Counts
 
-		avgReward = self.TotalRewards / self.Counts
-
 		exploreValue = math.sqrt(math.log(parentCounts) / self.Counts)
-		return avgReward + exploreFactor * exploreValue
+
+
+		return nodeValue + exploreFactor * exploreValue
 
 	def GetActionValues(self) -> Tuple[Optional[NDArray[np.float32]], Optional[NDArray[np.float32]]]:
 
@@ -171,7 +206,9 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 			"Done": self.Done,
 			"TotalRewards": self.TotalRewards,
 			"Counts": self.Counts,
-			"ActionIdxTaken": self.ActionIdxTaken
+			"ActionIdxTaken": self.ActionIdxTaken,
+			"ValueModelValue": self.ValueModelValue,
+			"PlayStyleModelValue": self.PlayStyleModelValue
 		}
 
 		data["Children"] = None

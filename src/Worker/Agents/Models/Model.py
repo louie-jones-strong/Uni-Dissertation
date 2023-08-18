@@ -25,7 +25,7 @@ class Model(ConfigHelper.ConfigurableClass):
 
 	def UpdateModels(self) -> None:
 		self.HasTrainedModel = self._ModelHelper.FetchNewestWeights(self._ModelType, self._Model)
-		print("fetched newest weights", self.HasTrainedModel)
+		print(f"fetched newest weights ({self._ModelType})", self.HasTrainedModel)
 		return
 
 	def CanPredict(self) -> bool:

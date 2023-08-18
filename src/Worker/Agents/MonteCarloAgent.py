@@ -6,6 +6,7 @@ import time
 from gymnasium.spaces import Discrete, Box
 import src.Worker.Agents.Models.ForwardModel as ForwardModel
 import src.Worker.Agents.Models.ValueModel as ValueModel
+import src.Worker.Agents.Models.PlayStyleModel as PlayStyleModel
 import src.Worker.Agents.TreeNode as TreeNode
 import typing
 
@@ -21,10 +22,13 @@ def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:
 class MonteCarloAgent(BaseAgent.BaseAgent):
 
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool,
-				forwardModel:ForwardModel.ForwardModel, valueModel:ValueModel.ValueModel):
+				forwardModel:ForwardModel.ForwardModel,
+				valueModel:ValueModel.ValueModel,
+				playStyleModel:PlayStyleModel.PlayStyleModel):
 
 		self._ForwardModel = forwardModel
 		self._ValueModel = valueModel
+		self._PlayStyleModel = playStyleModel
 
 		super().__init__(envConfig, isTrainingMode)
 
@@ -36,6 +40,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		super().UpdateModels()
 		self._ForwardModel.UpdateModels()
 		self._ValueModel.UpdateModels()
+		self._PlayStyleModel.UpdateModels()
 		return
 
 	def Remember(self,
@@ -73,13 +78,13 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			if rootNode is None or not AreStatesEqual(rootNode.State, state):
 				self._CachedTree = None
-				rootNode = TreeNode.TreeNode(state, self.StepNum, done=False, valueModel=self._ValueModel)
+				rootNode = TreeNode.TreeNode(state, self.StepNum, done=False, valueModel=self._ValueModel, playStyleModel=self._PlayStyleModel)
 
 
 
 
 		if rootNode.Children is None:
-			rootNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel)
+			rootNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
 
 		# monte carlo tree search
 		for i in range(self.Config["MaxSelections"]):
@@ -89,7 +94,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			# 2. expansion
 			if selectedNode.Counts > 0 and selectedNode.Children is None:
-				selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel)
+				selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
 				selectedNode = selectedNode.Selection(self.Config["ExploreFactor"])
 
 			# 3. simulation

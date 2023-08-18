@@ -1,4 +1,9 @@
 {
+	"NodeScoreConfig": {
+		"RolloutRewardsMultiplier": 1.0,
+		"PredictedValueMultiplier": 0.0,
+		"StyleValueMultiplier": 1.0
+	},
 	"MaxInFlightSamples": 3,
 	"DataCollectionMultiplier": 1,
 	"MaxSecondsPerAction": 10,
