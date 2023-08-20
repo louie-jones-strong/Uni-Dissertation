@@ -49,9 +49,9 @@ class Learner(ConfigHelper.ConfigurableClass):
 
 	def _ConnectToExperienceStore(self) -> None:
 
-		maxInFlightSamples = self.Config["MaxInFlightSamples"]
+		maxInFlightSamples = self.Config["LearnerConfig"]["MaxInFlightSamples"]
 		batchSize = self.ModelConfig["TrainingBatchSize"]
-		dataCollectionMultiplier = self.Config["DataCollectionMultiplier"]
+		dataCollectionMultiplier = self.Config["LearnerConfig"]["DataCollectionMultiplier"]
 
 		# connect to the experience store dataset
 		trajectoryDataset = reverb.TrajectoryDataset.from_table_signature(

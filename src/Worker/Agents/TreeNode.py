@@ -122,7 +122,7 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 		if self.PlayStyleModelValue is not None:
 			styleValue = self.PlayStyleModelValue
 
-		nodeScoreConfig = self.Config["NodeScoreConfig"]
+		nodeScoreConfig = self.Config["MonteCarloConfig"]["NodeScoreConfig"]
 
 		nodeValue = 0
 		nodeValue += rolloutRewards * nodeScoreConfig["RolloutRewardsMultiplier"]

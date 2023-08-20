@@ -1,20 +1,27 @@
 {
-	"NodeScoreConfig": {
-		"RolloutRewardsMultiplier": 1.0,
-		"PredictedValueMultiplier": 0.0,
-		"StyleValueMultiplier": 1.0
+	"MonteCarloConfig": {
+		"MaxSecondsPerAction": 10,
+		"CacheTree": true,
+		"SelectionConfig": {
+			"MaxSelectionsPerAction": 256,
+			"TrainExploreFactor": 0.5,
+			"TestExploreFactor": 0.1
+		},
+		"RollOutConfig": {
+			"MaxRollOutCount": 1024,
+			"MaxRollOutDepth": 32,
+			"ValueFinalStates": true,
+			"TimeOutAllowed": false
+		},
+		"NodeScoreConfig": {
+			"RolloutRewardsMultiplier": 1.0,
+			"PredictedValueMultiplier": 0.0,
+			"StyleValueMultiplier": 1.0
+		}
 	},
-	"MaxInFlightSamples": 3,
-	"DataCollectionMultiplier": 1,
-	"MaxSecondsPerAction": 10,
-	"MaxSelections": 256,
-	"CacheTree": true,
-	"ExploreFactor": 0.5,
-	"RollOutConfig": {
-		"MaxRollOutCount": 1024,
-		"MaxRollOutDepth": 32,
-		"ValueFinalStates": true,
-		"TimeOutAllowed": false
+	"LearnerConfig": {
+		"MaxInFlightSamples": 3,
+		"DataCollectionMultiplier": 1
 	},
 	"ModelConfigs": {
 		"Value": {

@@ -61,10 +61,12 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def GetActionValues(self, state:SCT.State) -> typing.Tuple[NDArray[np.float32], str]:
 		super().GetActionValues(state)
 
+		monteCarloConfig = self.Config["MonteCarloConfig"]
+
 		if not self._ForwardModel.CanPredict():
 			return self.ActionSpace.sample(), "MonteCarloAgent Random Action (Can't Predict)"
 
-		self._StopTime = time.process_time() + self.Config["MaxSecondsPerAction"]
+		self._StopTime = time.process_time() + monteCarloConfig["MaxSecondsPerAction"]
 
 		rootNode = self._CachedTree
 		if rootNode is None or not AreStatesEqual(rootNode.State, state):
@@ -87,20 +89,28 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		if rootNode.Children is None:
 			rootNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
 
+
+		selectionConfig = monteCarloConfig["SelectionConfig"]
+
+		exploreFactor = selectionConfig["TestExploreFactor"]
+		if self.Mode == BaseAgent.ePlayMode.Train:
+			exploreFactor = selectionConfig["TrainExploreFactor"]
+
+
 		# monte carlo tree search
-		for i in range(self.Config["MaxSelections"]):
+		for i in range(selectionConfig["MaxSelectionsPerAction"]):
 
 			# 1. selection
-			selectedNode = rootNode.Selection(self.Config["ExploreFactor"])
+			selectedNode = rootNode.Selection(exploreFactor)
 
 			# 2. expansion
 			if selectedNode.Counts > 0 and selectedNode.Children is None:
 				selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
-				selectedNode = selectedNode.Selection(self.Config["ExploreFactor"])
+				selectedNode = selectedNode.Selection(exploreFactor)
 
 			# 3. simulation
 			rolloutMaxDepth = self.EnvConfig["MaxSteps"] - selectedNode.EpisodeStep
-			rolloutMaxDepth = min(rolloutMaxDepth, self.Config["RollOutConfig"]["MaxRollOutDepth"])
+			rolloutMaxDepth = min(rolloutMaxDepth, monteCarloConfig["RollOutConfig"]["MaxRollOutDepth"])
 
 			totalRewards = self._RollOut(selectedNode.State, rolloutMaxDepth)
 
@@ -113,7 +123,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 				rootNode.AllExplored():
 				break
 
-		if self.Config["CacheTree"]:
+		if monteCarloConfig["CacheTree"]:
 			self._CachedTree = rootNode
 
 		if rootNode.Children is None:
@@ -130,9 +140,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		return actionValues, actionReason
 
 	def _RollOut(self, state:SCT.State, maxDepth:int) -> SCT.Reward_List:
-
-		numRollOuts = self.Config["RollOutConfig"]["MaxRollOutCount"]
-		timeOutAllowed = self.Config["RollOutConfig"]["TimeOutAllowed"]
+		rollOutConfig = self.Config["MonteCarloConfig"]["RollOutConfig"]
+		numRollOuts = rollOutConfig["MaxRollOutCount"]
+		timeOutAllowed = rollOutConfig["TimeOutAllowed"]
 
 
 		states = MonteCarloAgent.CloneState(state, numRollOuts)
@@ -158,7 +168,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			if timeOutAllowed and time.process_time() < self._StopTime:
 				break
 
-		if self.Config["RollOutConfig"]["ValueFinalStates"] and self._ValueModel.CanPredict():
+		if rollOutConfig["ValueFinalStates"] and self._ValueModel.CanPredict():
 			values = self._ValueModel.Predict(states)
 			totalRewards += values * isPlayingMask
 
