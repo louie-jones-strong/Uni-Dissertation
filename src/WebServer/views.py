@@ -182,17 +182,9 @@ def Setup(envConfig) -> None:
 		# config = ConfigHelper.LoadConfig(data["envConfig"]["ConfigPath"])
 		data["envConfigStr"] = ConfigHelper.PrintConfig(data["envConfig"])
 
-		modelHelperConfigPath = os.path.join(configFolder, "ModelHelper.json")
-		config = ConfigHelper.LoadConfig(modelHelperConfigPath)
-		data["modelHelperConfigStr"] = ConfigHelper.PrintConfig(config)
-
-		monteCarloAgentConfigPath = os.path.join(configFolder, "MonteCarloAgent.json")
-		config = ConfigHelper.LoadConfig(monteCarloAgentConfigPath)
-		data["monteCarloAgentConfigStr"] = ConfigHelper.PrintConfig(config)
-
-		learnerConfigPath = os.path.join(configFolder, "Learner.json")
-		config = ConfigHelper.LoadConfig(learnerConfigPath)
-		data["learnerConfigStr"] = ConfigHelper.PrintConfig(config)
+		mlConfigPath = os.path.join(configFolder, "MLConfig.json")
+		config = ConfigHelper.LoadConfig(mlConfigPath)
+		data["mlConfigStr"] = ConfigHelper.PrintConfig(config)
 
 		return render_template("config.html", **data)
 
