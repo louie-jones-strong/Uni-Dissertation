@@ -1,4 +1,5 @@
 {
+	"UseRealSim": false,
 	"MonteCarloConfig": {
 		"MaxSecondsPerAction": 10,
 		"CacheTree": true,

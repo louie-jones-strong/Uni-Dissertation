@@ -1,4 +1,5 @@
 import src.Worker.Agents.BaseAgent as BaseAgent
+import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.EnvRunner as EnvRunner
 from src.Common.Enums.eAgentType import eAgentType
@@ -38,6 +39,7 @@ class Worker:
 
 		# get initial states from the environments
 		stateList = [env.GetState() for env in self.Envs]
+		envs = [env.Env for env in self.Envs]
 
 		maxEpisodes = self.Config["MaxEpisodes"]
 
@@ -45,10 +47,10 @@ class Worker:
 		while self.EpisodeCount < maxEpisodes:
 
 			# get actions from the agent
-			actions, actionReasons = self._GetActions(stateList)
+			actions, actionReasons = self._GetActions(stateList, envs)
 
 			# make the chosen actions in the environments
-			stateList, finishedEpisodes = self._StepEnvs(actions, actionReasons)
+			stateList, envs, finishedEpisodes = self._StepEnvs(actions, actionReasons)
 
 			# increment the episode count by the number of episodes that have been completed in this step
 			self.EpisodeCount += finishedEpisodes
@@ -65,18 +67,23 @@ class Worker:
 		print("Worker finished")
 		return
 
-	def _GetActions(self, stateList:typing.List[SCT.State]) -> typing.Tuple[typing.List[SCT.Action], typing.List[str]]:
+	def _GetActions(self,
+			stateList:typing.List[SCT.State],
+			envs:typing.List[BaseEnv.BaseEnv]) -> typing.Tuple[typing.List[SCT.Action], typing.List[str]]:
+
 		actions = []
 		actionReasons = []
 
-		for state in stateList:
-			action, actionReason = self.Agent.GetAction(state)
+		for i in range(len(stateList)):
+			action, actionReason = self.Agent.GetAction(stateList[i], envs[i])
 			actions.append(action)
 			actionReasons.append(actionReason)
 
 		return actions, actionReasons
 
-	def _StepEnvs(self, actions:typing.List[SCT.Action], actionReasons) -> typing.Tuple[typing.List[SCT.State], int]:
+	def _StepEnvs(self,
+			actions:typing.List[SCT.Action],
+			actionReasons) -> typing.Tuple[typing.List[SCT.State], typing.List[BaseEnv.BaseEnv], int]:
 		"""
 		Makes the chosen actions in the environments.
 
@@ -93,12 +100,14 @@ class Worker:
 
 
 		stateList = []
+		envs = []
 		finishedEpisodes = 0
 		for i in range(len(self.Envs)):
 
 			state, done = self.Envs[i].Step(actions[i], actionReason=actionReasons[i])
 
 			stateList.append(state)
+			envs.append(self.Envs[i].Env)
 
 			if done:
 				finishedEpisodes += 1
@@ -107,7 +116,7 @@ class Worker:
 
 				self.Envs[i].Reset()
 
-		return stateList, finishedEpisodes
+		return stateList, envs, finishedEpisodes
 
 
 	def CheckForUpdates(self) -> None:

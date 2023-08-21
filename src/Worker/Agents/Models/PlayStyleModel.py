@@ -11,7 +11,7 @@ class PlayStyleModel(Model.Model):
 	def Predict(self, states:SCT.State_List, actions:SCT.Action_List) -> typing.Tuple[SCT.Reward_List]:
 
 		x = [states, actions]
-		y, rawY = self.StateModel.Predict(x)
+		y, rawY = super().Predict(x)
 
 		# get the prediction confidence
 		# this is the second column of the output

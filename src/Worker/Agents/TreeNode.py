@@ -8,12 +8,14 @@ import typing
 from typing import Optional, Tuple
 import math
 import src.Worker.Agents.BaseAgent as BaseAgent
+import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.ConfigHelper as ConfigHelper
 
 
 class TreeNode(ConfigHelper.ConfigurableClass):
 	def __init__(self,
 			state:SCT.State,
+			env:BaseEnv.BaseEnv,
 			episodeStep:int,
 			done:bool,
 			valueModel:ValueModel.ValueModel,
@@ -24,6 +26,7 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 		self.LoadConfig()
 
 		self.State = state
+		self.Env = env
 
 		self.ValueModelValue = None
 		if valueModel.CanPredict():
@@ -69,9 +72,9 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 			valueModel:ValueModel.ValueModel,
 			playStyleModel:PlayStyleModel.PlayStyleModel) -> None:
 
-		stateList = TreeNode.CloneState(self.State, len(actionList))
+		stateList, envs = TreeNode.CloneState(self.State, self.Env, len(actionList), self.Config["UseRealSim"])
 
-		nextStates, rewards, terminateds = forwardModel.Predict(stateList, actionList)
+		nextStates, nextEnvs, rewards, terminateds = forwardModel.Predict(stateList, envs, actionList)
 
 
 		self.Children = []
@@ -79,6 +82,7 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 			terminated = terminateds[i]
 			expandedNode = TreeNode(
 				nextStates[i],
+				nextEnvs[i],
 				episodeStep=self.EpisodeStep + 1,
 				done=terminated,
 				valueModel=valueModel,
@@ -189,15 +193,24 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 		return True
 
 	@staticmethod
-	def CloneState(state:SCT.State, count:int) -> SCT.State_List:
+	def CloneState(state:SCT.State, env:BaseEnv.BaseEnv, count:int, cloneEnv:bool) -> SCT.State_List:
 
+		states = None
 		if isinstance(state, int):
-			return np.full(count, state, dtype=np.int_)
+			states = np.full(count, state, dtype=np.int_)
+		else:
+			currentState = state.reshape(1, -1)
+			states = np.repeat(currentState, count, axis=0)
 
+		envs = []
+		for i in range(count):
+			clonedEnv = None
+			if env is not None and cloneEnv:
+				clonedEnv = env.Clone()
 
-		currentState = state.reshape(1, -1)
-		states = np.repeat(currentState, count, axis=0)
-		return states
+			envs.append(clonedEnv)
+
+		return states, envs
 
 	def ToDict(self):
 		data = {

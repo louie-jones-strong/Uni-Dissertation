@@ -8,6 +8,7 @@ import src.Worker.Agents.Models.ForwardModel as ForwardModel
 import src.Worker.Agents.Models.ValueModel as ValueModel
 import src.Worker.Agents.Models.PlayStyleModel as PlayStyleModel
 import src.Worker.Agents.TreeNode as TreeNode
+import src.Worker.Environments.BaseEnv as BaseEnv
 import typing
 
 def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:
@@ -43,23 +44,13 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		self._PlayStyleModel.UpdateModels()
 		return
 
-	def Remember(self,
-			state:SCT.State,
-			action:SCT.Action,
-			reward:SCT.Reward,
-			nextState:SCT.State,
-			terminated:bool,
-			truncated:bool) -> None:
-		super().Remember(state, action, reward, nextState, terminated, truncated)
-		return
-
-	def GetAction(self, state:SCT.State) -> typing.Tuple[SCT.Action, str]:
-		super().GetAction(state)
-		actionValues, actionReason = self.GetActionValues(state)
+	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action, str]:
+		super().GetAction(state, env)
+		actionValues, actionReason = self.GetActionValues(state, env)
 		return BaseAgent.BaseAgent._GetMaxValues(actionValues), actionReason
 
-	def GetActionValues(self, state:SCT.State) -> typing.Tuple[NDArray[np.float32], str]:
-		super().GetActionValues(state)
+	def GetActionValues(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[NDArray[np.float32], str]:
+		super().GetActionValues(state, env)
 
 		monteCarloConfig = self.Config["MonteCarloConfig"]
 
@@ -80,7 +71,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			if rootNode is None or not AreStatesEqual(rootNode.State, state):
 				self._CachedTree = None
-				rootNode = TreeNode.TreeNode(state, self.StepNum, done=False,
+				rootNode = TreeNode.TreeNode(state, env, self.StepNum, done=False,
 					valueModel=self._ValueModel, playStyleModel=self._PlayStyleModel)
 
 
@@ -112,7 +103,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			rolloutMaxDepth = self.EnvConfig["MaxSteps"] - selectedNode.EpisodeStep
 			rolloutMaxDepth = min(rolloutMaxDepth, monteCarloConfig["RollOutConfig"]["MaxRollOutDepth"])
 
-			totalRewards = self._RollOut(selectedNode.State, rolloutMaxDepth)
+			totalRewards = self._RollOut(selectedNode.State, selectedNode.Env, rolloutMaxDepth)
 
 			# 4. backpropagation
 			selectedNode.BackPropagate(totalRewards.sum(), len(totalRewards))
@@ -139,13 +130,13 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		}
 		return actionValues, actionReason
 
-	def _RollOut(self, state:SCT.State, maxDepth:int) -> SCT.Reward_List:
+	def _RollOut(self, state:SCT.State, env:BaseEnv.BaseEnv, maxDepth:int) -> SCT.Reward_List:
 		rollOutConfig = self.Config["MonteCarloConfig"]["RollOutConfig"]
 		numRollOuts = rollOutConfig["MaxRollOutCount"]
 		timeOutAllowed = rollOutConfig["TimeOutAllowed"]
 
 
-		states = MonteCarloAgent.CloneState(state, numRollOuts)
+		states, envs = TreeNode.TreeNode.CloneState(state, env, numRollOuts, self.Config["UseRealSim"])
 
 		isPlayingMask = np.ones(numRollOuts, dtype=np.bool_)
 		totalRewards = np.zeros(numRollOuts, dtype=np.float32)
@@ -156,7 +147,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			actions = self._SampleActions(self.ActionSpace, numRollOuts)
 
 			# predict the next states and rewards
-			nextStates, rewards, terminateds = self._ForwardModel.Predict(states, actions)
+			nextStates, envs, rewards, terminateds = self._ForwardModel.Predict(states, envs, actions)
 
 
 			totalRewards += rewards * isPlayingMask
@@ -174,16 +165,6 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		return totalRewards
 
-	@staticmethod
-	def CloneState(state:SCT.State, count:int) -> SCT.State_List:
-
-		if isinstance(state, int):
-			return np.full(count, state, dtype=np.int_)
-
-
-		currentState = state.reshape(1, -1)
-		states = np.repeat(currentState, count, axis=0)
-		return states
 
 	def _SampleActions(self, actionSpace: SCT.ActionSpace, numActions:int) -> SCT.Action_List:
 

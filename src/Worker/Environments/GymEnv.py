@@ -140,7 +140,7 @@ class GymEnv(BaseEnv.BaseEnv):
 		return nextState, float(reward), terminated, truncated
 
 	def Clone(self) -> BaseEnv.BaseEnv:
-		super().Clone()
+
 
 		newGym = deepcopy(self._GymEnv)
 		newEnv = GymEnv(self._Config, gymEnv=newGym)

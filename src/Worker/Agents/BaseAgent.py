@@ -12,6 +12,7 @@ import typing
 import src.Worker.Agents.Models.ForwardModel as ForwardModel
 import src.Worker.Agents.Models.ValueModel as ValueModel
 import src.Worker.Agents.Models.PlayStyleModel as PlayStyleModel
+import src.Worker.Environments.BaseEnv as BaseEnv
 
 import os
 from src.Common.Utils.PathHelper import GetRootPath
@@ -112,13 +113,13 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		return
 
 
-	def GetAction(self, state:SCT.State) -> typing.Tuple[SCT.Action, str]:
+	def GetAction(self, state:SCT.State, envs:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action, str]:
 		self.StepNum += 1
 		self.TotalStepNum += 1
 
 		return 0, "BaseAgent"
 
-	def GetActionValues(self, state:SCT.State) -> typing.Tuple[NDArray[np.float32], str]:
+	def GetActionValues(self, state:SCT.State, envs:BaseEnv.BaseEnv) -> typing.Tuple[NDArray[np.float32], str]:
 		shape = SCT.JoinTuples(self.ActionSpace.shape, None)
 		return np.ones(shape, dtype=np.float32), "BaseAgent"
 
