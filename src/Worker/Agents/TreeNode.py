@@ -36,7 +36,8 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 		if playStyleModel.CanPredict():
 			self.PlayStyleModelValue = playStyleModel.Predict([state], [actionIdxTaken])[0]
 
-		self.EpisodeStep = episodeStep
+
+
 		self.Done = done
 
 		self.TotalRewards:SCT.Reward = 0
@@ -47,25 +48,41 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 
 		self.Children:Optional[typing.List['TreeNode']] = None
 
+		self.EpisodeStep = episodeStep
+		self.MinDepth = episodeStep
+		self.MaxDepth = episodeStep
+		self.BackPropDepthStats(episodeStep, episodeStep)
+
 		return
 
-	def Selection(self, exploreFactor:float) -> 'TreeNode':
+	def Selection(self, exploreFactor:float, maxDepth:int) -> 'TreeNode':
 
 		if self.Done:
-			return self
+			return None
+
+		if self.MinDepth > maxDepth:
+			return None
 
 		if self.Children is None:
 			return self
 
+		found = False
+		nodeScores = []
+		for child in self.Children:
+			nodeScore = child.GetNodeScore(exploreFactor, self.Counts)
+			if child.MinDepth <= maxDepth:
+				found = True
+			nodeScores.append(nodeScore)
 
-		nodeScores = np.array([child.GetNodeScore(exploreFactor, self.Counts) for child in self.Children])
+		nodeScores = np.array(nodeScores, dtype=np.float32)
+		if not found:
+			return None
 
-		# selectedIndex = np.argmax(nodeScores)
 		selectedIndex = BaseAgent.BaseAgent._GetMaxValues(nodeScores)
 
 		selectedNode = self.Children[selectedIndex]
 
-		return selectedNode.Selection(exploreFactor)
+		return selectedNode.Selection(exploreFactor, maxDepth)
 
 	def Expand(self, actionList:SCT.Action_List,
 			forwardModel:ForwardModel.ForwardModel,
@@ -91,19 +108,34 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 				actionIdxTaken=i)
 
 			if terminated:
-				expandedNode.BackPropagate(rewards[i], counts=1)
+				expandedNode.BackPropRewards(rewards[i], counts=1)
 
 			self.Children.append(expandedNode)
 
 		return
 
-	def BackPropagate(self, totalReward:SCT.Reward, counts:int) -> None:
+	def BackPropRewards(self, totalReward:SCT.Reward, counts:int) -> None:
 		self.TotalRewards += totalReward
 		self.Counts += counts
 
 		if self.Parent is not None:
-			self.Parent.BackPropagate(totalReward, counts)
+			self.Parent.BackPropRewards(totalReward, counts)
 
+		return
+
+	def BackPropDepthStats(self, minDepth:int, maxDepth:int) -> None:
+		assert minDepth <= maxDepth
+
+		assert minDepth >= self.MinDepth
+		assert maxDepth >= self.MaxDepth
+
+		self.MinDepth = min(minDepth, self.MinDepth)
+		self.MaxDepth = max(maxDepth, self.MaxDepth)
+
+		assert self.MinDepth <= self.MaxDepth
+
+		if self.Parent is not None:
+			self.Parent.BackPropDepthStats(minDepth, maxDepth)
 		return
 
 	def GetNodeScore(self, exploreFactor:float, parentCounts:int) -> float:

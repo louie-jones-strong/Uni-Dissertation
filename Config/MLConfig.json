@@ -1,12 +1,13 @@
 {
-	"UseRealSim": false,
+	"UseRealSim": true,
 	"MonteCarloConfig": {
 		"MaxSecondsPerAction": 10,
 		"CacheTree": true,
 		"SelectionConfig": {
 			"MaxSelectionsPerAction": 256,
 			"TrainExploreFactor": 0.5,
-			"TestExploreFactor": 0.1
+			"TestExploreFactor": 0.1,
+			"MaxTreeDepth": 3
 		},
 		"RollOutConfig": {
 			"MaxRollOutCount": 1024,

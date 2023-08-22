@@ -6,7 +6,7 @@ def GetRootPath() -> str:
 	rootPath = dirname(dirname(dirname(dirname(abspath(__file__)))))
 	return rootPath
 
-def EnsurePathExists(path):
+def EnsurePathExists(path:str) -> None:
 
 	# remove the file part of the path if it is a file
 	if "." in path:

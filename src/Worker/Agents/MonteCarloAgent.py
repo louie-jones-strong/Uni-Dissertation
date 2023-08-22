@@ -87,17 +87,25 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		if self.Mode == BaseAgent.ePlayMode.Train:
 			exploreFactor = selectionConfig["TrainExploreFactor"]
 
+		maxTreeDepth = self.StepNum + selectionConfig["MaxTreeDepth"]
+		maxTreeDepth = min(maxTreeDepth, self.EnvConfig["MaxSteps"])
 
 		# monte carlo tree search
 		for i in range(selectionConfig["MaxSelectionsPerAction"]):
 
 			# 1. selection
-			selectedNode = rootNode.Selection(exploreFactor)
+
+			selectedNode = rootNode.Selection(exploreFactor, maxTreeDepth)
+
+
 
 			# 2. expansion
-			if selectedNode.Counts > 0 and selectedNode.Children is None:
+			if selectedNode is not None and selectedNode.Counts > 0 and selectedNode.Children is None:
 				selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
-				selectedNode = selectedNode.Selection(exploreFactor)
+				selectedNode = selectedNode.Selection(exploreFactor, maxTreeDepth)
+
+			if selectedNode is None:
+				break
 
 			# 3. simulation
 			rolloutMaxDepth = self.EnvConfig["MaxSteps"] - selectedNode.EpisodeStep
@@ -106,7 +114,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			totalRewards = self._RollOut(selectedNode.State, selectedNode.Env, rolloutMaxDepth)
 
 			# 4. backpropagation
-			selectedNode.BackPropagate(totalRewards.sum(), len(totalRewards))
+			selectedNode.BackPropRewards(totalRewards.sum(), len(totalRewards))
 
 
 

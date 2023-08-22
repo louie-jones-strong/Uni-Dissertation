@@ -115,6 +115,7 @@ class Worker:
 				self.TotalRewards += self.LastReward
 
 				self.Envs[i].Reset()
+				self.Agent.Reset()
 
 		return stateList, envs, finishedEpisodes
 
