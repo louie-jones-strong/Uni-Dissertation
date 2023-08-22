@@ -1,5 +1,6 @@
 import src.Worker.Agents.BaseAgent as BaseAgent
 import src.Common.Utils.SharedCoreTypes as SCT
+import src.Worker.Environments.BaseEnv as BaseEnv
 import typing
 
 
@@ -18,30 +19,8 @@ class HardCodedAi(BaseAgent.BaseAgent):
 		super().Reset()
 		return
 
-	def Save(self, path:str) -> None:
-		super().Save(path)
-		return
-
-	def Load(self, path:str) -> None:
-		super().Load(path)
-		return
-
-
-
-	def Remember(self,
-		state:SCT.State,
-		action:SCT.Action,
-		reward:SCT.Reward,
-		nextState:SCT.State,
-		terminated:bool,
-		truncated:bool) -> None:
-
-		super().Remember(state, action, reward, nextState, terminated, truncated)
-		return
-
-
-	def GetAction(self, state:SCT.State) -> typing.Tuple[SCT.Action, str]:
-		super().GetAction(state)
+	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action, str]:
+		super().GetAction(state, env)
 
 		if state is None:
 			return 0, "None State"

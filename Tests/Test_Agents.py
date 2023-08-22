@@ -22,9 +22,9 @@ class Test_Agents(unittest.TestCase):
 		self.CheckAgent(eAgentType.Random)
 		return
 
-	# def test_HardCoded(self):
-	# 	self.CheckAgent(eAgentType.HardCoded)
-	# 	return
+	def test_HardCoded(self):
+		self.CheckAgent(eAgentType.HardCoded)
+		return
 
 	def test_ML(self):
 		self.CheckAgent(eAgentType.ML)
