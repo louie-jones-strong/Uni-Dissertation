@@ -120,3 +120,21 @@ def ConfigToSpace(config:SCT.Config) -> Union[Discrete, Box]:
 		space = Box(low, high, shape, np.float32)
 
 	return space
+
+
+
+def FlattenConfig(toFlat:SCT.Config, output:SCT.Config={}, preKey:str="") -> SCT.Config:
+
+	for key, value in toFlat.items():
+
+		keyStr = f"{preKey}_{key}"
+		if keyStr.startswith("_"):
+			keyStr = keyStr[1:]
+
+		if isinstance(value, dict):
+			output = FlattenConfig(value, output, keyStr)
+
+		else:
+			output[keyStr] = value
+
+	return output

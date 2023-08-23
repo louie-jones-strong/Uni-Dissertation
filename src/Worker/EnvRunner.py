@@ -2,6 +2,9 @@ import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.Metrics.Logger as Logger
 from src.Common.EpisodeReplay.EpisodeReplay import EpisodeReplay as ER
 from src.Common.EpisodeReplay.EpisodeReplayStep import EpisodeReplayStep as ERStep
+import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.PathHelper as PathHelper
+import os
 
 class EnvRunner:
 
@@ -52,6 +55,7 @@ class EnvRunner:
 		if terminated or truncated:
 
 			if self.EpisodeReplay is not None:
+				# save replay of the episode
 				humanState = self.Env.Render()
 				erStep = ERStep(self.Env._CurrentStep, humanState, self.State, reward, None, None)
 				self.EpisodeReplay.AddStep(erStep)
@@ -59,13 +63,24 @@ class EnvRunner:
 				self.EpisodeReplay.EpisodeEnd(terminated, truncated)
 				self.EpisodeReplay.SaveToFolder(self.ReplayFolder)
 
-			# log the episode
+				# save the episode to stats to table
+				row = ConfigHelper.FlattenConfig(self.ReplayInfo, {
+						"Terminated": terminated,
+						"Truncated": truncated,
+						"EpisodeTotalReward": self.TotalReward,
+						"EpisodeSteps": self.StepCount
+					})
+
+				self._SaveToCsv(row)
+
+			# log the episode to wandb
 			self._Logger.LogDict({
 				"Terminated": float(terminated),
 				"Truncated": float(truncated),
 				"EpisodeTotalReward": self.TotalReward,
 				"EpisodeSteps": self.StepCount},
 				commit=True)
+
 
 
 		return nextState, terminated or truncated
@@ -81,3 +96,16 @@ class EnvRunner:
 			self.EpisodeReplay = ER(self.ReplayInfo)
 		return
 
+
+	def _SaveToCsv(self, row):
+		path = os.path.join(self.ReplayFolder, "stats.tsv")
+		PathHelper.EnsurePathExists(path)
+
+		if not os.path.exists(path):
+			with open(path, "w") as f:
+				f.write("\t".join(row.keys()) + "\n")
+
+		with open(path, "a") as f:
+			f.write("\t".join([str(x) for x in row.values()]) + "\n")
+
+		return

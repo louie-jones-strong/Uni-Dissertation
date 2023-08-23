@@ -57,7 +57,7 @@ class Worker:
 
 			if finishedEpisodes > 0:
 				avgRewards = self.TotalRewards / self.EpisodeCount
-				print(f"{self.EpisodeCount+1} / {maxEpisodes}    avg:{avgRewards:.3f} last:{self.LastReward:.0f}")
+				print(f"{self.EpisodeCount} / {maxEpisodes}    avg:{avgRewards:.3f} last:{self.LastReward:.0f}")
 
 			# If in evaluate mode then we only check for updates after an episode.
 			# This is to ensure that the agent is consistent for the whole episode.

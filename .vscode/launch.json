@@ -41,6 +41,7 @@
 				"--load", "False",
 				"--rungroup", "dev",
 				"--subsystem", "Worker",
+				"--saveReplay", "True"
 			]
 		},
 		{
@@ -55,7 +56,8 @@
 				"--load", "False",
 				"--rungroup", "dev",
 				"--subsystem", "Worker",
-				"--agent", "Human"
+				"--agent", "Human",
+				"--saveReplay", "True"
 			]
 		},
 		{
@@ -70,7 +72,8 @@
 				"--load", "False",
 				"--rungroup", "dev",
 				"--subsystem", "Worker",
-				"--agent", "Random"
+				"--agent", "Random",
+				"--saveReplay", "True"
 			]
 		},
 		{
@@ -85,7 +88,8 @@
 				"--load", "False",
 				"--rungroup", "dev",
 				"--subsystem", "Worker",
-				"--agent", "HardCoded"
+				"--agent", "HardCoded",
+				"--saveReplay", "True"
 			]
 		},
 		{
@@ -101,7 +105,8 @@
 				"--rungroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "ML",
-				"--play", "True"
+				"--play", "True",
+				"--saveReplay", "True"
 			]
 		}
 	]

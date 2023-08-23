@@ -107,8 +107,12 @@ def Setup_Worker(parser, envConfig, runPath, envDataPath):
 		"NumEnvs": numEnvs
 	}
 
+
+	mlConfig = ConfigHelper.LoadConfig(ConfigHelper.GetClassConfigPath("MLConfig"))
+	replayInfo = ConfigHelper.FlattenConfig(mlConfig, replayInfo)
+
 	replayFolder = None
-	if agent == eAgentType.Human or agent == eAgentType.ML:
+	if parser.Get("saveReplay"):
 		replayFolder = os.path.join(runPath, "replays", agent.name)
 
 
@@ -141,6 +145,7 @@ def DefineCommandLineArgs():
 	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
 	parser.AddStrOption("rungroup", "grouping for wandb runs", "run group")
 	parser.AddBoolOption("load", "load from previous run", "load")
+	parser.AddBoolOption("saveReplay", "Should the replay be saved", "save replay")
 	parser.AddStrOption("exampleType", "type of behaviour example", "example type")
 
 	return parser

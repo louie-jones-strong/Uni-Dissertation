@@ -127,7 +127,6 @@ class TreeNode(ConfigHelper.ConfigurableClass):
 		assert minDepth <= maxDepth
 
 		assert minDepth >= self.MinDepth
-		assert maxDepth >= self.MaxDepth
 
 		self.MinDepth = min(minDepth, self.MinDepth)
 		self.MaxDepth = max(maxDepth, self.MaxDepth)
