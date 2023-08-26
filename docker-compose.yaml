@@ -64,6 +64,8 @@ services:
 
 # ===== Learners =====
   learner-value:
+    build:
+        dockerfile: ./src/Learner/Dockerfile
     image: learner
 
     volumes:
@@ -252,7 +254,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Worker --env /app/Config/Envs/${ENV_CONFIG_PATH} --agent ML --play True --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --exampleType human --saveReplay True
+    entrypoint: python main.py --subsystem Evaluation --env /app/Config/Envs/${ENV_CONFIG_PATH} --agent ML --play True --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --exampleType human --saveReplay True
     # tty: true
 
 
