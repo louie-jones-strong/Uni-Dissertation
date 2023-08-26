@@ -12,6 +12,9 @@ class MsRedis(MsBase.MsBase):
 		self.RedisClient = redis.Redis(host="model-store", port=5002, db=0)
 		return
 
+	def HasModel(self, modelKey:str) -> bool:
+		return self.RedisClient.exists(modelKey)
+
 	def FetchNewestWeights(self, modelKey:str, model:tf.keras.models.Model) -> bool:
 
 		flatWeightBytes = self.RedisClient.get(modelKey)

@@ -3,7 +3,7 @@ import numpy as np
 from src.Common.Enums.eModelType import eModelType
 import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.SharedCoreTypes as SCT
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 import src.Common.Utils.Singleton as Singleton
 import typing
 from typing import Optional
@@ -82,13 +82,13 @@ class ModelHelper(Singleton.Singleton):
 		return model, inputColumns, outputColumns, modelConfig
 
 
-	def FetchNewestWeights(self, eModelType:eModelType, model:tf.keras.models.Model) -> bool:
+	def FetchNewestWeights(self, modelType:eModelType, model:tf.keras.models.Model) -> bool:
 
-		return self.ModelStore.FetchNewestWeights(eModelType.name, model)
+		return self.ModelStore.FetchNewestWeights(modelType.name, model)
 
-	def PushModel(self, eModelType:eModelType, model:tf.keras.models.Model) -> None:
+	def PushModel(self, modelType:eModelType, model:tf.keras.models.Model) -> None:
 
-		self.ModelStore.PushModel(eModelType.name, model)
+		self.ModelStore.PushModel(modelType.name, model)
 
 		return
 

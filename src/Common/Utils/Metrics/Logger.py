@@ -19,7 +19,6 @@ class Logger(Singleton.Singleton):
 		self._RunId = runId
 		self._Config = config
 
-		self._TotalTimePerStep:typing.Dict[str, float] = {}
 		self._TotalTimePerEpisode:typing.Dict[str, float] = {}
 		self._Setup = True
 
@@ -40,6 +39,17 @@ class Logger(Singleton.Singleton):
 			wandb.log(dict, commit=commit)
 		return
 
+	def EpisodeEnd(self, commit:bool = True) -> None:
+		if not self._Setup:
+			return
+
+		self.LogDict(self._TotalTimePerEpisode, commit=commit)
+
+		# empty the time dicts
+		self._TotalTimePerEpisode.clear()
+
+		return
+
 
 	def GetFitCallback(self):
 		if self._WandbOn:
@@ -48,6 +58,9 @@ class Logger(Singleton.Singleton):
 		return None
 
 	def Time(self, label:str) -> Timer.Timer:
+
+		if not self._Setup:
+			return Timer.Timer(label, None)
 
 		assert self._Setup, "Logger not setup"
 		assert len(label) > 0, "Timer label cannot be empty"
@@ -66,15 +79,18 @@ class Logger(Singleton.Singleton):
 
 		self._TimerLabelStack.pop()
 
-
-		StepLabel = f"Time:Step.{stackedLabel}"
-		if StepLabel not in self._TotalTimePerStep:
-			self._TotalTimePerStep[StepLabel] = 0.0
-		self._TotalTimePerStep[StepLabel] += timer._Interval
-
 		episodeLabel = f"Time:Episode.{stackedLabel}"
 		if episodeLabel not in self._TotalTimePerEpisode:
 			self._TotalTimePerEpisode[episodeLabel] = 0.0
 		self._TotalTimePerEpisode[episodeLabel] += timer._Interval
 
+		return
+
+
+	def Finish(self) -> None:
+		if not self._Setup:
+			return
+
+		if self._WandbOn:
+			wandb.finish(exit_code=0, quiet=True)
 		return

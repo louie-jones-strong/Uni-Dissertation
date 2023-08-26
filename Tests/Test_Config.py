@@ -1,5 +1,5 @@
 import unittest
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 import os
 
 class Test_Config(unittest.TestCase):

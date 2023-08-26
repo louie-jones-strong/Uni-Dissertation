@@ -108,6 +108,21 @@
 				"--play", "True",
 				"--saveReplay", "True"
 			]
+		},
+		{
+			"name": "Evaluate",
+			"type": "python",
+			"request": "launch",
+			"program": "main.py",
+			"console": "integratedTerminal",
+			"justMyCode": true,
+			"args": [
+				"--wandb", "False",
+				"--rungroup", "dev",
+				"--subsystem", "Evaluation",
+				"--play", "True",
+				"--saveReplay", "True"
+			]
 		}
 	]
 }

@@ -6,14 +6,6 @@ from gymnasium.spaces import Discrete, Box
 from typing import Union
 import numpy as np
 
-
-class ConfigurableClass:
-
-	def LoadConfig(self) -> None:
-		path = GetClassConfigPath("MLConfig")
-		self.Config = LoadConfig(path)
-		return
-
 def LoadAndMergeConfig(className:str, overrideConfig:SCT.Config, allowJoining:bool = False) -> SCT.Config:
 
 	configPath = GetClassConfigPath(className)
@@ -123,7 +115,7 @@ def ConfigToSpace(config:SCT.Config) -> Union[Discrete, Box]:
 
 
 
-def FlattenConfig(toFlat:SCT.Config, output:SCT.Config={}, preKey:str="") -> SCT.Config:
+def FlattenConfig(toFlat:SCT.Config, output:SCT.Config = {}, preKey:str = "") -> SCT.Config:
 
 	for key, value in toFlat.items():
 

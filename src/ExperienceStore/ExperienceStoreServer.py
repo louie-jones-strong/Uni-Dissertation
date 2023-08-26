@@ -3,14 +3,14 @@ import tensorflow as tf
 import time
 import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.SharedCoreTypes as SCT
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 import gymnasium as gym
 import typing
+from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
-class ExperienceStoreServer(ConfigHelper.ConfigurableClass):
-	def __init__(self, envConfig:SCT.Config):
+class ExperienceStoreServer(ConfigurableClass):
+	def __init__(self):
 		self.LoadConfig()
-		self.EnvConfig = envConfig
 
 		self.ObservationSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ObservationSpace"])
 		self.ActionSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ActionSpace"])

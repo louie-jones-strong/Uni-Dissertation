@@ -4,7 +4,7 @@ import numpy as np
 import src.Common.Utils.Metrics.Logger as Logger
 import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 from src.Common.Enums.eAgentType import eAgentType
 from src.Common.Enums.ePlayMode import ePlayMode
 from gymnasium.spaces import Discrete, Box
@@ -16,6 +16,7 @@ import src.Worker.Environments.BaseEnv as BaseEnv
 
 import os
 from src.Common.Utils.PathHelper import GetRootPath
+from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
 
 def GetAgent(eAgentType:eAgentType,
@@ -59,7 +60,7 @@ def GetAgent(eAgentType:eAgentType,
 	raise Exception(f"Agent \"{eAgentType}\" not found")
 	return
 
-class BaseAgent(ConfigHelper.ConfigurableClass):
+class BaseAgent(ConfigurableClass):
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
 		self.LoadConfig()
 		self.EnvConfig = envConfig
@@ -72,8 +73,6 @@ class BaseAgent(ConfigHelper.ConfigurableClass):
 		self.IsDeterministic = self.EnvConfig["IsDeterministic"]
 
 		self.ActionList = self._GetActionList()
-
-		self.UpdateModels()
 
 
 		self._Logger = Logger.Logger()

@@ -2,9 +2,9 @@ from collections import deque
 import src.Common.Utils.SharedCoreTypes as SCT
 import typing
 import numpy as np
-import src.Common.Utils.ConfigHelper as ConfigHelper
+from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
-class EsBase(ConfigHelper.ConfigurableClass):
+class EsBase(ConfigurableClass):
 	def __init__(self) -> None:
 		self.LoadConfig()
 

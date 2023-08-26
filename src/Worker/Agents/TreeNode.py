@@ -9,10 +9,10 @@ from typing import Optional, Tuple
 import math
 import src.Worker.Agents.BaseAgent as BaseAgent
 import src.Worker.Environments.BaseEnv as BaseEnv
-import src.Common.Utils.ConfigHelper as ConfigHelper
+from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
 
-class TreeNode(ConfigHelper.ConfigurableClass):
+class TreeNode(ConfigurableClass):
 	def __init__(self,
 			state:SCT.State,
 			env:BaseEnv.BaseEnv,

@@ -2,7 +2,7 @@ import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.Metrics.Logger as Logger
 from src.Common.EpisodeReplay.EpisodeReplay import EpisodeReplay as ER
 from src.Common.EpisodeReplay.EpisodeReplayStep import EpisodeReplayStep as ERStep
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 import src.Common.Utils.PathHelper as PathHelper
 import os
 
@@ -73,7 +73,10 @@ class EnvRunner:
 
 				self._SaveToCsv(row)
 
+
+
 			# log the episode to wandb
+			self._Logger.EpisodeEnd(commit=False)
 			self._Logger.LogDict({
 				"Terminated": float(terminated),
 				"Truncated": float(truncated),

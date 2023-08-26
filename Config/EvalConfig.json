@@ -1,0 +1,5 @@
+{
+	"MaxEpisodes": 10,
+	"UseRealSims": [true, false],
+	"Depths": [1, 2, 4]
+}

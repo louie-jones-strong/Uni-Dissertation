@@ -2,12 +2,13 @@ import unittest
 import os
 import src.Worker.Worker as Worker
 import src.Common.Store.ExperienceStore.EsBase as EsBase
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 from src.Common.Enums.eAgentType import eAgentType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Store.ModelStore.MsBase as MsBase
 import src.Worker.EnvRunner as EnvRunner
 import src.Worker.Environments.BaseEnv as BaseEnv
+import src.Common.Utils.Config.ConfigManager as ConfigManager
 
 class Test_Agents(unittest.TestCase):
 
@@ -15,7 +16,7 @@ class Test_Agents(unittest.TestCase):
 	EnvsRoot = os.path.join(ConfigRoot, 'Envs')
 
 	MaxEpisodesOverride = 2
-	MaxStepsOverride = 50
+	MaxStepsOverride = 20
 	MaxWorkersOverride = 1
 
 	def test_Random(self):
@@ -35,9 +36,18 @@ class Test_Agents(unittest.TestCase):
 
 	def CheckAgent(self, agentType):
 
+		configManager = ConfigManager.ConfigManager()
+
+
 		configList = os.listdir(self.EnvsRoot)
 
 		for config in configList:
+			configManager.Setup(config)
+			configManager.Config["UseRealSim"] = True
+			configManager.Config["MonteCarloConfig"]["MaxSecondsPerAction"] = 0.01
+			configManager.Config["MonteCarloConfig"]["RollOutConfig"]["MaxRollOutCount"] = 2
+			configManager.Config["MonteCarloConfig"]["RollOutConfig"]["MaxRollOutDepth"] = 1
+
 			configPath = os.path.join(self.EnvsRoot, config)
 			# check is a file
 			self.assertTrue(os.path.isfile(configPath), 'Config is not a file')

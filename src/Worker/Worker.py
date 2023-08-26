@@ -3,6 +3,7 @@ import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.EnvRunner as EnvRunner
 from src.Common.Enums.eAgentType import eAgentType
+import src.Common.Utils.Metrics.Logger as Logger
 import typing
 import time
 
@@ -28,6 +29,8 @@ class Worker:
 		self.Agent = BaseAgent.GetAgent(eAgentType, envConfig, isTrainingMode)
 
 		self._ModelUpdateTime = time.time() + self.Config["SecsPerModelFetch"]
+
+		self.Logger = Logger.Logger()
 		return
 
 	def Run(self) -> None:
@@ -47,10 +50,12 @@ class Worker:
 		while self.EpisodeCount < maxEpisodes:
 
 			# get actions from the agent
-			actions, actionReasons = self._GetActions(stateList, envs)
+			with self.Logger.Time("GetActions"):
+				actions, actionReasons = self._GetActions(stateList, envs)
 
 			# make the chosen actions in the environments
-			stateList, envs, finishedEpisodes = self._StepEnvs(actions, actionReasons)
+			with self.Logger.Time("StepEnvs"):
+				stateList, envs, finishedEpisodes = self._StepEnvs(actions, actionReasons)
 
 			# increment the episode count by the number of episodes that have been completed in this step
 			self.EpisodeCount += finishedEpisodes
@@ -63,8 +68,6 @@ class Worker:
 			# This is to ensure that the agent is consistent for the whole episode.
 			if not self.IsEvaluating or finishedEpisodes > 0:
 				self.CheckForUpdates()
-
-		print("Worker finished")
 		return
 
 	def _GetActions(self,
@@ -75,7 +78,9 @@ class Worker:
 		actionReasons = []
 
 		for i in range(len(stateList)):
-			action, actionReason = self.Agent.GetAction(stateList[i], envs[i])
+			with self.Logger.Time("GetAction"):
+				action, actionReason = self.Agent.GetAction(stateList[i], envs[i])
+
 			actions.append(action)
 			actionReasons.append(actionReason)
 
@@ -104,18 +109,20 @@ class Worker:
 		finishedEpisodes = 0
 		for i in range(len(self.Envs)):
 
-			state, done = self.Envs[i].Step(actions[i], actionReason=actionReasons[i])
+			with self.Logger.Time("Step"):
+				state, done = self.Envs[i].Step(actions[i], actionReason=actionReasons[i])
 
 			stateList.append(state)
 			envs.append(self.Envs[i].Env)
 
 			if done:
-				finishedEpisodes += 1
-				self.LastReward = self.Envs[i].TotalReward
-				self.TotalRewards += self.LastReward
+				with self.Logger.Time("EpisodeEnd"):
+					finishedEpisodes += 1
+					self.LastReward = self.Envs[i].TotalReward
+					self.TotalRewards += self.LastReward
 
-				self.Envs[i].Reset()
-				self.Agent.Reset()
+					self.Envs[i].Reset()
+					self.Agent.Reset()
 
 		return stateList, envs, finishedEpisodes
 

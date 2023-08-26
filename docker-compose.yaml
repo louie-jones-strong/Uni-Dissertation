@@ -63,34 +63,6 @@ services:
     entrypoint: redis-server --port 5002 --save 60 1
 
 # ===== Learners =====
-#   learner-policy:
-#     build:
-#       dockerfile: ./src/Learner/Dockerfile
-#     image: learner
-
-#     volumes:
-#       - ./Data:/app/Data
-#       - ./src:/app/src
-#       - ./Config:/app/Config
-
-#     working_dir: /app
-#     networks:
-#       - projectNetwork
-
-#     deploy:
-#       replicas: 1
-#       resources:
-#         reservations:
-#           devices:
-#             - driver: nvidia
-#               count: 1
-#               capabilities: [gpu]
-
-#     env_file:
-#       - secrets.env
-
-#     entrypoint: python main.py --subsystem Learner --model Policy --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
-
   learner-value:
     image: learner
 
@@ -145,31 +117,6 @@ services:
     # tty: true
 
   # learner-forward:
-  #   image: learner
-
-  #   volumes:
-  #     - ./Data:/app/Data
-  #     - ./src:/app/src
-  #     - ./Config:/app/Config
-
-  #   working_dir: /app
-  #   networks:
-  #     - projectNetwork
-
-  #   deploy:
-  #     replicas: 1
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: 1
-  #             capabilities: [gpu]
-
-  #   env_file:
-  #     - secrets.env
-
-  #   entrypoint: python main.py --subsystem Learner --model Forward --env /app/Config/Envs/${ENV_CONFIG_PATH} --wandb ${LOG_TO_WANDB} --rungroup ${RUN_GROUP} --load ${LOAD_LAST_RUN} --exampleType human
-
   learner-Forward-NextState:
     image: learner
 

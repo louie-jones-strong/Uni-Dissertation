@@ -1,6 +1,5 @@
 import unittest
-import src.Common.Utils.ConfigHelper as ConfigHelper
-import os
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 
 class Test_ConfigHelper(unittest.TestCase):
 

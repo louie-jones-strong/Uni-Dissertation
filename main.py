@@ -5,193 +5,226 @@ from src.Common.Enums.eAgentType import eAgentType
 from src.Common.Enums.eModelType import eModelType
 from src.Common.Enums.eSubSystemType import eSubSystemType
 from src.Common.Utils.PathHelper import GetRootPath
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.PathHelper as PathHelper
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
+import src.Common.Utils.Config.ConfigManager as ConfigManager
 import platform
 
 import time
 
 
-def CreateExperienceStore(agent, envDataPath, parser):
-	experienceStore = None
-	if agent == eAgentType.Human:
-		import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
+class Main():
+	def __init__(self):
+		self.Parser = self.DefineCommandLineArgs()
+		self.EnvName = self.Parser.Get("env")
 
-		exampleType = parser.Get("exampleType")
-		examplesSavePath = os.path.join(envDataPath, "examples", exampleType)
-
-		experienceStore = EsNumpy.EsNumpy(examplesSavePath)
-	else:
-
-		try:
-			import src.Common.Store.ExperienceStore.EsReverb as EsReverb
-			experienceStore = EsReverb.EsReverb()
-		except:
-			# used to allow testing on windows
-			print("Reverb not installed, using Base Experience Store")
-			import src.Common.Store.ExperienceStore.EsBase as EsBase
-			experienceStore = EsBase.EsBase()
-	return experienceStore
-
-def SetupLogger(parser, envConfig, runPath, loggerSubSystemName):
-	envConfig["SubSystemName"] = loggerSubSystemName
-
-	timeStamp = int(time.time())
-	envConfig["RunStartTime"] = timeStamp
+		self.ConfigManager = ConfigManager.ConfigManager()
+		self.ConfigManager.Setup(self.EnvName)
 
 
-	# setup logger
-	import src.Common.Utils.Metrics.Logger as Logger
-	runId = f"{loggerSubSystemName}_{timeStamp}"
+		self.ConfigManager.EnvConfig["Group"] = self.Parser.Get("rungroup")
+		self.EnvDataPath = os.path.join(GetRootPath(), "Data", self.ConfigManager.EnvConfig['Name'])
+		self.RunPath = os.path.join(self.EnvDataPath, self.ConfigManager.EnvConfig["Group"])
 
-	logger = Logger.Logger()
-	logger.Setup(envConfig, runPath, runId=runId, wandbOn=parser.Get("wandb"))
-	return
+		PathHelper.EnsurePathExists(self.RunPath)
+		return
 
-def Setup_Learner(parser, envConfig, runPath, envDataPath):
-	import src.Learner.Learner as Learner
-	import src.Common.Utils.ModelHelper as ModelHelper
-	import src.Common.Store.ModelStore.MsRedis as MsRedis
+	def DefineCommandLineArgs(self):
+		envConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
 
-	modelStore = MsRedis.MsRedis()
+		parser = ArgParser.ArgParser()
 
-	modelHelper = ModelHelper.ModelHelper()
-	modelHelper.Setup(envConfig, modelStore)
+		parser.AddEnumOption("subsystem", "what sub system is to be ran", eSubSystemType, "sub system")
+		parser.AddFilePathOption("env", "path to env config", envConfigFolder, "env")
 
-	model = parser.Get("model")
-	load = parser.Get("load")
+		parser.AddEnumOption("model", "The type of model to train", eModelType, "ModelType")
+		parser.AddEnumOption("agent", "agent to use", eAgentType, "agent")
 
-	exampleType = parser.Get("exampleType")
-	examplesSavePath = os.path.join(envDataPath, "examples", exampleType)
+		parser.AddBoolOption("play", "Is the agent in training or evaluation?", "PlayMode")
+		parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
+		parser.AddStrOption("rungroup", "grouping for wandb runs", "run group")
+		parser.AddBoolOption("load", "load from previous run", "load")
+		parser.AddBoolOption("saveReplay", "Should the replay be saved", "save replay")
+		parser.AddStrOption("exampleType", "type of behaviour example", "example type")
 
-	learner = Learner.Learner(envConfig, model, load, examplesSavePath)
+		return parser
 
-	loggerSubSystemName = f"Learner_{model.name}"
-	SetupLogger(parser, envConfig, runPath, loggerSubSystemName)
-	return learner
+#region Setup Subsystems
+	def CreateExperienceStore(self, agent):
+		experienceStore = None
+		if agent == eAgentType.Human:
+			import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
 
-def Setup_Worker(parser, envConfig, runPath, envDataPath):
-	import src.Worker.Worker as Worker
-	import src.Common.Utils.ModelHelper as ModelHelper
-	import src.Common.Store.ModelStore.MsBase as MsBase
-	import src.Common.Store.ModelStore.MsRedis as MsRedis
-	import src.Worker.EnvRunner as EnvRunner
-	import src.Worker.Environments.BaseEnv as BaseEnv
+			exampleType = self.Parser.Get("exampleType")
+			examplesSavePath = os.path.join(self.EnvDataPath, "examples", exampleType)
 
-	if platform.system() == "Linux":
+			experienceStore = EsNumpy.EsNumpy(examplesSavePath)
+		else:
+
+			try:
+				import src.Common.Store.ExperienceStore.EsReverb as EsReverb
+				experienceStore = EsReverb.EsReverb()
+			except:
+				# used to allow testing on windows
+				# print("Reverb not installed, using Base Experience Store")
+				import src.Common.Store.ExperienceStore.EsBase as EsBase
+				experienceStore = EsBase.EsBase()
+		return experienceStore
+
+	def SetupLogger(self, loggerSubSystemName):
+		self.ConfigManager.EnvConfig["SubSystemName"] = loggerSubSystemName
+
+		timeStamp = int(time.time())
+		self.ConfigManager.EnvConfig["RunStartTime"] = timeStamp
+
+
+		# setup logger
+		import src.Common.Utils.Metrics.Logger as Logger
+		runId = f"{loggerSubSystemName}_{timeStamp}"
+
+		self.Logger = Logger.Logger()
+		self.Logger.Setup(self.ConfigManager.EnvConfig, self.RunPath, runId=runId, wandbOn=self.Parser.Get("wandb"))
+		return
+
+	def SetupLearner(self):
+		import src.Learner.Learner as Learner
+		import src.Common.Utils.ModelHelper as ModelHelper
+		import src.Common.Store.ModelStore.MsRedis as MsRedis
+
 		modelStore = MsRedis.MsRedis()
-	else:
-		modelStore = MsBase.MsBase()
+
+		modelHelper = ModelHelper.ModelHelper()
+		modelHelper.Setup(self.ConfigManager.EnvConfig, modelStore)
+
+		model = self.Parser.Get("model")
+		load = self.Parser.Get("load")
+
+		exampleType = self.Parser.Get("exampleType")
+		examplesSavePath = os.path.join(self.EnvDataPath, "examples", exampleType)
+
+		learner = Learner.Learner(model, load, examplesSavePath)
+
+		loggerSubSystemName = f"Learner_{model.name}"
+		self.SetupLogger(loggerSubSystemName)
+		return learner
+
+	def RunWorker(self, agent:eAgentType):
+		import src.Worker.Worker as Worker
+		import src.Common.Utils.ModelHelper as ModelHelper
+		import src.Common.Store.ModelStore.MsBase as MsBase
+		import src.Common.Store.ModelStore.MsRedis as MsRedis
+		import src.Worker.EnvRunner as EnvRunner
+		import src.Worker.Environments.BaseEnv as BaseEnv
+
+		if platform.system() == "Linux":
+			modelStore = MsRedis.MsRedis()
+		else:
+			modelStore = MsBase.MsBase()
 
 
 
-	modelHelper = ModelHelper.ModelHelper()
-	modelHelper.Setup(envConfig, modelStore)
-
-	agent = parser.Get("agent")
+		modelHelper = ModelHelper.ModelHelper()
+		modelHelper.Setup(self.ConfigManager.EnvConfig, modelStore)
 
 
-	numEnvs = envConfig["NumEnvsPerWorker"]
-	if agent == eAgentType.Human:
-		numEnvs = 1
-
-	isTrainingMode = False
-	if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
-		isTrainingMode = not parser.Get("play")
-
-		if not isTrainingMode:
+		numEnvs = self.ConfigManager.EnvConfig["NumEnvsPerWorker"]
+		if agent == eAgentType.Human:
 			numEnvs = 1
 
-	replayInfo = {
-		"Agent": agent.name,
-		"IsTrainingMode": isTrainingMode,
-		"NumEnvs": numEnvs
-	}
+		isTrainingMode = False
+		if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
+			isTrainingMode = not self.Parser.Get("play")
+
+			if not isTrainingMode:
+				numEnvs = 1
+
+		replayInfo = {
+			"Agent": agent.name,
+			"IsTrainingMode": isTrainingMode,
+			"NumEnvs": numEnvs
+		}
 
 
-	mlConfig = ConfigHelper.LoadConfig(ConfigHelper.GetClassConfigPath("MLConfig"))
-	replayInfo = ConfigHelper.FlattenConfig(mlConfig, replayInfo)
+		mlConfig = ConfigHelper.LoadConfig(ConfigHelper.GetClassConfigPath("MLConfig"))
+		replayInfo = ConfigHelper.FlattenConfig(mlConfig, replayInfo)
 
-	replayFolder = None
-	if parser.Get("saveReplay"):
-		replayFolder = os.path.join(runPath, "replays", agent.name)
-
-
-	envRunners = []
-	for i in range(numEnvs):
-		env = BaseEnv.GetEnv(envConfig)
-		experienceStore = CreateExperienceStore(agent, envDataPath, parser)
-		runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore, replayFolder=replayFolder, replayInfo=replayInfo)
-		envRunners.append(runner)
-
-	worker = Worker.Worker(envConfig, agent, envRunners, isTrainingMode)
-	loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
-
-	SetupLogger(parser, envConfig, runPath, loggerSubSystemName)
-	return worker
+		replayFolder = None
+		if self.Parser.Get("saveReplay"):
+			replayFolder = os.path.join(self.RunPath, "replays", agent.name)
 
 
-def DefineCommandLineArgs():
-	envConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
+		envRunners = []
+		for i in range(numEnvs):
+			env = BaseEnv.GetEnv(self.ConfigManager.EnvConfig)
+			experienceStore = self.CreateExperienceStore(agent)
+			runner = EnvRunner.EnvRunner(env, self.ConfigManager.EnvConfig["MaxSteps"], experienceStore, replayFolder=replayFolder, replayInfo=replayInfo)
+			envRunners.append(runner)
 
-	parser = ArgParser.ArgParser()
+		worker = Worker.Worker(self.ConfigManager.EnvConfig, agent, envRunners, isTrainingMode)
+		loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
 
-	parser.AddEnumOption("subsystem", "what sub system is to be ran", eSubSystemType, "sub system")
-	parser.AddFilePathOption("env", "path to env config", envConfigFolder, "env")
+		self.SetupLogger(loggerSubSystemName)
 
-	parser.AddEnumOption("model", "The type of model to train", eModelType, "ModelType")
-	parser.AddEnumOption("agent", "agent to use", eAgentType, "agent")
+		worker.Run()
 
-	parser.AddBoolOption("play", "Is the agent in training or evaluation?", "PlayMode")
-	parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
-	parser.AddStrOption("rungroup", "grouping for wandb runs", "run group")
-	parser.AddBoolOption("load", "load from previous run", "load")
-	parser.AddBoolOption("saveReplay", "Should the replay be saved", "save replay")
-	parser.AddStrOption("exampleType", "type of behaviour example", "example type")
-
-	return parser
-
+		self.Logger.Finish()
+		print()
+		return
+#endregion
 
 
-def Main():
+	def Run(self):
+		subSystem = self.Parser.Get("subsystem")
 
-	parser = DefineCommandLineArgs()
+		if subSystem == eSubSystemType.Evaluation:
+			self.RunEvaluation()
+			return
 
-	# get the subsystem settings
-	subSystem = parser.Get("subsystem")
-	envConfigPath = parser.Get("env")
-	envConfig = ConfigHelper.LoadConfig(envConfigPath)
+		elif subSystem == eSubSystemType.Learner:
+			subSystem = self.SetupLearner()
+
+		elif subSystem == eSubSystemType.Worker:
+			agent = self.Parser.Get("agent")
+			self.RunWorker(agent)
+			return
+
+		elif subSystem == eSubSystemType.Webserver:
+			import src.WebServer.app as app
+			subSystem = app.WebServer(self.ConfigManager.EnvConfig)
+
+		elif subSystem == eSubSystemType.ExperienceStore:
+			import src.ExperienceStore.ExperienceStoreServer as ExperienceStoreServer
+			subSystem = ExperienceStoreServer.ExperienceStoreServer()
+
+		# run the subsystem
+		subSystem.Run()
+
+		return
+
+	def RunEvaluation(self):
+		evalConfig = ConfigHelper.GetClassConfigPath("EvalConfig")
+		evalConfig = ConfigHelper.LoadConfig(evalConfig)
+
+		# set the game limit
+		self.ConfigManager.EnvConfig["MaxEpisodes"] = evalConfig["MaxEpisodes"]
+
+		# ============== High Score ==============
+		self.RunWorker(eAgentType.Random)
+		self.RunWorker(eAgentType.HardCoded)
+
+		for depth in evalConfig["Depths"]:
+			self.ConfigManager.Config["MonteCarloConfig"]["SelectionConfig"]["MaxTreeDepth"] = depth
+
+			for useRealTime in evalConfig["UseRealSims"]:
+				self.ConfigManager.Config["UseRealSim"] = useRealTime
+				self.RunWorker(eAgentType.ML)
+
+		return
 
 
-	loggerSubSystemName = None
 
 
-	envConfig["Group"] = parser.Get("rungroup")
-	envDataPath = os.path.join(GetRootPath(), "Data", envConfig['Name'])
-	runPath = os.path.join(envDataPath, envConfig["Group"])
-
-	# create the run path
-	if not os.path.exists(runPath):
-		os.makedirs(runPath)
-
-	if subSystem == eSubSystemType.Learner:
-		subSystem = Setup_Learner(parser, envDataPath, envConfig)
-
-	elif subSystem == eSubSystemType.Worker:
-		subSystem = Setup_Worker(parser, envConfig, runPath, envDataPath)
-
-	elif subSystem == eSubSystemType.Webserver:
-		import src.WebServer.app as app
-		subSystem = app.WebServer(envConfig)
-
-	elif subSystem == eSubSystemType.ExperienceStore:
-		import src.ExperienceStore.ExperienceStoreServer as ExperienceStoreServer
-
-		subSystem = ExperienceStoreServer.ExperienceStoreServer(envConfig)
-
-	# run the subsystem
-	subSystem.Run()
-
-	return
 
 if __name__ == "__main__":
-	Main()
+	main = Main()
+	main.Run()

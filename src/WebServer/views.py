@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect
 import typing
 import os
 import src.Common.Utils.PathHelper as PathHelper
-import src.Common.Utils.ConfigHelper as ConfigHelper
+import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 import src.Common.EpisodeReplay.EpisodeReplay as ER
 import src.WebServer.AssetCreator as AssetCreator
 import json

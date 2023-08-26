@@ -7,7 +7,7 @@ import src.Worker.Agents.Models.Model as Model
 import src.Worker.Environments.BaseEnv as BaseEnv
 
 class ForwardModel(Model.Model):
-	def __init__(self):
+	def __init__(self) -> None:
 		self.StateModel = Model.Model(eModelType.Forward_NextState)
 		self.RewardModel = Model.Model(eModelType.Forward_Reward)
 		self.TerminatedModel = Model.Model(eModelType.Forward_Terminated)

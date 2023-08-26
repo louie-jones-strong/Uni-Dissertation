@@ -94,27 +94,30 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		for i in range(selectionConfig["MaxSelectionsPerAction"]):
 
 			# 1. selection
-
-			selectedNode = rootNode.Selection(exploreFactor, maxTreeDepth)
+			with self._Logger.Time("Selection"):
+				selectedNode = rootNode.Selection(exploreFactor, maxTreeDepth)
 
 
 
 			# 2. expansion
 			if selectedNode is not None and selectedNode.Counts > 0 and selectedNode.Children is None:
-				selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
-				selectedNode = selectedNode.Selection(exploreFactor, maxTreeDepth)
+				with self._Logger.Time("Expansion"):
+					selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
+					selectedNode = selectedNode.Selection(exploreFactor, maxTreeDepth)
 
 			if selectedNode is None:
 				break
 
 			# 3. simulation
-			rolloutMaxDepth = self.EnvConfig["MaxSteps"] - selectedNode.EpisodeStep
-			rolloutMaxDepth = min(rolloutMaxDepth, monteCarloConfig["RollOutConfig"]["MaxRollOutDepth"])
+			with self._Logger.Time("RollOut"):
+				rolloutMaxDepth = self.EnvConfig["MaxSteps"] - selectedNode.EpisodeStep
+				rolloutMaxDepth = min(rolloutMaxDepth, monteCarloConfig["RollOutConfig"]["MaxRollOutDepth"])
 
-			totalRewards = self._RollOut(selectedNode.State, selectedNode.Env, rolloutMaxDepth)
+				totalRewards = self._RollOut(selectedNode.State, selectedNode.Env, rolloutMaxDepth)
 
 			# 4. backpropagation
-			selectedNode.BackPropRewards(totalRewards.sum(), len(totalRewards))
+			with self._Logger.Time("BackPropRewards"):
+				selectedNode.BackPropRewards(totalRewards.sum(), len(totalRewards))
 
 
 
@@ -155,7 +158,8 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			actions = self._SampleActions(self.ActionSpace, numRollOuts)
 
 			# predict the next states and rewards
-			nextStates, envs, rewards, terminateds = self._ForwardModel.Predict(states, envs, actions)
+			with self._Logger.Time(f"Predict({d})"):
+				nextStates, envs, rewards, terminateds = self._ForwardModel.Predict(states, envs, actions)
 
 
 			totalRewards += rewards * isPlayingMask
@@ -168,8 +172,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 				break
 
 		if rollOutConfig["ValueFinalStates"] and self._ValueModel.CanPredict():
-			values = self._ValueModel.Predict(states)
-			totalRewards += values * isPlayingMask
+			with self._Logger.Time("FinalStateValue"):
+				values = self._ValueModel.Predict(states)
+				totalRewards += values * isPlayingMask
 
 		return totalRewards
 

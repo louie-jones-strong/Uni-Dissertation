@@ -1,10 +1,10 @@
 import src.Common.Utils.ModelHelper as ModelHelper
 from src.Common.Enums.eModelType import eModelType
 import src.Common.Utils.Metrics.Logger as Logger
-import src.Common.Utils.ConfigHelper as ConfigHelper
+from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
 
-class Model(ConfigHelper.ConfigurableClass):
+class Model(ConfigurableClass):
 
 	def __init__(self, modelType:eModelType):
 		self.LoadConfig()

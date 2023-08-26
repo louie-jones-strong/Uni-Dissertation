@@ -1,7 +1,6 @@
 import reverb
 from src.Common.Enums.eModelType import eModelType
 import src.Common.Utils.ModelHelper as ModelHelper
-import src.Common.Utils.SharedCoreTypes as SCT
 import src.Common.Enums.eDataColumnTypes as DCT
 import src.Common.Utils.Metrics.Logger as Logger
 import time
@@ -10,14 +9,12 @@ import src.Common.Store.ExperienceStore.EsReverb as EsReverb
 import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
 import numpy as np
 from tensorflow.keras.utils import to_categorical
-import src.Common.Utils.ConfigHelper as ConfigHelper
+from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
-class Learner(ConfigHelper.ConfigurableClass):
+class Learner(ConfigurableClass):
 
-	def __init__(self, envConfig:SCT.Config, modelType:eModelType, loadModel:bool, examplePath:str):
+	def __init__(self, modelType:eModelType, loadModel:bool, examplePath:str):
 		self.LoadConfig()
-
-		self.EnvConfig = envConfig
 		self.ModelType = modelType
 
 		self.ModelHelper = ModelHelper.ModelHelper(self.EnvConfig)
