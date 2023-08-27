@@ -80,6 +80,8 @@ class BaseAgent(ConfigurableClass):
 		self.StepNum = 0
 		self.TotalStepNum = 0
 		self.EpisodeNum = 0
+
+		self.ActionHistory = []
 		return
 
 	def UpdateModels(self) -> None:
@@ -100,6 +102,8 @@ class BaseAgent(ConfigurableClass):
 			episodesBetweenEval = self.Config.get("EpisodesBetweenEval", -1)
 			if episodesBetweenEval > 0 and self.EpisodeNum % episodesBetweenEval == 0:
 				self.Mode = ePlayMode.Eval
+
+		self.ActionHistory.clear()
 		return
 
 	def Remember(self,
@@ -109,6 +113,8 @@ class BaseAgent(ConfigurableClass):
 			nextState:SCT.State,
 			terminated:bool,
 			truncated:bool) -> None:
+		self.ActionHistory.append(action)
+
 		return
 
 

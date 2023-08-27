@@ -10,7 +10,7 @@
 			"AgentType": "Random",
 			"MaxEpisodes": 1000,
 			"UseRealSims": [true],
-			"Depths": [1, 2, 4]
+			"Depths": [1]
 		},
 		{
 			"AgentType": "HardCoded",

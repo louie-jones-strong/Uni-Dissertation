@@ -2,18 +2,19 @@
 	"UseRealSim": true,
 	"MonteCarloConfig": {
 		"MaxSecondsPerAction": 10,
-		"CacheTree": true,
+		"CacheTreeBetweenActions": true,
+		"CacheTreeBetweenEpisodes": true,
 		"SelectionConfig": {
 			"MaxSelectionsPerAction": 256,
 			"TrainExploreFactor": 0.5,
 			"TestExploreFactor": 0.1,
-			"MaxTreeDepth": 3
+			"MaxTreeDepth": 10
 		},
 		"RollOutConfig": {
-			"MaxRollOutCount": 1024,
-			"MaxRollOutDepth": 16,
+			"MaxRollOutCount": 4,
+			"MaxRollOutDepth": 1,
 			"ValueFinalStates": true,
-			"TimeOutAllowed": true
+			"TimeOutAllowed": false
 		},
 		"NodeScoreConfig": {
 			"RolloutRewardsMultiplier": 1.0,

@@ -65,7 +65,9 @@ class Worker:
 			if finishedEpisodes > 0:
 				avgRewards = self.TotalRewards / self.EpisodeCount
 				avgTime = (time.time() - self.StartTime) / self.EpisodeCount
-				print(f"{self.EpisodeCount} / {maxEpisodes}    avg:{avgRewards:.3f} last:{self.LastReward:.0f} avgTime:{avgTime:.1f}")
+
+				progressStr = f"{self.EpisodeCount} / {maxEpisodes}"
+				print(f"{progressStr}    avg:{avgRewards:.3f} last:{self.LastReward:.0f} avgTime:{avgTime:.3f}")
 
 			# If in evaluate mode then we only check for updates after an episode.
 			# This is to ensure that the agent is consistent for the whole episode.
@@ -112,13 +114,16 @@ class Worker:
 		finishedEpisodes = 0
 		for i in range(len(self.Envs)):
 
-			with self.Logger.Time("Step"):
-				state, done = self.Envs[i].Step(actions[i], actionReason=actionReasons[i])
+			state = self.Envs[i].State
+			nextState, reward, terminated, truncated = self.Envs[i].Step(actions[i], actionReason=actionReasons[i])
 
-			stateList.append(state)
+			self.Agent.Remember(state, actions[i], reward, nextState, terminated, truncated)
+
+
+			stateList.append(nextState)
 			envs.append(self.Envs[i].Env)
 
-			if done:
+			if terminated or truncated:
 				with self.Logger.Time("EpisodeEnd"):
 					finishedEpisodes += 1
 					self.LastReward = self.Envs[i].TotalReward

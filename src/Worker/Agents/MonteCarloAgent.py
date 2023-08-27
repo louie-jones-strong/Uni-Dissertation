@@ -44,6 +44,14 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		self._PlayStyleModel.UpdateModels()
 		return
 
+	def Reset(self) -> None:
+		super().Reset()
+
+		if not self.Config["MonteCarloConfig"]["CacheTreeBetweenEpisodes"]:
+			self._CachedTree = None
+
+		return
+
 	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action, str]:
 		super().GetAction(state, env)
 		actionValues, actionReason = self.GetActionValues(state, env)
@@ -59,26 +67,17 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		self._StopTime = time.process_time() + monteCarloConfig["MaxSecondsPerAction"]
 
-		rootNode = self._CachedTree
-		if rootNode is None or not AreStatesEqual(rootNode.State, state):
-
-			if rootNode is not None:
-				for child in rootNode.Children:
-
-					if AreStatesEqual(child.State, state):
-						rootNode = child
-						break
-
-			if rootNode is None or not AreStatesEqual(rootNode.State, state):
-				self._CachedTree = None
-				rootNode = TreeNode.TreeNode(state, env, self.StepNum, done=False,
-					valueModel=self._ValueModel, playStyleModel=self._PlayStyleModel)
+		stateNode = self.GetCurrentStateNode()
+		if stateNode is None or not AreStatesEqual(stateNode.State, state):
+			self._CachedTree = None
+			stateNode = TreeNode.TreeNode(state, env, self.StepNum, done=False,
+				valueModel=self._ValueModel, playStyleModel=self._PlayStyleModel)
 
 
 
 
-		if rootNode.Children is None:
-			rootNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
+		if stateNode.Children is None:
+			stateNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
 
 
 		selectionConfig = monteCarloConfig["SelectionConfig"]
@@ -95,7 +94,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			# 1. selection
 			with self._Logger.Time("Selection"):
-				selectedNode = rootNode.Selection(exploreFactor, maxTreeDepth)
+				selectedNode = stateNode.Selection(exploreFactor, maxTreeDepth)
 
 
 
@@ -116,28 +115,27 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 				totalRewards = self._RollOut(selectedNode.State, selectedNode.Env, rolloutMaxDepth)
 
 			# 4. backpropagation
-			with self._Logger.Time("BackPropRewards"):
-				selectedNode.BackPropRewards(totalRewards.sum(), len(totalRewards))
+			selectedNode.BackPropRewards(totalRewards.sum(), len(totalRewards))
 
 
 
 			if time.process_time() >= self._StopTime and \
-				rootNode.AllExplored():
+				stateNode.AllExplored():
 				break
 
-		if monteCarloConfig["CacheTree"]:
-			self._CachedTree = rootNode
+		if monteCarloConfig["CacheTreeBetweenActions"] and self._CachedTree is None:
+			self._CachedTree = stateNode
 
-		if rootNode.Children is None:
+		if stateNode.Children is None:
 			return self.ActionSpace.sample(), "MonteCarloAgent Random Action (No Children)"
 
 
-		actionValues, valueModelValues = rootNode.GetActionValues()
+		actionValues, valueModelValues = stateNode.GetActionValues()
 		actionReason = {
 			"Type": "MonteCarloAgent",
 			"ActionValues": actionValues,
 			"ValueModelValues": valueModelValues,
-			"Tree": rootNode.ToDict()
+			"Tree": stateNode.ToDict()
 		}
 		return actionValues, actionReason
 
@@ -158,8 +156,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			actions = self._SampleActions(self.ActionSpace, numRollOuts)
 
 			# predict the next states and rewards
-			with self._Logger.Time(f"Predict({d})"):
-				nextStates, envs, rewards, terminateds = self._ForwardModel.Predict(states, envs, actions)
+			nextStates, envs, rewards, terminateds = self._ForwardModel.Predict(states, envs, actions)
 
 
 			totalRewards += rewards * isPlayingMask
@@ -194,3 +191,19 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			raise NotImplementedError("Unknown action space type: " + str(type(actionSpace)))
 
 		return
+
+	def GetCurrentStateNode(self) -> TreeNode.TreeNode:
+		stateNode = self._CachedTree
+
+		for action in self.ActionHistory:
+			if stateNode is None:
+				break
+
+			childNode = stateNode.GetActionNode(action)
+
+			if childNode is None:
+				break
+			else:
+				stateNode = childNode
+
+		return stateNode

@@ -86,7 +86,7 @@ class EnvRunner:
 
 
 
-		return nextState, terminated or truncated
+		return nextState, reward, terminated, truncated
 
 
 	def Reset(self) -> None:

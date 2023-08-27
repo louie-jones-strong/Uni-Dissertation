@@ -71,8 +71,11 @@ class Main():
 				experienceStore = EsBase.EsBase()
 		return experienceStore
 
-	def SetupLogger(self, loggerSubSystemName):
-		self.ConfigManager.EnvConfig["SubSystemName"] = loggerSubSystemName
+	def SetupLogger(self, subSystem, loggerName:str = None):
+		self.ConfigManager.EnvConfig["SubSys"] = subSystem
+
+		if loggerName is None:
+			loggerName = subSystem
 
 		timeStamp = int(time.time())
 		self.ConfigManager.EnvConfig["RunStartTime"] = timeStamp
@@ -80,7 +83,7 @@ class Main():
 
 		# setup logger
 		import src.Common.Utils.Metrics.Logger as Logger
-		runId = f"{loggerSubSystemName}_{timeStamp}"
+		runId = f"{loggerName}_{timeStamp}"
 
 		self.Logger = Logger.Logger()
 		self.Logger.Setup(self.ConfigManager.EnvConfig, self.RunPath, runId=runId, wandbOn=self.Parser.Get("wandb"))
@@ -104,11 +107,10 @@ class Main():
 
 		learner = Learner.Learner(model, load, examplesSavePath)
 
-		loggerSubSystemName = f"Learner_{model.name}"
-		self.SetupLogger(loggerSubSystemName)
+		self.SetupLogger(f"Learner_{model.name}")
 		return learner
 
-	def RunWorker(self, agent:eAgentType):
+	def RunWorker(self, agent:eAgentType, loggerName:str = None) -> None:
 		import src.Worker.Worker as Worker
 		import src.Common.Utils.ModelHelper as ModelHelper
 		import src.Common.Store.ModelStore.MsBase as MsBase
@@ -128,7 +130,7 @@ class Main():
 
 
 		numEnvs = self.ConfigManager.EnvConfig["NumEnvsPerWorker"]
-		if agent == eAgentType.Human:
+		if agent == eAgentType.Human or agent == eAgentType.ML:
 			numEnvs = 1
 
 		isTrainingMode = False
@@ -161,9 +163,11 @@ class Main():
 			envRunners.append(runner)
 
 		worker = Worker.Worker(self.ConfigManager.EnvConfig, agent, envRunners, isTrainingMode)
-		loggerSubSystemName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
 
-		self.SetupLogger(loggerSubSystemName)
+		if loggerName is None:
+			loggerName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
+
+		self.SetupLogger(f"Worker_{agent.name}", loggerName)
 
 		worker.Run()
 
@@ -221,7 +225,9 @@ class Main():
 
 				for useRealTime in agentConfig["UseRealSims"]:
 					self.ConfigManager.Config["UseRealSim"] = useRealTime
-					self.RunWorker(agentType)
+
+					loggerName = f"{agentType.name}_D_{depth}_RT_{useRealTime}"
+					self.RunWorker(agentType, loggerName=loggerName)
 
 		return
 
