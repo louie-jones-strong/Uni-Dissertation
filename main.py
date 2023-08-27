@@ -206,18 +206,22 @@ class Main():
 		evalConfig = ConfigHelper.LoadConfig(evalConfig)
 
 		# set the game limit
-		self.ConfigManager.EnvConfig["MaxEpisodes"] = evalConfig["MaxEpisodes"]
 
 		# ============== High Score ==============
-		self.RunWorker(eAgentType.Random)
-		self.RunWorker(eAgentType.HardCoded)
+		for agentConfig in evalConfig["Agents"]:
 
-		for depth in evalConfig["Depths"]:
-			self.ConfigManager.Config["MonteCarloConfig"]["SelectionConfig"]["MaxTreeDepth"] = depth
+			agentTypeStr = agentConfig["AgentType"]
+			agentType = eAgentType[agentTypeStr]
 
-			for useRealTime in evalConfig["UseRealSims"]:
-				self.ConfigManager.Config["UseRealSim"] = useRealTime
-				self.RunWorker(eAgentType.ML)
+			self.ConfigManager.EnvConfig["MaxEpisodes"] = agentConfig["MaxEpisodes"]
+
+
+			for depth in agentConfig["Depths"]:
+				self.ConfigManager.Config["MonteCarloConfig"]["SelectionConfig"]["MaxTreeDepth"] = depth
+
+				for useRealTime in agentConfig["UseRealSims"]:
+					self.ConfigManager.Config["UseRealSim"] = useRealTime
+					self.RunWorker(agentType)
 
 		return
 

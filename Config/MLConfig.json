@@ -11,9 +11,9 @@
 		},
 		"RollOutConfig": {
 			"MaxRollOutCount": 1024,
-			"MaxRollOutDepth": 32,
+			"MaxRollOutDepth": 16,
 			"ValueFinalStates": true,
-			"TimeOutAllowed": false
+			"TimeOutAllowed": true
 		},
 		"NodeScoreConfig": {
 			"RolloutRewardsMultiplier": 1.0,

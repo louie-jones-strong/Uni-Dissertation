@@ -16,26 +16,30 @@ class MsRedis(MsBase.MsBase):
 		return self.RedisClient.exists(modelKey)
 
 	def FetchNewestWeights(self, modelKey:str, model:tf.keras.models.Model) -> bool:
+		try:
 
-		flatWeightBytes = self.RedisClient.get(modelKey)
-		if flatWeightBytes is None:
+			flatWeightBytes = self.RedisClient.get(modelKey)
+			if flatWeightBytes is None:
+				return False
+
+			flatWeights = np.frombuffer(flatWeightBytes, dtype=np.float32)
+
+			currentWeights = model.get_weights()
+
+			newWeights = []
+			idx = 0
+			for layer in currentWeights:
+				shape = layer.shape
+				count = np.prod(shape)
+				layerWeights = flatWeights[idx:idx+count]
+				layerWeights = layerWeights.reshape(shape)
+				idx += count
+				newWeights.append(layerWeights)
+
+			model.set_weights(newWeights)
+		except Exception as e:
+			print(e)
 			return False
-
-		flatWeights = np.frombuffer(flatWeightBytes, dtype=np.float32)
-
-		currentWeights = model.get_weights()
-
-		newWeights = []
-		idx = 0
-		for layer in currentWeights:
-			shape = layer.shape
-			count = np.prod(shape)
-			layerWeights = flatWeights[idx:idx+count]
-			layerWeights = layerWeights.reshape(shape)
-			idx += count
-			newWeights.append(layerWeights)
-
-		model.set_weights(newWeights)
 
 		return True
 

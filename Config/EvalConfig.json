@@ -1,5 +1,23 @@
 {
-	"MaxEpisodes": 1000,
-	"UseRealSims": [true, false],
-	"Depths": [1, 2, 4]
+	"Agents": [
+		{
+			"AgentType": "ML",
+			"MaxEpisodes": 100,
+			"UseRealSims": [false, true],
+			"Depths": [1, 2, 4]
+		},
+		{
+			"AgentType": "Random",
+			"MaxEpisodes": 1000,
+			"UseRealSims": [true],
+			"Depths": [1, 2, 4]
+		},
+		{
+			"AgentType": "HardCoded",
+			"MaxEpisodes": 1000,
+			"UseRealSims": [true],
+			"Depths": [1]
+		}
+	]
+
 }

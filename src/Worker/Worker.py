@@ -25,6 +25,7 @@ class Worker:
 		self.EpisodeCount = 0
 		self.TotalRewards = 0
 		self.LastReward = 0
+		self.StartTime = 0
 
 		self.Agent = BaseAgent.GetAgent(eAgentType, envConfig, isTrainingMode)
 
@@ -39,6 +40,7 @@ class Worker:
 		collecting observations from the envs and sending them to the agent, to get actions.
 		then making the actions in the envs.
 		"""
+		self.StartTime = time.time()
 
 		# get initial states from the environments
 		stateList = [env.GetState() for env in self.Envs]
@@ -62,7 +64,8 @@ class Worker:
 
 			if finishedEpisodes > 0:
 				avgRewards = self.TotalRewards / self.EpisodeCount
-				print(f"{self.EpisodeCount} / {maxEpisodes}    avg:{avgRewards:.3f} last:{self.LastReward:.0f}")
+				avgTime = (time.time() - self.StartTime) / self.EpisodeCount
+				print(f"{self.EpisodeCount} / {maxEpisodes}    avg:{avgRewards:.3f} last:{self.LastReward:.0f} avgTime:{avgTime:.1f}")
 
 			# If in evaluate mode then we only check for updates after an episode.
 			# This is to ensure that the agent is consistent for the whole episode.
