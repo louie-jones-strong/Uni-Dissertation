@@ -1,4 +1,4 @@
-name: Deploy documentation to Pages
+name: Build Docs
 
 on:
   - push

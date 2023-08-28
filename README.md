@@ -4,6 +4,7 @@
 ![Unit Tests](https://github.com/louie-jones-strong/Uni-Dissertation/actions/workflows/UnitTests.yml/badge.svg)
 ![Type Hint Checks](https://github.com/louie-jones-strong/Uni-Dissertation/actions/workflows/TypeHintChecks.yml/badge.svg)
 ![Lint Checks](https://github.com/louie-jones-strong/Uni-Dissertation/actions/workflows/LintChecks.yml/badge.svg)
+![Docs Build](https://github.com/louie-jones-strong/Uni-Dissertation/actions/workflows/DocsCreation.yml/badge.svg)
 
 ## About
 This project has been created as part of my final year dissertation at the University of London.
