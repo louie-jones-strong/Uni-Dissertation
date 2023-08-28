@@ -1,5 +1,5 @@
 {
-	"UseRealSim": true,
+	"UseRealSim": false,
 	"MonteCarloConfig": {
 		"MaxSecondsPerAction": 10,
 		"CacheTreeBetweenActions": true,

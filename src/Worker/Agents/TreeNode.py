@@ -200,6 +200,9 @@ class TreeNode(ConfigurableClass):
 		return actionValues, valueModelValues
 
 	def GetActionNode(self, action:SCT.Action) -> Optional['TreeNode']:
+		if self.Children is None:
+			return None
+
 		for child in self.Children:
 			if child.ActionIdxTaken == action:
 				return child

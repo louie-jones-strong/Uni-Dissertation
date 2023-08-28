@@ -120,17 +120,17 @@ class Worker:
 			self.Agent.Remember(state, actions[i], reward, nextState, terminated, truncated)
 
 
-			stateList.append(nextState)
-			envs.append(self.Envs[i].Env)
-
 			if terminated or truncated:
-				with self.Logger.Time("EpisodeEnd"):
-					finishedEpisodes += 1
-					self.LastReward = self.Envs[i].TotalReward
-					self.TotalRewards += self.LastReward
+				finishedEpisodes += 1
+				self.LastReward = self.Envs[i].TotalReward
+				self.TotalRewards += self.LastReward
 
-					self.Envs[i].Reset()
-					self.Agent.Reset()
+				self.Envs[i].Reset()
+				self.Agent.Reset()
+
+
+		stateList = [env.GetState() for env in self.Envs]
+		envs = [env.Env for env in self.Envs]
 
 		return stateList, envs, finishedEpisodes
 

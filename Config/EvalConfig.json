@@ -3,8 +3,8 @@
 		{
 			"AgentType": "ML",
 			"MaxEpisodes": 100,
-			"UseRealSims": [false, true],
-			"Depths": [1, 2, 4]
+			"UseRealSims": [true, false],
+			"Depths": [10]
 		},
 		{
 			"AgentType": "Random",

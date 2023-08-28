@@ -220,10 +220,9 @@ class Main():
 			self.ConfigManager.EnvConfig["MaxEpisodes"] = agentConfig["MaxEpisodes"]
 
 
-			for depth in agentConfig["Depths"]:
-				self.ConfigManager.Config["MonteCarloConfig"]["SelectionConfig"]["MaxTreeDepth"] = depth
-
-				for useRealTime in agentConfig["UseRealSims"]:
+			for useRealTime in agentConfig["UseRealSims"]:
+				for depth in agentConfig["Depths"]:
+					self.ConfigManager.Config["MonteCarloConfig"]["SelectionConfig"]["MaxTreeDepth"] = depth
 					self.ConfigManager.Config["UseRealSim"] = useRealTime
 
 					loggerName = f"{agentType.name}_D_{depth}_RT_{useRealTime}"
