@@ -2,7 +2,7 @@
 	"Agents": [
 		{
 			"AgentType": "ML",
-			"MaxEpisodes": 100,
+			"MaxEpisodes": 1000,
 			"UseRealSims": [true, false],
 			"Depths": [10]
 		},
