@@ -42,6 +42,10 @@ class Worker:
 		"""
 		self.StartTime = time.time()
 
+		for i in range(len(self.Envs)):
+			self.Envs[i].Reset()
+		self.Agent.Reset()
+
 		# get initial states from the environments
 		stateList = [env.GetState() for env in self.Envs]
 		envs = [env.Env for env in self.Envs]

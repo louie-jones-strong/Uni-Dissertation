@@ -18,6 +18,32 @@ class EpisodeReplayStep:
 		self.CompletedTime = time.time_ns()
 		return
 
+
+
+	def Save(self, replayFolder):
+		dict = {}
+		dict["Frame"] = self.Frame
+		dict["Reward"] = self.Reward
+		dict["Action"] = self.Action
+		dict["ActionReason"] = self.ActionReason
+		dict["CompletedTime"] = self.CompletedTime
+
+		if isinstance(self.AgentState, np.ndarray):
+			frameFilePath = os.path.join(replayFolder, "agentState", f"{self.Frame}.npy")
+			PathHelper.EnsurePathExists(frameFilePath)
+			np.save(frameFilePath, self.AgentState)
+		else:
+			dict["AgentState"] = self.AgentState
+
+
+
+		# save the human state
+		if self.HumanState is not None:
+			frameFilePath = os.path.join(replayFolder, "humanStates", f"{self.Frame}.npy")
+			PathHelper.EnsurePathExists(frameFilePath)
+			np.save(frameFilePath, self.HumanState)
+		return dict
+
 	@classmethod
 	def Load(cls, data, replayFolder):
 
@@ -38,32 +64,13 @@ class EpisodeReplayStep:
 
 		# load the human state
 		frameFilePath = os.path.join(replayFolder, "humanStates", f"{instance.Frame}.npy")
-		PathHelper.EnsurePathExists(frameFilePath)
-		instance.HumanState = np.load(frameFilePath, allow_pickle=True)
-		return instance
 
-	def Save(self, replayFolder):
-		dict = {}
-		dict["Frame"] = self.Frame
-		dict["Reward"] = self.Reward
-		dict["Action"] = self.Action
-		dict["ActionReason"] = self.ActionReason
-		dict["CompletedTime"] = self.CompletedTime
-
-		if isinstance(self.AgentState, np.ndarray):
-			frameFilePath = os.path.join(replayFolder, "agentState", f"{self.Frame}.npy")
-			PathHelper.EnsurePathExists(frameFilePath)
-			np.save(frameFilePath, self.AgentState)
+		if os.path.exists(frameFilePath):
+			instance.HumanState = np.load(frameFilePath, allow_pickle=True)
 		else:
-			dict["AgentState"] = self.AgentState
+			instance.HumanState = None
 
-
-
-		# save the human state
-		frameFilePath = os.path.join(replayFolder, "humanStates", f"{self.Frame}.npy")
-		PathHelper.EnsurePathExists(frameFilePath)
-		np.save(frameFilePath, self.HumanState)
-		return dict
+		return instance
 
 	def StateValue(self) -> float:
 

@@ -51,7 +51,11 @@ def CreateImage(replay:ER.EpisodeReplay, step:int) -> None:
 		return
 
 	# numpy array to image
-	image = cv.cvtColor(replay.Steps[step].HumanState, cv.COLOR_RGB2BGR)
+	humanState = replay.Steps[step].HumanState
+	if humanState is None:
+		return
+
+	image = cv.cvtColor(humanState, cv.COLOR_RGB2BGR)
 	cv.imwrite(outputPath, image)
 
 	return

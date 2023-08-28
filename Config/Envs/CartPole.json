@@ -28,7 +28,7 @@
 
 
 	"MaxSteps": 1000,
-	"MaxEpisodes": 100000,
+	"MaxEpisodes": 1000,
 	"NumEnvsPerWorker": 10,
 	"AgentConfig": {
 		"Human": {

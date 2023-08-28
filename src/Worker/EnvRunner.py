@@ -8,12 +8,15 @@ import os
 
 class EnvRunner:
 
-	def __init__(self, env:BaseEnv.BaseEnv, maxSteps:int, experienceStore, replayFolder=None, replayInfo=None) -> None:
+	def __init__(self, env:BaseEnv.BaseEnv, maxSteps:int, experienceStore,
+			replayFolder=None, replayInfo=None, humanRender=True) -> None:
+
 		self.Env = env
 		self.MaxSteps = maxSteps
 		self.ExperienceStore = experienceStore
 		self.ReplayFolder = replayFolder
 		self.ReplayInfo = replayInfo
+		self.HumanRender = humanRender
 
 		self.State = self.Env.Reset()
 		self.StepCount = 0
@@ -37,6 +40,9 @@ class EnvRunner:
 
 			nextState, reward, terminated, truncated = self.Env.Step(action)
 
+			if not self.HumanRender:
+				humanState = None
+
 			erStep = ERStep(self.Env._CurrentStep, humanState, self.State, reward, action, actionReason)
 			self.EpisodeReplay.AddStep(erStep)
 
@@ -57,6 +63,9 @@ class EnvRunner:
 			if self.EpisodeReplay is not None:
 				# save replay of the episode
 				humanState = self.Env.Render()
+				if not self.HumanRender:
+					humanState = None
+
 				erStep = ERStep(self.Env._CurrentStep, humanState, self.State, reward, None, None)
 				self.EpisodeReplay.AddStep(erStep)
 

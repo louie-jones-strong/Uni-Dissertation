@@ -110,7 +110,7 @@ class Main():
 		self.SetupLogger(f"Learner_{model.name}")
 		return learner
 
-	def RunWorker(self, agent:eAgentType, loggerName:str = None) -> None:
+	def RunWorker(self, agent:eAgentType, loggerName:str = None, humanRender:bool = True) -> None:
 		import src.Worker.Worker as Worker
 		import src.Common.Utils.ModelHelper as ModelHelper
 		import src.Common.Store.ModelStore.MsBase as MsBase
@@ -159,7 +159,10 @@ class Main():
 		for i in range(numEnvs):
 			env = BaseEnv.GetEnv(self.ConfigManager.EnvConfig)
 			experienceStore = self.CreateExperienceStore(agent)
-			runner = EnvRunner.EnvRunner(env, self.ConfigManager.EnvConfig["MaxSteps"], experienceStore, replayFolder=replayFolder, replayInfo=replayInfo)
+
+			runner = EnvRunner.EnvRunner(env, self.ConfigManager.EnvConfig["MaxSteps"], experienceStore,
+				replayFolder=replayFolder, replayInfo=replayInfo, humanRender=False)
+
 			envRunners.append(runner)
 
 		worker = Worker.Worker(self.ConfigManager.EnvConfig, agent, envRunners, isTrainingMode)
@@ -226,7 +229,7 @@ class Main():
 					self.ConfigManager.Config["UseRealSim"] = useRealTime
 
 					loggerName = f"{agentType.name}_D_{depth}_RT_{useRealTime}"
-					self.RunWorker(agentType, loggerName=loggerName)
+					self.RunWorker(agentType, loggerName=loggerName, humanRender=False)
 
 		return
 
