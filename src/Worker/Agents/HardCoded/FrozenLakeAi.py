@@ -11,10 +11,10 @@ class HardCodedAi(BaseAgent.BaseAgent):
 		super().__init__(envConfig, isTrainingMode)
 
 		self.ActionLookup = [
-			2, 2, 1, 0,
-			1, 0, 1, 0,
-			2, 1, 1, 0,
-			2, 2, 2, 0
+			2, 1, 1, 0, 2, 1, 0,
+			2, 1, 1, 0, 0, 1, 0,
+			2, 1, 1, 0, 0, 1, 0,
+			2, 2, 1, 0, 0, 0, 0
 		]
 		return
 
