@@ -5,7 +5,13 @@
 		"GymID": "FrozenLake-v1",
 		"RenderMode": "rgb_array",
 		"kwargs": {
-			"is_slippery": false
+			"is_slippery": false,
+			"desc":[
+				"FFFSFFH",
+				"FFFFHFH",
+				"HFFHHFH",
+				"FFGFFFH"
+			]
 		}
 	},
 
