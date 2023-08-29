@@ -74,7 +74,7 @@ class ModelHelper(Singleton.Singleton):
 			model = self._Build_Model(inputColumns, outputColumns, modelConfig)
 
 
-		elif modeType == eModelType.PlayStyleDiscriminator:
+		elif modeType == eModelType.PlayStyle_Discriminator or modeType == eModelType.Human_Discriminator:
 			inputColumns = [DCT.eDataColumnTypes.CurrentState, DCT.eDataColumnTypes.Action]
 			outputColumns = [DCT.eDataColumnTypes.PlayStyleTag]
 			model = self._Build_Model(inputColumns, outputColumns, modelConfig)

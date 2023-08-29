@@ -25,11 +25,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool,
 				forwardModel:ForwardModel.ForwardModel,
 				valueModel:ValueModel.ValueModel,
-				playStyleModel:PlayStyleModel.PlayStyleModel):
+				playStyleModels:typing.Dict[str, PlayStyleModel.PlayStyleModel]):
 
 		self._ForwardModel = forwardModel
 		self._ValueModel = valueModel
-		self._PlayStyleModel = playStyleModel
+		self._PlayStyleModels = playStyleModels
 
 		super().__init__(envConfig, isTrainingMode)
 
@@ -41,7 +41,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		super().UpdateModels()
 		self._ForwardModel.UpdateModels()
 		self._ValueModel.UpdateModels()
-		self._PlayStyleModel.UpdateModels()
+
+		for model in self._PlayStyleModels.values():
+			model.UpdateModels()
 		return
 
 	def Reset(self) -> None:
@@ -71,13 +73,13 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		if stateNode is None or not AreStatesEqual(stateNode.State, state):
 			self._CachedTree = None
 			stateNode = TreeNode.TreeNode(state, env, self.StepNum, done=False,
-				valueModel=self._ValueModel, playStyleModel=self._PlayStyleModel)
+				valueModel=self._ValueModel, playStyleModels=self._PlayStyleModels)
 
 
 
 
 		if stateNode.Children is None:
-			stateNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
+			stateNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModels)
 
 
 		selectionConfig = monteCarloConfig["SelectionConfig"]
@@ -101,7 +103,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			# 2. expansion
 			if selectedNode is not None and selectedNode.Counts > 0 and selectedNode.Children is None:
 				with self._Logger.Time("Expansion"):
-					selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModel)
+					selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModels)
 					selectedNode = selectedNode.Selection(exploreFactor, maxTreeDepth)
 
 			if selectedNode is None:
@@ -130,11 +132,10 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			return self.ActionSpace.sample(), "MonteCarloAgent Random Action (No Children)"
 
 
-		actionValues, valueModelValues = stateNode.GetActionValues()
+		actionValues = stateNode.GetActionValues()
 		actionReason = {
 			"Type": "MonteCarloAgent",
 			"ActionValues": actionValues,
-			"ValueModelValues": valueModelValues,
 			"Tree": stateNode.ToDict()
 		}
 		return actionValues, actionReason

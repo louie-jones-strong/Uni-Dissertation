@@ -4,8 +4,8 @@ from src.Common.Enums.eModelType import eModelType
 import src.Worker.Agents.Models.Model as Model
 
 class PlayStyleModel(Model.Model):
-	def __init__(self):
-		super().__init__(eModelType.PlayStyleDiscriminator)
+	def __init__(self, modelType:eModelType):
+		super().__init__(modelType)
 		return
 
 	def Predict(self, states:SCT.State_List, actions:SCT.Action_List) -> typing.Tuple[SCT.Reward_List]:

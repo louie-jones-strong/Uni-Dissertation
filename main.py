@@ -32,6 +32,8 @@ class Main():
 	def DefineCommandLineArgs(self):
 		envConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
 
+		exampleTypes = ["human", "curated"]
+
 		parser = ArgParser.ArgParser()
 
 		parser.AddEnumOption("subsystem", "what sub system is to be ran", eSubSystemType, "sub system")
@@ -45,7 +47,7 @@ class Main():
 		parser.AddStrOption("rungroup", "grouping for wandb runs", "run group")
 		parser.AddBoolOption("load", "load from previous run", "load")
 		parser.AddBoolOption("saveReplay", "Should the replay be saved", "save replay")
-		parser.AddStrOption("exampleType", "type of behaviour example", "example type")
+		parser.AddOptionsOption("exampleType", "type of behaviour example", exampleTypes, "example type")
 
 		return parser
 
@@ -102,10 +104,8 @@ class Main():
 		model = self.Parser.Get("model")
 		load = self.Parser.Get("load")
 
-		exampleType = self.Parser.Get("exampleType")
-		examplesSavePath = os.path.join(self.EnvDataPath, "examples", exampleType)
 
-		learner = Learner.Learner(model, load, examplesSavePath)
+		learner = Learner.Learner(model, load)
 
 		self.SetupLogger(f"Learner_{model.name}")
 		return learner

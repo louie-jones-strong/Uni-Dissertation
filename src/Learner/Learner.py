@@ -10,10 +10,11 @@ import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
 import numpy as np
 from tensorflow.keras.utils import to_categorical
 from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
+import os
 
 class Learner(ConfigurableClass):
 
-	def __init__(self, modelType:eModelType, loadModel:bool, examplePath:str):
+	def __init__(self, modelType:eModelType, loadModel:bool):
 		self.LoadConfig()
 		self.ModelType = modelType
 
@@ -23,10 +24,15 @@ class Learner(ConfigurableClass):
 		modelData = self.ModelHelper.BuildModel(self.ModelType)
 		self.Model, self.InputColumns, self.OutputColumns, self.ModelConfig = modelData
 
-		self.UsePriorities = self.ModelType != eModelType.PlayStyleDiscriminator
+		self.UsePriorities = self.ModelType != eModelType.PlayStyle_Discriminator \
+						and self.ModelType != eModelType.Human_Discriminator
+
+
 
 		self.HumanData = None
-		if self.ModelType == eModelType.PlayStyleDiscriminator:
+		if self.ModelType == eModelType.Human_Discriminator or self.ModelType == eModelType.PlayStyle_Discriminator:
+
+			examplePath = os.path.join(self.EnvDataPath, "examples", self.ModelConfig["ReplayExamples"])
 
 			self.HumanData = EsNumpy.EsNumpy(examplePath)
 			self.HumanData.Load()
@@ -103,7 +109,7 @@ class Learner(ConfigurableClass):
 		raw_x = DCT.FilterDict(self.InputColumns, batch.data)
 		x = self.ModelHelper.PreProcessColumns(raw_x, self.InputColumns)
 
-		if self.ModelType == eModelType.PlayStyleDiscriminator:
+		if self.ModelType == eModelType.PlayStyle_Discriminator or self.ModelType == eModelType.Human_Discriminator:
 
 			# add the human data concatenated to the end of the batch
 

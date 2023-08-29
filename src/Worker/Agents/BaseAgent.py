@@ -13,6 +13,7 @@ import src.Worker.Agents.Models.ForwardModel as ForwardModel
 import src.Worker.Agents.Models.ValueModel as ValueModel
 import src.Worker.Agents.Models.PlayStyleModel as PlayStyleModel
 import src.Worker.Environments.BaseEnv as BaseEnv
+from src.Common.Enums.eModelType import eModelType
 
 import os
 from src.Common.Utils.PathHelper import GetRootPath
@@ -36,8 +37,16 @@ def GetAgent(eAgentType:eAgentType,
 
 		forwardModel = ForwardModel.ForwardModel()
 		valueModel = ValueModel.ValueModel()
-		playStyleModel = PlayStyleModel.PlayStyleModel()
-		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel, valueModel, playStyleModel)
+
+		humanLikeModel = PlayStyleModel.PlayStyleModel(eModelType.Human_Discriminator)
+		playStyleModel = PlayStyleModel.PlayStyleModel(eModelType.PlayStyle_Discriminator)
+
+		playStyleModels = {
+			"Human": humanLikeModel,
+			"Curated": playStyleModel
+		}
+
+		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel, valueModel, playStyleModels)
 
 	elif eAgentType == eAgentType.HardCoded:
 		import importlib.util
