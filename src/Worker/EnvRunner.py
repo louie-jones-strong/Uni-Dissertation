@@ -74,6 +74,9 @@ class EnvRunner:
 
 				# save the episode to stats to table
 				row = ConfigHelper.FlattenConfig(self.ReplayInfo, {
+						"StartTime": self.EpisodeReplay.StartTime,
+						"EndTime": self.EpisodeReplay.EndTime,
+						"EpisodeId": self.EpisodeReplay.EpisodeId,
 						"Terminated": terminated,
 						"Truncated": truncated,
 						"EpisodeTotalReward": self.TotalReward,
