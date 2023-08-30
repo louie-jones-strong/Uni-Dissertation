@@ -1,7 +1,14 @@
 name: Build Docs
 
 on:
-  - push
+  push:
+    branches:
+      # Trigger only on pushes to the main branch
+      - main
+  pull_request:
+    branches:
+      # Trigger on pull requests targeting the main branch
+      - main
 
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -49,7 +56,13 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
+    # Ensure the "build" job is completed before starting deployment
     needs: build
+
+    # Run the deployment step only on the main branch
+    if: github.ref == 'refs/heads/main'
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
