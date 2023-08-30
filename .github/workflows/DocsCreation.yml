@@ -34,21 +34,11 @@ jobs:
       with:
         docs-folder: "docs/"
 
-
-        # Example of using a custom build-command.
-    # - uses: ammaraskar/sphinx-action@master
-    #   with:
-    #     build-command: "sphinx-build -b html . _build"
-    #     docs-folder: "docs2/"
-
-
     # Create an artifact of the html output.
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
       with:
         path: docs/_build/html/
-
-
 
   # Deployment job
   deploy:

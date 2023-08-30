@@ -134,7 +134,7 @@ class Main():
 			numEnvs = 1
 
 		isTrainingMode = False
-		if agent != eAgentType.Human and agent != eAgentType.Random and agent != eAgentType.HardCoded:
+		if agent != eAgentType.Human and agent != eAgentType.Random:
 			isTrainingMode = not self.Parser.Get("play")
 
 			if not isTrainingMode:
