@@ -282,11 +282,11 @@ class TreeNode(ConfigurableClass):
 	def GetPlayStyleValue(self) -> float:
 
 		nodeScoreConfig = self.Config["MonteCarloConfig"]["NodeScoreConfig"]
-		playStyleMultipliers = nodeScoreConfig["PlayStyleMultipliers"]
+		playStyleWeights = nodeScoreConfig["PlayStyleWeights"]
 
 		styleValue = 0
 		for key, value in self.PlayStyleModelValues.items():
-			styleValue += value * playStyleMultipliers[key]
+			styleValue += value * playStyleWeights[key]
 
 		return styleValue
 

@@ -26,7 +26,7 @@
 		"NodeScoreConfig": {
 			"RolloutRewardsMultiplier": 1.0,
 			"PredictedValueMultiplier": 0.0,
-			"PlayStyleMultipliers": {
+			"PlayStyleWeights": {
 				"Human": 1.0,
 				"Curated": 1.0
 			}
