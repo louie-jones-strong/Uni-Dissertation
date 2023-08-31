@@ -161,7 +161,7 @@ class Main():
 			experienceStore = self.CreateExperienceStore(agent)
 
 			runner = EnvRunner.EnvRunner(env, self.ConfigManager.EnvConfig["MaxSteps"], experienceStore,
-				replayFolder=replayFolder, replayInfo=replayInfo, humanRender=False)
+				replayFolder=replayFolder, replayInfo=replayInfo, humanRender=humanRender)
 
 			envRunners.append(runner)
 
