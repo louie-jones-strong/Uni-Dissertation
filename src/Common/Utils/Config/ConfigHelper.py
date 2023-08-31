@@ -41,6 +41,13 @@ def LoadConfig(configPath:str) -> SCT.Config:
 
 	return config
 
+def SaveConfig(config:SCT.Config, configPath:str) -> None:
+
+	with open(configPath, "w") as f:
+		json.dump(config, f, indent=4)
+
+	return
+
 def PrintConfig(config:SCT.Config) -> str:
 	string = json.dumps(config, indent=4)
 	return string

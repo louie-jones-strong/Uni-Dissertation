@@ -22,12 +22,16 @@ class Logger(Singleton.Singleton):
 		self._TotalTimePerEpisode:typing.Dict[str, float] = {}
 		self._Setup = True
 
-
+		self.EpisodeIds = []
 
 
 		self._WandbOn = wandbOn
 		if self._WandbOn:
 			wandb.init(project=self._ProjectName, config=self._Config, id=self._RunId, resume="allow", dir=runPath)
+		return
+
+	def AddEpisodeId(self, episodeId:str) -> None:
+		self.EpisodeIds.append(episodeId)
 		return
 
 	def LogDict(self, dict:typing.Dict[str, float], commit:bool = True) -> None:
