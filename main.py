@@ -209,18 +209,43 @@ class Main():
 		return
 
 	def RunEvaluation(self):
-		evalConfig = ConfigHelper.GetClassConfigPath("EvalConfig")
-		evalConfig = ConfigHelper.LoadConfig(evalConfig)
+		evalConfigPath = ConfigHelper.GetClassConfigPath("EvalConfig")
+		evalConfig = ConfigHelper.LoadConfig(evalConfigPath)
 
-		# set the game limit
+		playStyles = evalConfig["PlayStyles"]
+		agentsConfig = evalConfig["Agents"]
 
-		# ============== High Score ==============
-		for agentConfig in evalConfig["Agents"]:
+		for playStyle, config in playStyles.items():
+			maxEpisodesOverride = config["MaxEpisodes"]
+
+			self.SetPlayStyleConfig(config["normal"], config["human"], config["curated"])
+			self.EvalStyle(agentsConfig, playStyle, maxEpisodesOverride, humanRender=True)
+		return
+
+	def SetPlayStyleConfig(self, normalWeight, humanWeight, curateWeight):
+
+		# hard coded
+		self.ConfigManager.Config["HardcodedConfig"]["PlayStyleWeights"]["Normal"] = normalWeight
+		self.ConfigManager.Config["HardcodedConfig"]["PlayStyleWeights"]["Human"] = humanWeight
+		self.ConfigManager.Config["HardcodedConfig"]["PlayStyleWeights"]["PlayStyle"] = curateWeight
+
+		self.ConfigManager.Config["MonteCarloConfig"]["NodeScoreConfig"]["RolloutRewardsMultiplier"] = normalWeight
+		self.ConfigManager.Config["MonteCarloConfig"]["NodeScoreConfig"]["PlayStyleWeights"]["Human"] = humanWeight
+		self.ConfigManager.Config["MonteCarloConfig"]["NodeScoreConfig"]["PlayStyleWeights"]["Curated"] = curateWeight
+
+		return
+
+	def EvalStyle(self, agentsConfig, evalStyle:str, maxEpisodesOverride:int, humanRender:bool = False) -> None:
+
+		episodes = {}
+
+		for agentConfig in agentsConfig:
 
 			agentTypeStr = agentConfig["AgentType"]
 			agentType = eAgentType[agentTypeStr]
 
-			self.ConfigManager.EnvConfig["MaxEpisodes"] = agentConfig["MaxEpisodes"]
+			# set the game limit
+			self.ConfigManager.EnvConfig["MaxEpisodes"] = min(agentConfig["MaxEpisodes"], maxEpisodesOverride)
 
 
 			for useRealTime in agentConfig["UseRealSims"]:
@@ -229,7 +254,15 @@ class Main():
 					self.ConfigManager.Config["UseRealSim"] = useRealTime
 
 					loggerName = f"{agentType.name}_D_{depth}_RT_{useRealTime}"
-					self.RunWorker(agentType, loggerName=loggerName, humanRender=False)
+					self.RunWorker(agentType, loggerName=loggerName, humanRender=humanRender)
+
+					episodes[loggerName] = self.Logger.EpisodeIds.copy()
+					self.Logger.EpisodeIds.clear()
+
+
+
+		episodesPath = os.path.join(self.RunPath, f"{evalStyle}_Episodes.json")
+		ConfigHelper.SaveConfig(episodes, episodesPath)
 
 		return
 

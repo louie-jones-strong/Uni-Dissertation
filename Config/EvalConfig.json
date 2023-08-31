@@ -18,6 +18,26 @@
 			"UseRealSims": [true],
 			"Depths": [1]
 		}
-	]
+	],
+	"PlayStyles": {
+		"HighScore": {
+			"MaxEpisodes": 10,
+			"normal":  1.0,
+			"human":   0,
+			"curated": 0
+		},
+		"Human": {
+			"MaxEpisodes": 10,
+			"normal":  0.5,
+			"human":   1.0,
+			"curated": 0
+		},
+		"Curated": {
+			"MaxEpisodes": 10,
+			"normal":  0.5,
+			"human":   0,
+			"curated": 1.0
+		}
+	}
 
 }

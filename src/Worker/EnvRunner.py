@@ -1,7 +1,7 @@
 import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.Metrics.Logger as Logger
-from src.Common.EpisodeReplay.EpisodeReplay import EpisodeReplay as ER
-from src.Common.EpisodeReplay.EpisodeReplayStep import EpisodeReplayStep as ERStep
+from src.Common.EpisodeReplay.EpisodeReplay import EpisodeReplay
+from src.Common.EpisodeReplay.EpisodeReplayStep import EpisodeReplayStep
 import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 import src.Common.Utils.PathHelper as PathHelper
 import os
@@ -43,7 +43,7 @@ class EnvRunner:
 			if not self.HumanRender:
 				humanState = None
 
-			erStep = ERStep(self.Env._CurrentStep, humanState, self.State, reward, action, actionReason)
+			erStep = EpisodeReplayStep(self.Env._CurrentStep, humanState, self.State, reward, action, actionReason)
 			self.EpisodeReplay.AddStep(erStep)
 
 
@@ -66,7 +66,7 @@ class EnvRunner:
 				if not self.HumanRender:
 					humanState = None
 
-				erStep = ERStep(self.Env._CurrentStep, humanState, self.State, reward, None, None)
+				erStep = EpisodeReplayStep(self.Env._CurrentStep, humanState, self.State, reward, None, None)
 				self.EpisodeReplay.AddStep(erStep)
 
 				self.EpisodeReplay.EpisodeEnd(terminated, truncated)
@@ -108,7 +108,8 @@ class EnvRunner:
 		self.TotalReward = 0
 
 		if self.ReplayFolder is not None:
-			self.EpisodeReplay = ER(self.ReplayInfo)
+			self.EpisodeReplay = EpisodeReplay(self.ReplayInfo)
+			self._Logger.AddEpisodeId(self.EpisodeReplay.EpisodeId)
 		return
 
 
