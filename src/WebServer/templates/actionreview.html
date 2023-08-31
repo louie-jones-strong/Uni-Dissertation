@@ -69,9 +69,6 @@
 					<th>
 						Value
 					</th>
-					<th>
-						ValueModel Value
-					</th>
 				</tr>
 
 				{%for key, value in ActionLabels.items() %}
@@ -83,10 +80,9 @@
 						{{value}}
 					</td>
 					<td>
+						{% if "ActionValues" in actionData.ActionReason and actionData.ActionReason.ActionValues is not none %}
 						{{actionData.ActionReason.ActionValues[key]}}
-					</td>
-					<td>
-						{{actionData.ActionReason.ValueModelValues[key]}}
+						{% endif %}
 					</td>
 				</tr>
 				{% endfor %}
