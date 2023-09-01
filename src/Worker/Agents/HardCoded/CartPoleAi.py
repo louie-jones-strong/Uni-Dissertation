@@ -35,9 +35,12 @@ class HardCodedAi(BaseAgent.BaseAgent):
 			return 0, "None State"
 
 		offset = 0
+		maxWeight = 0
 		playStyleWeights = self.Config["HardcodedConfig"]["PlayStyleWeights"]
 		for key, value in self.BehaviorsOffsets.items():
-			offset += playStyleWeights[key] * value
+			if playStyleWeights[key] > maxWeight:
+				maxWeight = playStyleWeights[key]
+				offset = value
 
 		directionWeights = self.CalMoveWeighting(state, offset)
 

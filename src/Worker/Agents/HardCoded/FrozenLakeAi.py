@@ -41,26 +41,17 @@ class HardCodedAi(BaseAgent.BaseAgent):
 
 		playStyleWeights = self.Config["HardcodedConfig"]["PlayStyleWeights"]
 
-		actions = []
-		actionWeights = []
+		action = 0
+		maxWeight = 0
 
 		for key, value in self.BehaviorsLookups.items():
 
-			actions.append(value[state])
-			actionWeights.append(playStyleWeights[key])
-
-
-		# normalize weights
-		actionWeights = np.array(actionWeights)
-		actionWeights = actionWeights / np.sum(actionWeights)
-
-
-		action = np.random.choice(actions, p=actionWeights)
+			if playStyleWeights[key] > maxWeight:
+				maxWeight = playStyleWeights[key]
+				action = value[state]
 
 
 		reason = {
-			"Actions": actions,
-			"ActionWeights": actionWeights,
 			"AgentType": "HardCoded"
 		}
 
