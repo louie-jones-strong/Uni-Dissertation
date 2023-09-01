@@ -17,7 +17,7 @@
 
 	"ObservationSpace":{
 		"Type": "Discrete",
-		"Shape": 16
+		"Shape": 28
 	},
 	"ActionSpace": {
 		"Type": "Discrete",

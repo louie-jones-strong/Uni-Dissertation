@@ -33,9 +33,11 @@ class TreeNode(ConfigurableClass):
 			self.ValueModelValue = valueModel.Predict([state])
 
 		self.PlayStyleModelValues = {}
-		for key, playStyleModel in playStyleModels.items():
-			if playStyleModel.CanPredict():
-				self.PlayStyleModelValues[key] = playStyleModel.Predict([state])[0]
+
+		if actionIdxTaken is not None:
+			for key, playStyleModel in playStyleModels.items():
+				if playStyleModel.CanPredict():
+					self.PlayStyleModelValues[key] = playStyleModel.Predict([state], [actionIdxTaken])
 
 
 		self.Done = done
