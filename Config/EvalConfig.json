@@ -21,19 +21,19 @@
 	],
 	"PlayStyles": {
 		"HighScore": {
-			"MaxEpisodes": 10,
+			"MaxEpisodes": 1000,
 			"normal":  1.0,
 			"human":   0,
 			"curated": 0
 		},
 		"Human": {
-			"MaxEpisodes": 10,
+			"MaxEpisodes": 100,
 			"normal":  0.5,
 			"human":   1.0,
 			"curated": 0
 		},
 		"Curated": {
-			"MaxEpisodes": 10,
+			"MaxEpisodes": 100,
 			"normal":  0.5,
 			"human":   0,
 			"curated": 1.0
