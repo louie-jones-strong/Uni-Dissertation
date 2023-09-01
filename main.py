@@ -105,7 +105,7 @@ class Main():
 		load = self.Parser.Get("load")
 
 
-		learner = Learner.Learner(model, load)
+		learner = Learner.Learner(model, load, self.EnvDataPath)
 
 		self.SetupLogger(f"Learner_{model.name}")
 		return learner
@@ -253,7 +253,7 @@ class Main():
 					self.ConfigManager.Config["MonteCarloConfig"]["SelectionConfig"]["MaxTreeDepth"] = depth
 					self.ConfigManager.Config["UseRealSim"] = useRealTime
 
-					loggerName = f"{agentType.name}_D_{depth}_RT_{useRealTime}"
+					loggerName = f"{agentType.name}_D_{depth}_RT_{useRealTime}_{evalStyle}"
 					self.RunWorker(agentType, loggerName=loggerName, humanRender=humanRender)
 
 					episodes[loggerName] = self.Logger.EpisodeIds.copy()

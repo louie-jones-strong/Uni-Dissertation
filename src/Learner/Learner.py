@@ -14,9 +14,10 @@ import os
 
 class Learner(ConfigurableClass):
 
-	def __init__(self, modelType:eModelType, loadModel:bool):
+	def __init__(self, modelType:eModelType, loadModel:bool, envDataPath:str):
 		self.LoadConfig()
 		self.ModelType = modelType
+		self.EnvDataPath = envDataPath
 
 		self.ModelHelper = ModelHelper.ModelHelper(self.EnvConfig)
 
