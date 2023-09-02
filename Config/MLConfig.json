@@ -2,9 +2,9 @@
 	"UseRealSim": true,
 	"HardcodedConfig": {
 		"PlayStyleWeights": {
-			"Normal": 1.0,
+			"Normal": 0.5,
 			"Human": 0.0,
-			"PlayStyle": 0.0
+			"PlayStyle": 1.0
 		}
 	},
 	"MonteCarloConfig": {
