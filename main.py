@@ -118,6 +118,15 @@ class Main():
 		import src.Worker.EnvRunner as EnvRunner
 		import src.Worker.Environments.BaseEnv as BaseEnv
 
+
+
+		if loggerName is None:
+			if agent == eAgentType.Human:
+				exampleType = self.Parser.Get("exampleType")
+				loggerName = f"Worker_{agent.name}_Example_{exampleType}_Demo"
+			else:
+				loggerName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
+
 		if platform.system() == "Linux":
 			modelStore = MsRedis.MsRedis()
 		else:
@@ -141,6 +150,7 @@ class Main():
 				numEnvs = 1
 
 		replayInfo = {
+			"loggerName": loggerName,
 			"Agent": agent.name,
 			"IsTrainingMode": isTrainingMode,
 			"NumEnvs": numEnvs
@@ -167,8 +177,6 @@ class Main():
 
 		worker = Worker.Worker(self.ConfigManager.EnvConfig, agent, envRunners, isTrainingMode)
 
-		if loggerName is None:
-			loggerName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
 
 		self.SetupLogger(f"Worker_{agent.name}", loggerName)
 
