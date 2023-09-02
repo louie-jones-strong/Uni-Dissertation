@@ -4,6 +4,32 @@
 
 {% block content %}
 <div>
+	<div class="row">
+		<div class="card shadow">
+			<h2>Episode Replay Video</h2>
+			<video controls autoplay muted loop>
+				<source src="{{'/static/assets/' + replayData.EpisodeId + '.mp4'}}" type="video/mp4">
+				Your browser does not support the video tag.
+			</video>
+		</div>
 
+		<div class="card shadow">
+			<h2>Option</h2>
+
+			<div class="row">
+				<a href="\feedback\humanlike\false">
+					<button class="shaded highlightOnHover">
+						<p>Not Human</p>
+					</button>
+				</a>
+				<p>Id: {{idx}}</p>
+				<a href="\feedback\humanlike\true">
+					<button class="shaded highlightOnHover">
+						<p>Is Human</p>
+					</button>
+				</a>
+			</div>
+		</div>
+	</div>
 </div>
 {% endblock %}

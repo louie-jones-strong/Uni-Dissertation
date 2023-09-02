@@ -57,6 +57,15 @@ def Setup(envConfig) -> None:
 	for key, value in envConfig["AgentConfig"]["Human"]["Controls"].items():
 		ActionLabels[value] = key
 
+	# load replays to review
+
+	toReviewPath = os.path.join(RunFolder, "ReplaysToReview.json")
+
+	ReplaysToReview = {}
+	if os.path.exists(toReviewPath):
+		ReplaysToReview = ConfigHelper.LoadConfig(toReviewPath)
+
+
 
 
 
@@ -252,9 +261,62 @@ def Setup(envConfig) -> None:
 
 
 
-	@views.route("/feedback/humanlike")
-	def HumanLikeFeedback() -> str:
+	@views.route("/feedback/humanlike/<predicted>")
+	def HumanLikeFeedback(predicted) -> str:
 		data = GetCommonData()
+
+		predicted = predicted.lower()
+		if predicted == "new":
+			for i in range(len(ReplaysToReview)):
+				ReplaysToReview[i]["Predicted"] = None
+			predicted = None
+
+		elif predicted == "true":
+			predicted = True
+		elif predicted == "false":
+			predicted = False
+		else:
+			predicted = None
+
+
+
+		replayToReview = None
+		index = 0
+		# loop through all replays and get the ones that need reviewing
+		for i in range(len(ReplaysToReview)):
+			replay = ReplaysToReview[i]
+
+			if replay["Predicted"] is None:
+
+				if predicted is not None:
+					ReplaysToReview[i]["Predicted"] = predicted
+					predicted = None
+				else:
+					replayToReview = replay
+					index = i
+					break
+
+		if replayToReview is None:
+			# save the replays to review
+			ConfigHelper.SaveConfig(ReplaysToReview, toReviewPath)
+			return "No replays to review"
+
+		folder = replayToReview["AgentType"]
+		episode = replayToReview["ReplayId"]
+		replayPath = os.path.join(ReplaysFolder, folder, episode)
+		replay = ER.EpisodeReplay.LoadFromFolder(replayPath)
+
+		data["replayData"] = replay
+		data["episodeFolder"] = folder
+		data["episodeId"] = episode
+		data["idx"] = index
+
+
+		# make video for replay
+		AssetCreator.CreateVideo(replay)
+
+
+
 
 		return render_template("humanlikefeedback.html", **data)
 

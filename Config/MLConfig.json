@@ -14,7 +14,7 @@
 		"SelectionConfig": {
 			"MaxSelectionsPerAction": 256,
 			"TrainExploreFactor": 0.5,
-			"TestExploreFactor": 0.1,
+			"TestExploreFactor": 0.5,
 			"MaxTreeDepth": 10
 		},
 		"RollOutConfig": {
