@@ -2,7 +2,6 @@ import src.Worker.Agents.BaseAgent as BaseAgent
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.Environments.BaseEnv as BaseEnv
 import typing
-import numpy as np
 
 
 class HardCodedAi(BaseAgent.BaseAgent):
