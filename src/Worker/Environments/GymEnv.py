@@ -7,15 +7,21 @@ import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.Environments.BaseEnv as BaseEnv
 import typing
 
-from src.Worker.Environments.Wrappers import FireResetEnv, FrameStack, ActionDup
+from src.Worker.Environments.Wrappers import FireResetEnv, FrameStack, ActionDup, CuratedRewards
 
 
 def WrapGym(
+		envName:str,
 		wrappers:typing.List[str],
 		gymEnv:gym.Env,
 		rgbRenderEnv:gym.Env,
 		humanRenderEnv:gym.Env,
 		) -> typing.Tuple[gym.Env, gym.Env]:
+
+	gymEnv = CuratedRewards.CuratedRewards(gymEnv, envName)
+	rgbRenderEnv = CuratedRewards.CuratedRewards(rgbRenderEnv, envName)
+	humanRenderEnv = CuratedRewards.CuratedRewards(humanRenderEnv, envName)
+
 
 	if wrappers is None:
 		return gymEnv, rgbRenderEnv, humanRenderEnv
@@ -65,6 +71,7 @@ class GymEnv(BaseEnv.BaseEnv):
 
 			gymConfig = self._Config.get("GymConfig", {})
 
+			envName = self._Config["Name"]
 			gymId = gymConfig["GymID"]
 			kargs = gymConfig.get("kwargs", {})
 			wrappers = gymConfig.get("Wrappers", None)
@@ -77,7 +84,7 @@ class GymEnv(BaseEnv.BaseEnv):
 			self._HumanRenderCopy = gym.make(gymId, render_mode="human", **kargs)
 
 			# wrap the environments
-			envs = WrapGym(wrappers, self._GymEnv, self._RgbRenderCopy, self._HumanRenderCopy)
+			envs = WrapGym(envName, wrappers, self._GymEnv, self._RgbRenderCopy, self._HumanRenderCopy)
 			self._GymEnv, self._RgbRenderCopy, self._HumanRenderCopy = envs
 
 
@@ -116,7 +123,7 @@ class GymEnv(BaseEnv.BaseEnv):
 		return
 
 
-	def Step(self, action:SCT.Action) -> typing.Tuple[SCT.State, SCT.Reward, bool, bool]:
+	def Step(self, action:SCT.Action) -> typing.Tuple[SCT.State, SCT.Reward, bool, bool, SCT.Config]:
 		"""
 		:param action:
 		:return: nextState, reward, done
@@ -127,7 +134,7 @@ class GymEnv(BaseEnv.BaseEnv):
 			raise Exception("Environment is done")
 
 
-		nextState, reward, terminated, truncated, _ = self._GymEnv.step(action)
+		nextState, reward, terminated, truncated, info = self._GymEnv.step(action)
 
 		if self._RgbRenderCopy is not None:
 			self._RgbRenderCopy.step(action)
@@ -137,7 +144,7 @@ class GymEnv(BaseEnv.BaseEnv):
 
 		self._Done = terminated or truncated
 
-		return nextState, float(reward), terminated, truncated
+		return nextState, float(reward), terminated, truncated, info
 
 	def Clone(self) -> BaseEnv.BaseEnv:
 

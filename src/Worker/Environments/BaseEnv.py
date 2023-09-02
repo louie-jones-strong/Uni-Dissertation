@@ -37,7 +37,7 @@ class BaseEnv:
 
 
 
-	def Step(self, action:SCT.Action) -> typing.Tuple[SCT.State, SCT.Reward, bool, bool]:
+	def Step(self, action:SCT.Action) -> typing.Tuple[SCT.State, SCT.Reward, bool, bool, SCT.Config]:
 		"""
 		:param action:
 		:return: nextState, reward, done
@@ -51,7 +51,9 @@ class BaseEnv:
 		truncated = False
 		self._Done = terminated or truncated
 
-		return state, reward, terminated, truncated
+		info = {}
+
+		return state, reward, terminated, truncated, info
 
 	def Reset(self) -> SCT.State:
 		self._CurrentStep = 0

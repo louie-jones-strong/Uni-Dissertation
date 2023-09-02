@@ -23,8 +23,9 @@ class Worker:
 
 		self.Envs = envRunners
 		self.EpisodeCount = 0
-		self.TotalRewards = 0
 		self.LastReward = 0
+		self.TotalRewards = 0
+		self.TotalCuratedReward = 0
 		self.StartTime = 0
 
 		self.Agent = BaseAgent.GetAgent(eAgentType, envConfig, isTrainingMode)
@@ -70,8 +71,10 @@ class Worker:
 				avgRewards = self.TotalRewards / self.EpisodeCount
 				avgTime = (time.time() - self.StartTime) / self.EpisodeCount
 
+				avgCuratedReward = self.TotalCuratedReward / self.EpisodeCount
+
 				progressStr = f"{self.EpisodeCount} / {maxEpisodes}"
-				print(f"{progressStr}    avg:{avgRewards:.3f} last:{self.LastReward:.0f} avgTime:{avgTime:.3f}")
+				print(f"{progressStr}    avg:{avgRewards:.3f} avgCurated:{avgCuratedReward:.3f} avgTime:{avgTime:.3f}")
 
 			# If in evaluate mode then we only check for updates after an episode.
 			# This is to ensure that the agent is consistent for the whole episode.
@@ -128,6 +131,8 @@ class Worker:
 				finishedEpisodes += 1
 				self.LastReward = self.Envs[i].TotalReward
 				self.TotalRewards += self.LastReward
+
+				self.TotalCuratedReward += self.Envs[i].TotalCuratedReward
 
 				self.Envs[i].Reset()
 				self.Agent.Reset()

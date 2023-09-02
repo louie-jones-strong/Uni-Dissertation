@@ -20,7 +20,8 @@ class EnvRunner:
 
 		self.State = self.Env.Reset()
 		self.StepCount = 0
-		self.TotalReward = 0
+		self.TotalReward = 0,
+		self.TotalCuratedReward = 0
 		self.EpisodeReplay = None
 
 
@@ -33,12 +34,12 @@ class EnvRunner:
 	def Step(self, action, actionReason=None):
 
 		if self.EpisodeReplay is None:
-			nextState, reward, terminated, truncated = self.Env.Step(action)
+			nextState, reward, terminated, truncated, info = self.Env.Step(action)
 
 		else:
 			humanState = self.Env.Render()
 
-			nextState, reward, terminated, truncated = self.Env.Step(action)
+			nextState, reward, terminated, truncated, info = self.Env.Step(action)
 
 			if not self.HumanRender:
 				humanState = None
@@ -55,6 +56,7 @@ class EnvRunner:
 		self.ExperienceStore.AddTransition(self.State, nextState, action, reward, terminated, truncated)
 
 		self.TotalReward += reward
+		self.TotalCuratedReward += info.get("CuratedReward", 0)
 
 		self.State = nextState
 
@@ -80,6 +82,7 @@ class EnvRunner:
 						"Terminated": terminated,
 						"Truncated": truncated,
 						"EpisodeTotalReward": self.TotalReward,
+						"EpisodeTotalCuratedReward": self.TotalCuratedReward,
 						"EpisodeSteps": self.StepCount
 					})
 
@@ -93,6 +96,7 @@ class EnvRunner:
 				"Terminated": float(terminated),
 				"Truncated": float(truncated),
 				"EpisodeTotalReward": self.TotalReward,
+				"EpisodeTotalCuratedReward": self.TotalCuratedReward,
 				"EpisodeSteps": self.StepCount},
 				commit=True)
 
@@ -106,6 +110,7 @@ class EnvRunner:
 		self.State = self.Env.Reset()
 		self.StepCount = 0
 		self.TotalReward = 0
+		self.TotalCuratedReward = 0
 
 		if self.ReplayFolder is not None:
 			self.EpisodeReplay = EpisodeReplay(self.ReplayInfo)
