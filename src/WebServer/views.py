@@ -59,11 +59,12 @@ def Setup(envConfig) -> None:
 
 	# load replays to review
 
-	toReviewPath = os.path.join(RunFolder, "ReplaysToReview.json")
-
 	ReplaysToReview = {}
-	if os.path.exists(toReviewPath):
-		ReplaysToReview = ConfigHelper.LoadConfig(toReviewPath)
+	for behaviour in ["Human", "Curated"]:
+		toReviewPath = os.path.join(RunFolder, f"ReplaysToReview_{behaviour}.json")
+
+		if os.path.exists(toReviewPath):
+			ReplaysToReview[behaviour] = ConfigHelper.LoadConfig(toReviewPath)
 
 
 
@@ -261,14 +262,17 @@ def Setup(envConfig) -> None:
 
 
 
-	@views.route("/feedback/humanlike/<predicted>")
-	def HumanLikeFeedback(predicted) -> str:
+	@views.route("/feedback/<behaviour>/<predicted>")
+	def Feedback(behaviour, predicted) -> str:
 		data = GetCommonData()
+
+		if behaviour not in ReplaysToReview:
+			return "behaviour Not found"
 
 		predicted = predicted.lower()
 		if predicted == "new":
-			for i in range(len(ReplaysToReview)):
-				ReplaysToReview[i]["Predicted"] = None
+			for i in range(len(ReplaysToReview[behaviour])):
+				ReplaysToReview[behaviour][i]["Predicted"] = None
 			predicted = None
 
 		elif predicted == "true":
@@ -283,13 +287,13 @@ def Setup(envConfig) -> None:
 		replayToReview = None
 		index = 0
 		# loop through all replays and get the ones that need reviewing
-		for i in range(len(ReplaysToReview)):
-			replay = ReplaysToReview[i]
+		for i in range(len(ReplaysToReview[behaviour])):
+			replay = ReplaysToReview[behaviour][i]
 
 			if replay["Predicted"] is None:
 
 				if predicted is not None:
-					ReplaysToReview[i]["Predicted"] = predicted
+					ReplaysToReview[behaviour][i]["Predicted"] = predicted
 					predicted = None
 				else:
 					replayToReview = replay
@@ -298,27 +302,33 @@ def Setup(envConfig) -> None:
 
 		if replayToReview is None:
 			# save the replays to review
-			ConfigHelper.SaveConfig(ReplaysToReview, toReviewPath)
+			toReviewPath = os.path.join(RunFolder, f"ReplaysToReview_{behaviour}.json")
+			ConfigHelper.SaveConfig(ReplaysToReview[behaviour], toReviewPath)
 			return "No replays to review"
 
 		folder = replayToReview["AgentType"]
-		episode = replayToReview["ReplayId"]
-		replayPath = os.path.join(ReplaysFolder, folder, episode)
-		replay = ER.EpisodeReplay.LoadFromFolder(replayPath)
 
-		data["replayData"] = replay
+		replayIds = []
+		replayIdx = 0
+		while f"Replay_{replayIdx}" in replayToReview:
+
+			episode = replayToReview[f"Replay_{replayIdx}"]
+			replayPath = os.path.join(ReplaysFolder, folder, episode)
+			replay = ER.EpisodeReplay.LoadFromFolder(replayPath)
+
+			# make video for replay
+			AssetCreator.CreateVideo(replay)
+			replayIds.append(replay.EpisodeId)
+
+			replayIdx += 1
+
+		data["replayIds"] = replayIds
+		data["behaviour"] = behaviour
 		data["episodeFolder"] = folder
 		data["episodeId"] = episode
 		data["idx"] = index
 
-
-		# make video for replay
-		AssetCreator.CreateVideo(replay)
-
-
-
-
-		return render_template("humanlikefeedback.html", **data)
+		return render_template("feedback.html", **data)
 
 # endregion endpoints
 
