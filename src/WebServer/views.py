@@ -313,6 +313,10 @@ def Setup(envConfig) -> None:
 		while f"Replay_{replayIdx}" in replayToReview:
 
 			episode = replayToReview[f"Replay_{replayIdx}"]
+
+			if episode is None:
+				continue
+
 			replayPath = os.path.join(ReplaysFolder, folder, episode)
 			replay = ER.EpisodeReplay.LoadFromFolder(replayPath)
 
