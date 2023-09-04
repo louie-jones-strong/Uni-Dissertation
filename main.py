@@ -118,7 +118,16 @@ class Main():
 		import src.Worker.EnvRunner as EnvRunner
 		import src.Worker.Environments.BaseEnv as BaseEnv
 
+		numEnvs = self.ConfigManager.EnvConfig["NumEnvsPerWorker"]
+		if agent == eAgentType.Human or agent == eAgentType.ML:
+			numEnvs = 1
 
+		isTrainingMode = False
+		if agent != eAgentType.Human and agent != eAgentType.Random:
+			isTrainingMode = not self.Parser.Get("play")
+
+			if not isTrainingMode:
+				numEnvs = 1
 
 		if loggerName is None:
 			if agent == eAgentType.Human:
@@ -138,16 +147,7 @@ class Main():
 		modelHelper.Setup(self.ConfigManager.EnvConfig, modelStore)
 
 
-		numEnvs = self.ConfigManager.EnvConfig["NumEnvsPerWorker"]
-		if agent == eAgentType.Human or agent == eAgentType.ML:
-			numEnvs = 1
 
-		isTrainingMode = False
-		if agent != eAgentType.Human and agent != eAgentType.Random:
-			isTrainingMode = not self.Parser.Get("play")
-
-			if not isTrainingMode:
-				numEnvs = 1
 
 		replayInfo = {
 			"loggerName": loggerName,
