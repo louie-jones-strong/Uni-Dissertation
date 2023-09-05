@@ -255,8 +255,6 @@ class TreeNode(ConfigurableClass):
 		nodeValue += self.GetPlayStyleValue()
 
 
-		if self.Done and self.TotalRewards <= 0:
-			return -1000
 
 		return nodeValue
 
@@ -270,9 +268,15 @@ class TreeNode(ConfigurableClass):
 		if self.Counts > 0:
 			rolloutRewards = self.TotalRewards / self.Counts
 
+		if self.Done and self.TotalRewards <= 0:
+			rolloutRewards = -1000
+
 		predictedValue = 0
 		if self.ValueModelValue is not None:
 			predictedValue = self.ValueModelValue
+
+
+
 
 
 

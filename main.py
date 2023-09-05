@@ -226,11 +226,11 @@ class Main():
 		for playStyle, config in playStyles.items():
 			maxEpisodesOverride = config["MaxEpisodes"]
 
-			self.SetPlayStyleConfig(config["normal"], config["human"], config["curated"])
+			self.SetPlayStyleConfig(config["normal"], config["human"], config["curated"], config["Temperature"])
 			self.EvalStyle(agentsConfig, playStyle, maxEpisodesOverride, humanRender=True)
 		return
 
-	def SetPlayStyleConfig(self, normalWeight, humanWeight, curateWeight):
+	def SetPlayStyleConfig(self, normalWeight, humanWeight, curateWeight, temperature):
 
 		# hard coded
 		self.ConfigManager.Config["HardcodedConfig"]["PlayStyleWeights"]["Normal"] = normalWeight
@@ -240,6 +240,7 @@ class Main():
 		self.ConfigManager.Config["MonteCarloConfig"]["NodeScoreConfig"]["RolloutRewardsMultiplier"] = normalWeight
 		self.ConfigManager.Config["MonteCarloConfig"]["NodeScoreConfig"]["PlayStyleWeights"]["Human"] = humanWeight
 		self.ConfigManager.Config["MonteCarloConfig"]["NodeScoreConfig"]["PlayStyleWeights"]["Curated"] = curateWeight
+		self.ConfigManager.Config["MonteCarloConfig"]["ActionSelectionTemperature"] = temperature
 
 		return
 

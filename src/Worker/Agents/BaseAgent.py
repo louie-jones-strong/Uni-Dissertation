@@ -144,6 +144,39 @@ class BaseAgent(ConfigurableClass):
 		choice = random.choice(maxValues)
 		return int(choice)
 
+	@staticmethod
+	def _SoftMaxSelection(values:NDArray[np.float32], temperature:float) -> int:
+		probabilities = BaseAgent._SoftMax(values, temperature)
+		choice = np.random.choice(len(values), p=probabilities)
+		return int(choice), probabilities
+
+	@staticmethod
+	def _SoftMax(values:NDArray[np.float32], temperature:float) -> NDArray[np.float32]:
+
+		x = values.copy()
+		x[x <= 0] = 0
+
+		if x.max() == 0:
+			return np.ones(len(x)) / len(x)
+
+
+		# normalize so that the max value is 1
+		x = x / x.max()
+
+		# apply temperature
+		x = x / temperature
+
+		e_x = np.exp(x)
+		softMax = e_x / e_x.sum(axis=0)
+
+		# set all values <= 0 to 0
+		if x.min() <= 0 and x.max() > 0:
+			softMax[x <= 0] = 0
+			softMax = softMax / softMax.sum(axis=0)
+
+		return softMax
+
+
 
 	def Save(self, path:str) -> None:
 		return
