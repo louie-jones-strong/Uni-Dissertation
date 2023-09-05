@@ -174,6 +174,9 @@ class BaseAgent(ConfigurableClass):
 			softMax[x <= 0] = 0
 			softMax = softMax / softMax.sum(axis=0)
 
+		if softMax.max() == 0:
+			return np.ones(len(x)) / len(x)
+
 		return softMax
 
 
