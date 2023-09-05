@@ -153,7 +153,7 @@ class BaseAgent(ConfigurableClass):
 	@staticmethod
 	def _SoftMax(values:NDArray[np.float32], temperature:float) -> NDArray[np.float32]:
 
-		x = values.copy()
+		x = values.astype(np.float64)
 		x[x <= 0] = 0
 
 		if x.max() == 0:
@@ -177,7 +177,10 @@ class BaseAgent(ConfigurableClass):
 		if softMax.max() == 0:
 			return np.ones(len(x)) / len(x)
 
-		return softMax
+		if np.isnan(softMax).any():
+			raise Exception(f"SoftMax contains NaN: {softMax}. values: {values}, temp: {temperature}")
+
+		return softMax.astype(np.float32)
 
 
 
