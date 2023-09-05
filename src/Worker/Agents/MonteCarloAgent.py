@@ -57,7 +57,13 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action, str]:
 		super().GetAction(state, env)
 		actionValues, actionReason = self.GetActionValues(state, env)
-		return BaseAgent.BaseAgent._GetMaxValues(actionValues), actionReason
+
+		temperature = self.Config["MonteCarloConfig"]["ActionSelectionTemperature"]
+
+		action, probabilities = BaseAgent.BaseAgent._SoftMaxSelection(actionValues, temperature)
+		actionReason["ActionProbabilities"] = probabilities
+
+		return action, actionReason
 
 	def GetActionValues(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[NDArray[np.float32], str]:
 		super().GetActionValues(state, env)
