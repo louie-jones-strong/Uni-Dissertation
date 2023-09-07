@@ -259,14 +259,16 @@ class Main():
 
 			for useRealTime in agentConfig["UseRealSims"]:
 				for depth in agentConfig["Depths"]:
-					self.ConfigManager.Config["MonteCarloConfig"]["SelectionConfig"]["MaxTreeDepth"] = depth
-					self.ConfigManager.Config["UseRealSim"] = useRealTime
+					for maxTimePerAction in agentConfig["MaxTimesPerAction"]:
+						self.ConfigManager.Config["MonteCarloConfig"]["SelectionConfig"]["MaxTreeDepth"] = depth
+						self.ConfigManager.Config["MonteCarloConfig"]["MaxSecondsPerAction"] = maxTimePerAction
+						self.ConfigManager.Config["UseRealSim"] = useRealTime
 
-					loggerName = f"{agentType.name}_D_{depth}_RT_{useRealTime}_{evalStyle}"
-					self.RunWorker(agentType, loggerName=loggerName, humanRender=humanRender)
+						loggerName = f"{agentType.name}_D_{depth}_T_{maxTimePerAction}_RT_{useRealTime}_{evalStyle}"
+						self.RunWorker(agentType, loggerName=loggerName, humanRender=humanRender)
 
-					episodes[loggerName] = self.Logger.EpisodeIds.copy()
-					self.Logger.EpisodeIds.clear()
+						episodes[loggerName] = self.Logger.EpisodeIds.copy()
+						self.Logger.EpisodeIds.clear()
 
 
 
