@@ -347,7 +347,7 @@ def Setup(envConfig) -> None:
 		if behaviour not in ReplaysToReview:
 			return "behaviour Not found"
 
-		# replay = ER.EpisodeReplay.LoadFromFolder(os.path.join(ReplaysFolder, folder, episode))
+		replay = ER.EpisodeReplay.LoadFromFolder(os.path.join(ReplaysFolder, folder, episode))
 
 		# add replay to behaviour examples
 
@@ -356,16 +356,18 @@ def Setup(envConfig) -> None:
 		experienceStore = EsNumpy.EsNumpy(examplesSavePath)
 
 		experienceStore.Load()
-		# todo
+		state = replay.Steps[0].AgentState
 		# add replay to experience store
-		# for step in replay.Steps:
-		# 	state
-		# 	nextState
-		# 	action
-		# 	reward
-		# 	terminated
-		# 	truncated
-		# 	experienceStore.AddTransition(state, action, reward, nextState, terminated, truncated)
+		for i in range(1, len(replay.Steps)):
+			step = replay.Steps[i]
+
+			nextState = step.AgentState
+			action = step.Action
+			reward = step.Reward
+			terminated = step.Terminated
+			truncated = step.Truncated
+			experienceStore.AddTransition(state, action, reward, nextState, terminated, truncated)
+			state = nextState
 
 		experienceStore.EmptyTransitionBuffer()
 		return f"added to {behaviour} behaviour examples"
