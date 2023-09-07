@@ -1,19 +1,19 @@
-# Final Year project
+# Dynamic Exploration of Curated Agents Framework (DECAF)
 
 ## Status
-![Unit Tests](https://github.com/louie-jones-strong/Uni-Dissertation/actions/workflows/UnitTests.yml/badge.svg)
-![Type Hint Checks](https://github.com/louie-jones-strong/Uni-Dissertation/actions/workflows/TypeHintChecks.yml/badge.svg)
-![Lint Checks](https://github.com/louie-jones-strong/Uni-Dissertation/actions/workflows/LintChecks.yml/badge.svg)
-![Docs Build](https://github.com/louie-jones-strong/Uni-Dissertation/actions/workflows/DocsCreation.yml/badge.svg)
+![Unit Tests](https://github.com/louie-jones-strong/DECAF/actions/workflows/UnitTests.yml/badge.svg)
+![Type Hint Checks](https://github.com/louie-jones-strong/DECAF/actions/workflows/TypeHintChecks.yml/badge.svg)
+![Lint Checks](https://github.com/louie-jones-strong/DECAF/actions/workflows/LintChecks.yml/badge.svg)
+![Docs Build](https://github.com/louie-jones-strong/DECAF/actions/workflows/DocsCreation.yml/badge.svg)
 
 
 ## About
 This project has been created as part of my final year dissertation at the University of London.
-The project is an implementation of the reinforcement learning framework, proposed in my dissertation.
-The framework trains agents' policies to maximise the expected reward in a environment.
-The framework allows for tuning the agents' behaviours to mimic human behaviours or a custom curated behaviour.
+The project is an implementation of the reinforcement learning framework DECAF, proposed in my dissertation.
+DECAF trains agents' policies to maximise the expected reward in a environment.
+DECAF allows for tuning the agents' behaviours to mimic human behaviours or a custom curated behaviour.
 
-Find the documentation [here](https://louie-jones-strong.github.io/Uni-Dissertation/)
+Find the documentation [here](https://louie-jones-strong.github.io/DECAF/)
 
 ## Requirements
 - [Python 3.8.10](https://www.python.org/downloads/release/python-3810/)

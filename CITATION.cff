@@ -4,8 +4,8 @@ authors:
 - family-names: "Jones-Strong"
   given-names: "Louie"
   orcid: "https://orcid.org/0009-0005-4629-9946"
-title: "Uni-Dissertation"
+title: "Dynamic Exploration of Curated Agents Framework"
 version: 1.0.0
 doi: 10.5281/zenodo.1234
 date-released: 2023-09-07
-url: "https://github.com/louie-jones-strong/Uni-Dissertation"
+url: "https://github.com/louie-jones-strong/DECAF"
