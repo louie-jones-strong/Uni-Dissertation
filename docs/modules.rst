@@ -1,4 +1,4 @@
-Uni-Dissertation
+DECAF
 ================
 
 .. toctree::
