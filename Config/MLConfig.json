@@ -38,6 +38,18 @@
 		"DataCollectionMultiplier": 1
 	},
 	"ModelConfigs": {
+		"Policy": {
+			"TrainingBatchSize": 2048,
+			"MaxDeploymentBatchSize": 2048,
+			"DataTable": "Policy_Trajectories",
+			"ReplayExamples": "",
+			"LearningRate": 0.001,
+			"DenseLayers": [256, 256],
+			"Activations": "relu",
+			"Dropout": 0.5,
+			"L1": 0.5,
+			"L2": 0.5
+		},
 		"Value": {
 			"TrainingBatchSize": 2048,
 			"MaxDeploymentBatchSize": 2048,
@@ -47,8 +59,8 @@
 			"DenseLayers": [256, 256],
 			"Activations": "relu",
 			"Dropout": 0.5,
-			"L1": 0.0,
-			"L2": 0.0
+			"L1": 0.5,
+			"L2": 0.5
 		},
 		"Forward_NextState": {
 			"TrainingBatchSize": 2048,
@@ -95,8 +107,8 @@
 			"DenseLayers": [256, 256],
 			"Activations": "relu",
 			"Dropout": 0.5,
-			"L1": 0.0,
-			"L2": 0.0
+			"L1": 0.5,
+			"L2": 0.5
 		},
 		"PlayStyle_Discriminator": {
 			"TrainingBatchSize": 2048,
@@ -107,8 +119,8 @@
 			"DenseLayers": [256, 256],
 			"Activations": "relu",
 			"Dropout": 0.5,
-			"L1": 0.0,
-			"L2": 0.0
+			"L1": 0.5,
+			"L2": 0.5
 		}
 	},
 	"DataTables": [
@@ -146,6 +158,17 @@
 				"CurrentState",
 				"Action",
 				"Terminated"
+			]
+		},
+		{
+			"TableName": "Policy_Trajectories",
+			"StepCount": 1,
+			"MinCount": 1000,
+			"MaxCount": 100000,
+			"PriorityExponent": 0.8,
+			"Columns": [
+				"CurrentState",
+				"Action"
 			]
 		},
 		{
