@@ -22,6 +22,9 @@ class EsNumpy(EsBase.EsBase):
 		self.Truncated:Optional[np.ndarray] = None
 		return
 
+
+
+
 	def EmptyTransitionBuffer(self) -> None:
 
 		for i in range(len(self._TransitionBuffer)):
@@ -31,19 +34,19 @@ class EsNumpy(EsBase.EsBase):
 			if state is None:
 				continue
 
-			self.States = self.AddValue(self.States, state)
-			self.NextStates = self.AddValue(self.NextStates, nextState)
-			self.Actions = self.AddValue(self.Actions, action)
-			self.Rewards = self.AddValue(self.Rewards, reward)
-			self.FutureRewards = self.AddValue(self.FutureRewards, futureRewards)
-			self.Terminated = self.AddValue(self.Terminated, terminated)
-			self.Truncated = self.AddValue(self.Truncated, truncated)
+			self.States = self._AddValue(self.States, state)
+			self.NextStates = self._AddValue(self.NextStates, nextState)
+			self.Actions = self._AddValue(self.Actions, action)
+			self.Rewards = self._AddValue(self.Rewards, reward)
+			self.FutureRewards = self._AddValue(self.FutureRewards, futureRewards)
+			self.Terminated = self._AddValue(self.Terminated, terminated)
+			self.Truncated = self._AddValue(self.Truncated, truncated)
 
 		self.Save()
 		super().EmptyTransitionBuffer()
 		return
 
-	def AddValue(self, npArray:Optional[np.ndarray], value:Any) -> np.ndarray:
+	def _AddValue(self, npArray:Optional[np.ndarray], value:Any) -> np.ndarray:
 
 		value = np.expand_dims(value, axis=0)
 		if npArray is None:

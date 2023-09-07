@@ -145,7 +145,7 @@ class BaseAgent(ConfigurableClass):
 		return int(choice)
 
 	@staticmethod
-	def _SoftMaxSelection(values:NDArray[np.float32], temperature:float) -> int:
+	def _SoftMaxSelection(values:NDArray[np.float32], temperature:float) -> typing.Tuple[int, NDArray[np.float32]]:
 		probabilities = BaseAgent._SoftMax(values, temperature)
 		choice = np.random.choice(len(values), p=probabilities)
 		return int(choice), probabilities

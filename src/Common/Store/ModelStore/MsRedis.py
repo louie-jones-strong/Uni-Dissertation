@@ -13,7 +13,8 @@ class MsRedis(MsBase.MsBase):
 		return
 
 	def HasModel(self, modelKey:str) -> bool:
-		return self.RedisClient.exists(modelKey)
+		numExist = self.RedisClient.exists(modelKey)
+		return numExist > 0
 
 	def FetchNewestWeights(self, modelKey:str, model:tf.keras.models.Model) -> bool:
 		try:
