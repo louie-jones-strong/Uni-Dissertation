@@ -16,3 +16,6 @@ sphinx-autodoc-typehints==1.23.0
 ipykernel
 
 pandas
+seaborn
+matplotlib
+pyperclip

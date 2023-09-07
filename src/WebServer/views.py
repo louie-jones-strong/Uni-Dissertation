@@ -8,7 +8,7 @@ import src.WebServer.AssetCreator as AssetCreator
 import json
 import numpy as np
 import math
-
+import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
 
 class NumpyEncoder(json.JSONEncoder):
 	""" Custom encoder for numpy data types """
@@ -308,7 +308,7 @@ def Setup(envConfig) -> None:
 
 		folder = replayToReview["AgentType"]
 
-		replayIds = []
+		replayInfos = []
 		replayIdx = 0
 		while f"Replay_{replayIdx}" in replayToReview:
 
@@ -322,17 +322,47 @@ def Setup(envConfig) -> None:
 
 			# make video for replay
 			AssetCreator.CreateVideo(replay)
-			replayIds.append(replay.EpisodeId)
+			replayInfos.append({"Folder": folder, "EpisodeId": replay.EpisodeId})
 
 			replayIdx += 1
 
-		data["replayIds"] = replayIds
+		data["replayInfos"] = replayInfos
 		data["behaviour"] = behaviour
 		data["episodeFolder"] = folder
 		data["episodeId"] = episode
 		data["idx"] = index
 
 		return render_template("feedback.html", **data)
+
+	@views.route("/behaviourexample/<behaviour>/<folder>/<episode>")
+	def MarkEpisodeAsBehaviourExample(behaviour, folder, episode) -> str:
+		data = GetCommonData()
+
+		if folder not in data["EpisodeReplays"]:
+			return "folder Not found"
+
+		if episode not in data["EpisodeReplays"][folder]:
+			return "episode Not found"
+
+		if behaviour not in ReplaysToReview:
+			return "behaviour Not found"
+
+		replay = ER.EpisodeReplay.LoadFromFolder(os.path.join(ReplaysFolder, folder, episode))
+
+		# add replay to behaviour examples
+
+		examplesSavePath = os.path.join(DataFolder, "examples", behaviour)
+
+		experienceStore = EsNumpy.EsNumpy(examplesSavePath)
+
+		experienceStore.Load()
+		# todo
+		# add replay to experience store
+		# for step in replay.Steps:
+		# 	experienceStore.AddTransition(step.AgentState, step.NextState, step.Action, step.Reward, step.Terminated, step.Truncated)
+
+		experienceStore.EmptyTransitionBuffer()
+		return f"added to {behaviour} behaviour examples"
 
 # endregion endpoints
 

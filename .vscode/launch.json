@@ -89,7 +89,7 @@
 				"--rungroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "HardCoded",
-				"--saveReplay", "True",
+				// "--saveReplay", "True",
 				"--play", "True"
 			]
 		},
@@ -107,7 +107,7 @@
 				"--subsystem", "Worker",
 				"--agent", "ML",
 				"--play", "True",
-				"--saveReplay", "True"
+				// "--saveReplay", "True"
 			]
 		},
 		{

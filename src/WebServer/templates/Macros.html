@@ -1,0 +1,20 @@
+{% macro EpisodeOptions(folder, replayId) -%}
+
+<h2 style="margin: 0px;">
+	ID: <a href="\episodereview\{{folder}}\{{replayId}}">{{replayId}}</a>
+</h2>
+<div class="row">
+	<h3>Mark as:</h3>
+	<a href="\behaviourexample\Human\{{folder}}\{{replayId}}">
+		<button class="shaded highlightOnHover">
+			<p>Human</p>
+		</button>
+	</a>
+	<a href="\behaviourexample\Curated\{{folder}}\{{replayId}}">
+		<button class="shaded highlightOnHover">
+			<p>Curated</p>
+		</button>
+	</a>
+</div>
+
+{%- endmacro %}

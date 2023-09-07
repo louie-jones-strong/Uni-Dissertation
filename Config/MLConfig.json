@@ -4,7 +4,7 @@
 		"PlayStyleWeights": {
 			"Normal": 0.5,
 			"Human": 0.0,
-			"PlayStyle": 1.0
+			"PlayStyle": 0.0
 		}
 	},
 	"MonteCarloConfig": {
@@ -19,8 +19,8 @@
 			"MaxTreeDepth": 10
 		},
 		"RollOutConfig": {
-			"MaxRollOutCount": 4,
-			"MaxRollOutDepth": 1,
+			"MaxRollOutCount": 32,
+			"MaxRollOutDepth": 6,
 			"ValueFinalStates": true,
 			"TimeOutAllowed": false
 		},
