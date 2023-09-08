@@ -1,0 +1,15 @@
+{
+	"UseRealSim": true,
+	"MonteCarloConfig": {
+		"CacheTreeBetweenActions": true,
+		"CacheTreeBetweenEpisodes": false,
+		"SelectionConfig": {
+			"MaxTreeDepth": 10
+		},
+		"RollOutConfig": {
+			"MaxRollOutCount": 4,
+			"MaxRollOutDepth": 1,
+			"ValueFinalStates": true
+		}
+	}
+}

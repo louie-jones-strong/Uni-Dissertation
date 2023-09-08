@@ -15,41 +15,48 @@ import time
 
 class Main():
 	def __init__(self):
-		self.Parser = self.DefineCommandLineArgs()
-		self.EnvName = self.Parser.Get("env")
+		self.EnvConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
+
+		self.DefineCommandLineArgs()
+
+		envName = self.Parser.Get("envName")
+		envConfigPath = os.path.join(self.EnvConfigFolder, envName)
 
 		self.ConfigManager = ConfigManager.ConfigManager()
-		self.ConfigManager.Setup(self.EnvName)
+		self.ConfigManager.Setup(envConfigPath)
 
 
-		self.ConfigManager.EnvConfig["Group"] = self.Parser.Get("rungroup")
+		self.ConfigManager.EnvConfig["Group"] = self.Parser.Get("runGroup")
 		self.EnvDataPath = os.path.join(GetRootPath(), "Data", self.ConfigManager.EnvConfig['Name'])
 		self.RunPath = os.path.join(self.EnvDataPath, self.ConfigManager.EnvConfig["Group"])
 
 		PathHelper.EnsurePathExists(self.RunPath)
 		return
 
-	def DefineCommandLineArgs(self):
-		envConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
-
+	def DefineCommandLineArgs(self) -> None:
 		exampleTypes = ["human", "curated"]
 
-		parser = ArgParser.ArgParser()
+		self.Parser = ArgParser.ArgParser()
 
-		parser.AddEnumOption("subsystem", "what sub system is to be ran", eSubSystemType, "sub system")
-		parser.AddFilePathOption("env", "path to env config", envConfigFolder, "env")
+		self.Parser.AddEnumOption("subsystem", "what sub system is to be ran", eSubSystemType, "sub system")
+		self.Parser.AddFilePathOption("envName", "path to env config", self.EnvConfigFolder, "envName")
 
-		parser.AddEnumOption("model", "The type of model to train", eModelType, "ModelType")
-		parser.AddEnumOption("agent", "agent to use", eAgentType, "agent")
+		self.Parser.AddEnumOption("model", "The type of model to train", eModelType, "ModelType")
+		self.Parser.AddEnumOption("agent", "agent to use", eAgentType, "agent")
 
-		parser.AddBoolOption("play", "Is the agent in training or evaluation?", "PlayMode")
-		parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
-		parser.AddStrOption("rungroup", "grouping for wandb runs", "run group")
-		parser.AddBoolOption("load", "load from previous run", "load")
-		parser.AddBoolOption("saveReplay", "Should the replay be saved", "save replay")
-		parser.AddOptionsOption("exampleType", "type of behaviour example", exampleTypes, "example type")
+		self.Parser.AddBoolOption("play", "Is the agent in training or evaluation?", "PlayMode")
+		self.Parser.AddBoolOption("wandb", "Should logs be synced to wandb", "wandb sync")
+		self.Parser.AddStrOption("runGroup", "grouping for wandb runs", "run group")
+		self.Parser.AddBoolOption("load", "load from previous run", "load")
+		self.Parser.AddBoolOption("saveReplay", "Should the replay be saved", "save replay")
+		self.Parser.AddOptionsOption("exampleType", "type of behaviour example", exampleTypes, "example type")
 
-		return parser
+
+		frameworkConfigPath = ConfigHelper.GetClassConfigPath("FrameworkConfig")
+		frameworkConfig = ConfigHelper.LoadConfig(frameworkConfigPath)
+
+		self.Parser.SetDefaults(frameworkConfig)
+		return
 
 #region Setup Subsystems
 	def CreateExperienceStore(self, agent):
