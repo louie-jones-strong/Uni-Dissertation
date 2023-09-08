@@ -1,9 +1,9 @@
-.. FinalProject documentation master file, created by
+.. DECAF documentation master file, created by
    sphinx-quickstart on Mon Jul  3 02:24:34 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to FinalProject's documentation!
+Welcome to DECAF's documentation!
 ========================================
 
 .. toctree::
