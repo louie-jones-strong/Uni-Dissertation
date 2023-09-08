@@ -22,6 +22,29 @@ class ArgParser:
 
 		return
 
+	def SetDefaults(self, defaultsDict) -> None:
+
+		args = self._GetArgs()
+
+		for key, defaultValue in defaultsDict.items():
+			if key not in args:
+				raise Exception(f"Invalid key: {key}")
+
+			argSettings = self.ArgSettings[key]
+
+			valueStr, validated = args[key]
+
+			value = valueStr
+			if not validated:
+				value = self._ValidateValue(valueStr, argSettings)
+
+				if value is None:
+					value = defaultValue
+
+				self.ParsedArgs[key] = (value, True)
+
+		return
+
 	def _AddOption(self, name:str, helpStr:str, uiLabel:Optional[str], argType:ArgType) -> None:
 		self.Parser.add_argument(f"--{name}", type=str, default=None, help=helpStr)
 
@@ -113,7 +136,8 @@ class ArgParser:
 				return None
 
 			# check if it is in the correct folder
-			if not value.startswith(argInfo["folderPath"]):
+			filesInFolder = os.listdir(argInfo["folderPath"])
+			if value not in filesInFolder:
 				print(f"File should be in {argInfo['folderPath']}, for {argInfo['name']}")
 				return None
 

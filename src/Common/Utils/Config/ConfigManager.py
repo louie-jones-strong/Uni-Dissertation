@@ -9,6 +9,12 @@ class ConfigManager(Singleton.Singleton):
 		mlConfigPath = ConfigHelper.GetClassConfigPath("MLConfig")
 		self.Config = ConfigHelper.LoadConfig(mlConfigPath)
 
+		overrideConfigPath = ConfigHelper.GetClassConfigPath(f"MLConfig-{envName}")
+		if os.path.exists(overrideConfigPath):
+			overrideConfig = ConfigHelper.LoadConfig(overrideConfigPath)
+			self.Config = ConfigHelper.MergeConfig(self.Config, overrideConfig, allowJoining=False)
+
+
 		envConfigPath = os.path.join(ConfigHelper.GetRootPath(), "Config", "Envs", envName)
 		self.EnvConfig = ConfigHelper.LoadConfig(envConfigPath)
 		return

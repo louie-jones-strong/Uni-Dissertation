@@ -5,19 +5,6 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Run",
-			"type": "python",
-			"request": "launch",
-			"program": "main.py",
-			"console": "integratedTerminal",
-			"justMyCode": true,
-			"args": [
-				"--wandb", "False",
-				"--load", "False",
-				"--rungroup", "dev"
-			]
-		},
-		{
 			"name": "Webserver",
 			"type": "python",
 			"request": "launch",
@@ -25,23 +12,8 @@
 			"console": "integratedTerminal",
 			"justMyCode": true,
 			"args": [
-				// "--rungroup", "dev",
+				// "--runGroup", "dev",
 				"--subsystem", "Webserver"
-			]
-		},
-		{
-			"name": "Worker",
-			"type": "python",
-			"request": "launch",
-			"program": "main.py",
-			"console": "integratedTerminal",
-			"justMyCode": true,
-			"args": [
-				"--wandb", "False",
-				"--load", "False",
-				"--rungroup", "dev",
-				"--subsystem", "Worker",
-				"--saveReplay", "True"
 			]
 		},
 		{
@@ -54,7 +26,7 @@
 			"args": [
 				"--wandb", "False",
 				"--load", "False",
-				"--rungroup", "dev",
+				"--runGroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "Human",
 				"--saveReplay", "True"
@@ -70,7 +42,7 @@
 			"args": [
 				"--wandb", "False",
 				"--load", "False",
-				"--rungroup", "dev",
+				"--runGroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "Random",
 				"--saveReplay", "True"
@@ -86,7 +58,7 @@
 			"args": [
 				"--wandb", "False",
 				"--load", "False",
-				"--rungroup", "dev",
+				"--runGroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "HardCoded",
 				// "--saveReplay", "True",
@@ -103,7 +75,7 @@
 			"args": [
 				"--wandb", "False",
 				"--load", "False",
-				"--rungroup", "dev",
+				"--runGroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "ML",
 				"--play", "True",
@@ -119,7 +91,7 @@
 			"justMyCode": true,
 			"args": [
 				"--wandb", "False",
-				"--rungroup", "dev",
+				"--runGroup", "dev",
 				"--subsystem", "Evaluation",
 				"--play", "True",
 				"--saveReplay", "True"

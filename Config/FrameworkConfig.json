@@ -1,0 +1,6 @@
+{
+	"envName": "FrozenLake.json",
+	"load": false,
+	"wandb": true,
+	"runGroup": "13"
+}
