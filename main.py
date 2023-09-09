@@ -11,6 +11,7 @@ import src.Common.Utils.Config.ConfigManager as ConfigManager
 import platform
 import logging
 import time
+import src.Common.Utils.Metrics.LoggingHelper as LoggingHelper
 
 
 class Main():
@@ -20,7 +21,7 @@ class Main():
 		self.DefineCommandLineArgs()
 
 		logLevel = self.Parser.Get("logLevel")
-		logging.basicConfig(level=logLevel)
+		LoggingHelper.SetupLogging(logLevel)
 
 		envName = self.Parser.Get("envName")
 		envConfigPath = os.path.join(self.EnvConfigFolder, envName)
