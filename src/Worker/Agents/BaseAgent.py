@@ -18,6 +18,7 @@ from src.Common.Enums.eModelType import eModelType
 import os
 from src.Common.Utils.PathHelper import GetRootPath
 from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
+import logging
 
 
 def GetAgent(eAgentType:eAgentType,
@@ -72,6 +73,10 @@ def GetAgent(eAgentType:eAgentType,
 class BaseAgent(ConfigurableClass):
 	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
 		self.LoadConfig()
+
+		self.Logger = logging.getLogger(self.__class__.__name__)
+
+
 		self.EnvConfig = envConfig
 		self.Mode = ePlayMode.Train if isTrainingMode else ePlayMode.Play
 

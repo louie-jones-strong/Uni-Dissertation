@@ -10,6 +10,7 @@ import src.Worker.Agents.Models.PlayStyleModel as PlayStyleModel
 import src.Worker.Agents.TreeNode as TreeNode
 import src.Worker.Environments.BaseEnv as BaseEnv
 import typing
+import logging
 
 def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:
 
@@ -62,6 +63,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		action, probabilities = BaseAgent.BaseAgent._SoftMaxSelection(actionValues, temperature)
 		actionReason["ActionProbabilities"] = probabilities
+
+		probabilities = np.round(probabilities, 2)
+		self.Logger.debug(f"Action: {action} {probabilities}")
 
 		return action, actionReason
 
