@@ -2,10 +2,14 @@ import logging
 
 
 def SetupLogging(level):
-	handler = logging.StreamHandler()
-	handler.setFormatter(CustomFormatter())
+	consoleHandler = logging.StreamHandler()
+	consoleHandler.setFormatter(CustomFormatter("[%(levelname)s] %(name)s:", styleOn=True))
 
-	logging.basicConfig(level=level, handlers=[handler])
+	fileHandler = logging.FileHandler("log.log", mode="w")
+	fileHandler.setFormatter(CustomFormatter("%(asctime)s [%(levelname)s] %(name)s:", styleOn=False))
+
+
+	logging.basicConfig(level=level, handlers=[consoleHandler, fileHandler])
 	return
 
 
@@ -25,23 +29,27 @@ ANSI_WHITE = "\u001b[37m"
 
 class CustomFormatter(logging.Formatter):
 
-	def __init__(self):
+	def __init__(self, format, styleOn):
 		super().__init__()
 
-		sharedFormat = "{asctime} [{levelname}] {name}: {message}"
-
-		levelFormats = {
-			logging.DEBUG: f"{sharedFormat}{ANSI_RESET}",
-			logging.INFO: f"{ANSI_BLUE}{sharedFormat}{ANSI_RESET}",
-			logging.WARNING: f"{ANSI_YELLOW}{sharedFormat}{ANSI_RESET}",
-			logging.ERROR: f"{ANSI_RED}{sharedFormat}{ANSI_RESET}",
-			logging.CRITICAL: f"{ANSI_MAGENTA}{ANSI_BOLD}{sharedFormat}{ANSI_RESET}"
+		levelStyles = {
+			logging.DEBUG: f"{ANSI_GREEN}",
+			logging.INFO: f"{ANSI_BLUE}",
+			logging.WARNING: f"{ANSI_YELLOW}",
+			logging.ERROR: f"{ANSI_RED}",
+			logging.CRITICAL: f"{ANSI_MAGENTA}{ANSI_BOLD}"
 		}
 
 		self.Formatters = {}
 
-		for logLevel, format in levelFormats.items():
-			self.Formatters[logLevel] = logging.Formatter(format, style='{')
+		for logLevel, style in levelStyles.items():
+
+			if styleOn:
+				levelFormat = f"{style}{format}{ANSI_RESET} %(message)s"
+			else:
+				levelFormat = f"{format} %(message)s"
+
+			self.Formatters[logLevel] = logging.Formatter(levelFormat)
 
 
 		return

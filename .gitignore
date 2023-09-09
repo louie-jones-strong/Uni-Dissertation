@@ -3,3 +3,4 @@
 Data
 src/WebServer/static/assets
 Tests/SaveFolder
+log.log
