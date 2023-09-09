@@ -31,6 +31,9 @@ class BaseEnv:
 		self._Done = False
 		return
 
+	def IsDone(self) -> bool:
+		return self._Done
+
 	def Clone(self) -> 'BaseEnv':
 		return deepcopy(self)
 

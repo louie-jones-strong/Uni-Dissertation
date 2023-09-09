@@ -45,7 +45,7 @@
 				"--runGroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "Random",
-				"--saveReplay", "True"
+				"--saveReplay", "False"
 			]
 		},
 		{
@@ -61,7 +61,7 @@
 				"--runGroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "HardCoded",
-				// "--saveReplay", "True",
+				"--saveReplay", "False",
 				"--play", "True"
 			]
 		},
@@ -79,7 +79,7 @@
 				"--subsystem", "Worker",
 				"--agent", "ML",
 				"--play", "True",
-				// "--saveReplay", "True"
+				"--saveReplay", "False"
 			]
 		},
 		{
