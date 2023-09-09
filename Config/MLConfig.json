@@ -8,7 +8,7 @@
 		}
 	},
 	"MonteCarloConfig": {
-		"MaxSecondsPerAction": 10,
+		"MaxSecondsPerAction": 1,
 		"CacheTreeBetweenActions": true,
 		"CacheTreeBetweenEpisodes": true,
 		"ActionSelectionTemperature": 0.01,

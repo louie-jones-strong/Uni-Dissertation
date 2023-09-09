@@ -40,6 +40,14 @@ class ForwardModel(Model.Model):
 			terminateds = []
 
 			for i in range(len(envs)):
+				# check if the env is done
+				if envs[i].IsDone():
+					nextEnvs.append(envs[i])
+					nextStates.append(states[i])
+					rewards.append(0.0)
+					terminateds.append(True)
+					continue
+
 				nextEnv = envs[i].Clone()
 				transition = nextEnv.Step(actions[i])
 
