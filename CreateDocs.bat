@@ -1,4 +1,3 @@
 call .venv\Scripts\activate.bat
 
-sphinx-apidoc -o docs .
-call docs\make html
+call py -m sphinx docs docs/_build/html/

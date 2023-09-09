@@ -1,7 +1,12 @@
 import logging
 
 
-def SetupLogging(level):
+def SetupLogging(level:logging.Level) -> None:
+	"""
+	Sets up the logging system.
+	:param level: the logging level to use.
+	"""
+
 	consoleHandler = logging.StreamHandler()
 	consoleHandler.setFormatter(CustomFormatter("[%(levelname)s] %(name)s:", styleOn=True))
 
@@ -28,6 +33,10 @@ ANSI_WHITE = "\u001b[37m"
 
 
 class CustomFormatter(logging.Formatter):
+	"""
+	A custom formatter for the logging system.
+	Adds ANSI color codes to the log level, to make it easier to find the important messages.
+	"""
 
 	def __init__(self, format, styleOn):
 		super().__init__()
