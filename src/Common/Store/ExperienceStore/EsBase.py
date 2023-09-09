@@ -10,7 +10,6 @@ class EsBase(ConfigurableClass):
 
 		self._TransitionBuffer = deque()
 		self._TotalReward = 0
-		self._DiscountFactor = 0.99  # todo make this configurable
 		return
 
 	def AddTransition(self,

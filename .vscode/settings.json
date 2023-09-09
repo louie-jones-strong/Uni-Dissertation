@@ -12,8 +12,7 @@
 		"**/__pycache__": true,
 		"**/*.pyc": true,
 		".mypy_cache": true,
-		".venv": true,
-		"docs/_build": true
+		".venv": true
 	},
 	"cSpell.words": [
 		"argmax",
@@ -21,4 +20,6 @@
 		"dtype",
 		"wandb"
 	],
+	"liveServer.settings.port": 5501,
+	"liveServer.settings.root": "docs/_build/html",
 }
