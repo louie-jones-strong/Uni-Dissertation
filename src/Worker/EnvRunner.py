@@ -1,5 +1,5 @@
 import src.Worker.Environments.BaseEnv as BaseEnv
-import src.Common.Utils.Metrics.Logger as Logger
+import src.Common.Utils.Metrics.Metrics as Metrics
 from src.Common.EpisodeReplay.EpisodeReplay import EpisodeReplay
 from src.Common.EpisodeReplay.EpisodeReplayStep import EpisodeReplayStep
 import src.Common.Utils.Config.ConfigHelper as ConfigHelper
@@ -25,7 +25,7 @@ class EnvRunner:
 		self.EpisodeReplay = None
 
 
-		self._Logger = Logger.Logger()
+		self._Metrics = Metrics.Metrics()
 		return
 
 	def GetState(self):
@@ -91,8 +91,8 @@ class EnvRunner:
 
 
 			# log the episode to wandb
-			self._Logger.EpisodeEnd(commit=False)
-			self._Logger.LogDict({
+			self._Metrics.EpisodeEnd(commit=False)
+			self._Metrics.LogDict({
 				"Terminated": float(terminated),
 				"Truncated": float(truncated),
 				"EpisodeTotalReward": self.TotalReward,
@@ -114,7 +114,7 @@ class EnvRunner:
 
 		if self.ReplayFolder is not None:
 			self.EpisodeReplay = EpisodeReplay(self.ReplayInfo)
-			self._Logger.AddEpisodeId(self.EpisodeReplay.EpisodeId)
+			self._Metrics.AddEpisodeId(self.EpisodeReplay.EpisodeId)
 		return
 
 

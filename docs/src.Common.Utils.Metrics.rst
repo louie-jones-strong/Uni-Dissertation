@@ -4,10 +4,10 @@ src.Common.Utils.Metrics package
 Submodules
 ----------
 
-src.Common.Utils.Metrics.Logger module
+src.Common.Utils.Metrics.Metrics module
 --------------------------------------
 
-.. automodule:: src.Common.Utils.Metrics.Logger
+.. automodule:: src.Common.Utils.Metrics.Metrics
    :members:
    :undoc-members:
    :show-inheritance:

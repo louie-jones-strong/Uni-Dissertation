@@ -1,7 +1,7 @@
 import random
 
 import numpy as np
-import src.Common.Utils.Metrics.Logger as Logger
+import src.Common.Utils.Metrics.Metrics as Metrics
 import src.Common.Utils.SharedCoreTypes as SCT
 from numpy.typing import NDArray
 import src.Common.Utils.Config.ConfigHelper as ConfigHelper
@@ -84,7 +84,7 @@ class BaseAgent(ConfigurableClass):
 		self.ActionList = self._GetActionList()
 
 
-		self._Logger = Logger.Logger()
+		self._Metrics = Metrics.Metrics()
 
 		self.StepNum = 0
 		self.TotalStepNum = 0

@@ -6,7 +6,7 @@ import wandb
 import src.Common.Utils.Metrics.Timer as Timer
 from wandb.keras import WandbCallback
 
-class Logger(Singleton.Singleton):
+class Metrics(Singleton.Singleton):
 	# config
 	_ProjectName = "Dissertation"
 	_TimeStackSeparator = "."
@@ -66,7 +66,7 @@ class Logger(Singleton.Singleton):
 		if not self._Setup:
 			return Timer.Timer(label, None)
 
-		assert self._Setup, "Logger not setup"
+		assert self._Setup, "Metrics not setup"
 		assert len(label) > 0, "Timer label cannot be empty"
 		assert self._TimeStackSeparator not in label, f"Timer label cannot contain '{self._TimeStackSeparator}'"
 
@@ -75,7 +75,7 @@ class Logger(Singleton.Singleton):
 		return Timer.Timer(label, self.TimerComplete)
 
 	def TimerComplete(self, timer:Timer.Timer) -> None:
-		assert self._Setup, "Logger not setup"
+		assert self._Setup, "Metrics not setup"
 
 		label = timer._Label
 		stackedLabel = self._TimeStackSeparator.join(self._TimerLabelStack)
