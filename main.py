@@ -9,7 +9,7 @@ import src.Common.Utils.PathHelper as PathHelper
 import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 import src.Common.Utils.Config.ConfigManager as ConfigManager
 import platform
-
+import logging
 import time
 
 
@@ -18,6 +18,9 @@ class Main():
 		self.EnvConfigFolder = os.path.join(GetRootPath(), "Config", "Envs")
 
 		self.DefineCommandLineArgs()
+
+		logLevel = self.Parser.Get("logLevel")
+		logging.basicConfig(level=logLevel)
 
 		envName = self.Parser.Get("envName")
 		envConfigPath = os.path.join(self.EnvConfigFolder, envName)
@@ -35,6 +38,7 @@ class Main():
 
 	def DefineCommandLineArgs(self) -> None:
 		exampleTypes = ["human", "curated"]
+		logLevels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 		self.Parser = ArgParser.ArgParser()
 
@@ -50,6 +54,7 @@ class Main():
 		self.Parser.AddBoolOption("load", "load from previous run", "load")
 		self.Parser.AddBoolOption("saveReplay", "Should the replay be saved", "save replay")
 		self.Parser.AddOptionsOption("exampleType", "type of behaviour example", exampleTypes, "example type")
+		self.Parser.AddOptionsOption("logLevel", "what log level", logLevels, "log Level")
 
 
 		frameworkConfigPath = ConfigHelper.GetClassConfigPath("FrameworkConfig")
@@ -75,7 +80,7 @@ class Main():
 				experienceStore = EsReverb.EsReverb()
 			except:
 				# used to allow testing on windows
-				# print("Reverb not installed, using Base Experience Store")
+				logging.warning("Reverb not installed, using Base Experience Store")
 				import src.Common.Store.ExperienceStore.EsBase as EsBase
 				experienceStore = EsBase.EsBase()
 		return experienceStore
@@ -190,7 +195,6 @@ class Main():
 		worker.Run()
 
 		self.Metrics.Finish()
-		print()
 		return
 #endregion
 

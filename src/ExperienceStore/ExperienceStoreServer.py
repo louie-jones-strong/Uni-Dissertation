@@ -7,6 +7,7 @@ import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 import gymnasium as gym
 import typing
 from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
+import logging
 
 class ExperienceStoreServer(ConfigurableClass):
 	def __init__(self):
@@ -92,7 +93,7 @@ class ExperienceStoreServer(ConfigurableClass):
 
 		_ = reverb.Server(tables=self.Tables,port=5001)
 
-		print("server started")
+		logging.info("server started")
 
 		while True:
 			time.sleep(1)

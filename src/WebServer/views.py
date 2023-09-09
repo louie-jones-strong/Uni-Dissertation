@@ -9,6 +9,7 @@ import json
 import numpy as np
 import math
 import src.Common.Store.ExperienceStore.EsNumpy as EsNumpy
+import logging
 
 class NumpyEncoder(json.JSONEncoder):
 	""" Custom encoder for numpy data types """
@@ -49,7 +50,7 @@ def Setup(envConfig) -> None:
 		import reverb
 		reverbClient = reverb.Client(f"experience-store:{5001}")
 	except ImportError:
-		print("Reverb not installed")
+		logging.warning("Reverb not installed")
 
 	views = Blueprint("views", __name__)
 
@@ -380,7 +381,7 @@ def Setup(envConfig) -> None:
 			return "Reverb not installed"
 		else:
 			checkPointPath = reverbClient.checkpoint()
-			print(checkPointPath)
+			logging.info(checkPointPath)
 			return checkPointPath
 
 		return

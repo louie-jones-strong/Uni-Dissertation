@@ -11,6 +11,7 @@ import numpy as np
 from tensorflow.keras.utils import to_categorical
 from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 import os
+import logging
 
 class Learner(ConfigurableClass):
 
@@ -21,7 +22,8 @@ class Learner(ConfigurableClass):
 
 		self.ModelHelper = ModelHelper.ModelHelper(self.EnvConfig)
 
-		print("build model")
+
+		logging.info("build model")
 		modelData = self.ModelHelper.BuildModel(self.ModelType)
 		self.Model, self.InputColumns, self.OutputColumns, self.ModelConfig = modelData
 
@@ -38,12 +40,12 @@ class Learner(ConfigurableClass):
 			self.HumanData = EsNumpy.EsNumpy(examplePath)
 			self.HumanData.Load()
 
-		print("built model")
+		logging.info("built model")
 
 		if loadModel:
-			print("fetching newest weights")
+			logging.info("fetching newest weights")
 			didFetch = self.ModelHelper.FetchNewestWeights(self.ModelType, self.Model)
-			print("fetched newest weights", didFetch)
+			logging.info("fetched newest weights", didFetch)
 
 		self._ConnectToExperienceStore()
 
@@ -72,7 +74,7 @@ class Learner(ConfigurableClass):
 
 
 	def Run(self) -> None:
-		print("Starting learner")
+		logging.info("Starting learner")
 
 		while True:
 
@@ -96,7 +98,7 @@ class Learner(ConfigurableClass):
 			if time.time() >= self._ModelUpdateTime:
 				self._ModelUpdateTime = time.time() + self.EnvConfig["SecsPerModelPush"]
 
-				print("Saving model")
+				logging.info("Saving model")
 				self.ModelHelper.PushModel(self.ModelType, self.Model)
 
 		return

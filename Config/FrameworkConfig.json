@@ -1,4 +1,5 @@
 {
+	"logLevel": "DEBUG",
 	"envName": "CartPole.json",
 	"load": false,
 	"wandb": true,
