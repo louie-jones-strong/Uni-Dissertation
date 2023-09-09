@@ -2,6 +2,7 @@ import src.Common.Store.ModelStore.MsBase as MsBase
 import redis
 import numpy as np
 import tensorflow as tf
+import logging
 
 class MsRedis(MsBase.MsBase):
 
@@ -39,7 +40,7 @@ class MsRedis(MsBase.MsBase):
 
 			model.set_weights(newWeights)
 		except Exception as e:
-			print(e)
+			logging.exception("Failed to fetch weights from model store", exc_info=e)
 			return False
 
 		return True

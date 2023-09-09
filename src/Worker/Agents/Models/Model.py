@@ -2,6 +2,7 @@ import src.Common.Utils.ModelHelper as ModelHelper
 from src.Common.Enums.eModelType import eModelType
 import src.Common.Utils.Metrics.Metrics as Metrics
 from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
+import logging
 
 
 class Model(ConfigurableClass):
@@ -25,7 +26,7 @@ class Model(ConfigurableClass):
 
 	def UpdateModels(self) -> None:
 		self.HasTrainedModel = self._ModelHelper.FetchNewestWeights(self._ModelType, self._Model)
-		print(f"fetched newest weights ({self._ModelType})", self.HasTrainedModel)
+		logging.info(f"fetched newest weights ({self._ModelType})", self.HasTrainedModel)
 		return
 
 	def CanPredict(self) -> bool:

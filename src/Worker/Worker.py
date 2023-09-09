@@ -6,6 +6,7 @@ from src.Common.Enums.eAgentType import eAgentType
 import src.Common.Utils.Metrics.Metrics as Metrics
 import typing
 import time
+import logging
 
 
 class Worker:
@@ -74,7 +75,7 @@ class Worker:
 				avgCuratedReward = self.TotalCuratedReward / self.EpisodeCount
 
 				progressStr = f"{self.EpisodeCount} / {maxEpisodes}"
-				print(f"{progressStr}    avg:{avgRewards:.3f} avgCurated:{avgCuratedReward:.3f} avgTime:{avgTime:.3f}")
+				logging.info(f"{progressStr}    avg:{avgRewards:.3f} avgCurated:{avgCuratedReward:.3f} avgTime:{avgTime:.3f}")
 
 			# If in evaluate mode then we only check for updates after an episode.
 			# This is to ensure that the agent is consistent for the whole episode.
