@@ -10,7 +10,6 @@ import src.Worker.Agents.Models.PlayStyleModel as PlayStyleModel
 import src.Worker.Agents.TreeNode as TreeNode
 import src.Worker.Environments.BaseEnv as BaseEnv
 import typing
-import logging
 
 def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:
 
