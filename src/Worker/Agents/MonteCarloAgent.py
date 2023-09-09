@@ -101,14 +101,14 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		for i in range(selectionConfig["MaxSelectionsPerAction"]):
 
 			# 1. selection
-			with self._Logger.Time("Selection"):
+			with self._Metrics.Time("Selection"):
 				selectedNode = stateNode.Selection(exploreFactor, maxTreeDepth)
 
 
 
 			# 2. expansion
 			if selectedNode is not None and selectedNode.Counts > 0 and selectedNode.Children is None:
-				with self._Logger.Time("Expansion"):
+				with self._Metrics.Time("Expansion"):
 					selectedNode.Expand(self.ActionList, self._ForwardModel, self._ValueModel, self._PlayStyleModels)
 					selectedNode = selectedNode.Selection(exploreFactor, maxTreeDepth)
 
@@ -116,7 +116,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 				break
 
 			# 3. simulation
-			with self._Logger.Time("RollOut"):
+			with self._Metrics.Time("RollOut"):
 				rolloutMaxDepth = self.EnvConfig["MaxSteps"] - selectedNode.EpisodeStep
 				rolloutMaxDepth = min(rolloutMaxDepth, monteCarloConfig["RollOutConfig"]["MaxRollOutDepth"])
 
@@ -176,7 +176,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 				break
 
 		if rollOutConfig["ValueFinalStates"] and self._ValueModel.CanPredict():
-			with self._Logger.Time("FinalStateValue"):
+			with self._Metrics.Time("FinalStateValue"):
 				values = self._ValueModel.Predict(states)
 				totalRewards += values * isPlayingMask
 

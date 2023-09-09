@@ -1,6 +1,6 @@
 import src.Common.Utils.ModelHelper as ModelHelper
 from src.Common.Enums.eModelType import eModelType
-import src.Common.Utils.Metrics.Logger as Logger
+import src.Common.Utils.Metrics.Metrics as Metrics
 from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
 
@@ -18,7 +18,7 @@ class Model(ConfigurableClass):
 
 		self.HasTrainedModel = False
 
-		self._Logger = Logger.Logger()
+		self._Metrics = Metrics.Metrics()
 
 		self.UpdateModels()
 		return

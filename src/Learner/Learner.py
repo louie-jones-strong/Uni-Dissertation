@@ -2,7 +2,7 @@ import reverb
 from src.Common.Enums.eModelType import eModelType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Enums.eDataColumnTypes as DCT
-import src.Common.Utils.Metrics.Logger as Logger
+import src.Common.Utils.Metrics.Metrics as Metrics
 import time
 import tensorflow as tf
 import src.Common.Store.ExperienceStore.EsReverb as EsReverb
@@ -48,7 +48,7 @@ class Learner(ConfigurableClass):
 		self._ConnectToExperienceStore()
 
 		self._ModelUpdateTime = time.time() + self.EnvConfig["SecsPerModelPush"]
-		self._Logger = Logger.Logger()
+		self._Metrics = Metrics.Metrics()
 		return
 
 	def _ConnectToExperienceStore(self) -> None:
@@ -80,11 +80,11 @@ class Learner(ConfigurableClass):
 
 			if self.UsePriorities:  # using priorities
 
-				self._Logger.LogDict({"in_priority": batchInfo.priority})
+				self._Metrics.LogDict({"in_priority": batchInfo.priority})
 
 				absErrors = self._TuneModelGradTape(x, y, post_y)
 
-				self._Logger.LogDict({"out_priority": absErrors})
+				self._Metrics.LogDict({"out_priority": absErrors})
 				self.EsStore.UpdatePriorities(self.ModelConfig["DataTable"], batchInfo.key, absErrors)
 
 			else:  # not using priorities
@@ -160,7 +160,7 @@ class Learner(ConfigurableClass):
 		loss = history.history["loss"][0]
 
 		col = self.OutputColumns[0]
-		self._Logger.LogDict({
+		self._Metrics.LogDict({
 				f"Train_{col.name}_accuracy": accuracy,
 				f"Train_{col.name}_loss": loss
 			})
@@ -193,7 +193,7 @@ class Learner(ConfigurableClass):
 			if accuracy is not None:
 				logDict[f"Train_{col.name}_Accuracy"] = accuracy
 
-		self._Logger.LogDict(logDict)
+		self._Metrics.LogDict(logDict)
 
 
 		# calculate priorities

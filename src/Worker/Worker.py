@@ -3,7 +3,7 @@ import src.Worker.Environments.BaseEnv as BaseEnv
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.EnvRunner as EnvRunner
 from src.Common.Enums.eAgentType import eAgentType
-import src.Common.Utils.Metrics.Logger as Logger
+import src.Common.Utils.Metrics.Metrics as Metrics
 import typing
 import time
 
@@ -32,7 +32,7 @@ class Worker:
 
 		self._ModelUpdateTime = time.time() + self.Config["SecsPerModelFetch"]
 
-		self.Logger = Logger.Logger()
+		self.Metrics = Metrics.Metrics()
 		return
 
 	def Run(self) -> None:
@@ -57,11 +57,11 @@ class Worker:
 		while self.EpisodeCount < maxEpisodes:
 
 			# get actions from the agent
-			with self.Logger.Time("GetActions"):
+			with self.Metrics.Time("GetActions"):
 				actions, actionReasons = self._GetActions(stateList, envs)
 
 			# make the chosen actions in the environments
-			with self.Logger.Time("StepEnvs"):
+			with self.Metrics.Time("StepEnvs"):
 				stateList, envs, finishedEpisodes = self._StepEnvs(actions, actionReasons)
 
 			# increment the episode count by the number of episodes that have been completed in this step
@@ -90,7 +90,7 @@ class Worker:
 		actionReasons = []
 
 		for i in range(len(stateList)):
-			with self.Logger.Time("GetAction"):
+			with self.Metrics.Time("GetAction"):
 				action, actionReason = self.Agent.GetAction(stateList[i], envs[i])
 
 			actions.append(action)

@@ -80,22 +80,22 @@ class Main():
 				experienceStore = EsBase.EsBase()
 		return experienceStore
 
-	def SetupLogger(self, subSystem, loggerName:str = None):
+	def SetupMetrics(self, subSystem, metricName:str = None):
 		self.ConfigManager.EnvConfig["SubSys"] = subSystem
 
-		if loggerName is None:
-			loggerName = subSystem
+		if metricName is None:
+			metricName = subSystem
 
 		timeStamp = int(time.time())
 		self.ConfigManager.EnvConfig["RunStartTime"] = timeStamp
 
 
-		# setup logger
-		import src.Common.Utils.Metrics.Logger as Logger
-		runId = f"{loggerName}_{timeStamp}"
+		# setup metric
+		import src.Common.Utils.Metrics.Metrics as Metrics
+		runId = f"{metricName}_{timeStamp}"
 
-		self.Logger = Logger.Logger()
-		self.Logger.Setup(self.ConfigManager.EnvConfig, self.RunPath, runId=runId, wandbOn=self.Parser.Get("wandb"))
+		self.Metrics = Metrics.Metrics()
+		self.Metrics.Setup(self.ConfigManager.EnvConfig, self.RunPath, runId=runId, wandbOn=self.Parser.Get("wandb"))
 		return
 
 	def SetupLearner(self):
@@ -114,10 +114,10 @@ class Main():
 
 		learner = Learner.Learner(model, load, self.EnvDataPath)
 
-		self.SetupLogger(f"Learner_{model.name}")
+		self.SetupMetrics(f"Learner_{model.name}")
 		return learner
 
-	def RunWorker(self, agent:eAgentType, loggerName:str = None, humanRender:bool = True) -> None:
+	def RunWorker(self, agent:eAgentType, metricName:str = None, humanRender:bool = True) -> None:
 		import src.Worker.Worker as Worker
 		import src.Common.Utils.ModelHelper as ModelHelper
 		import src.Common.Store.ModelStore.MsBase as MsBase
@@ -136,12 +136,12 @@ class Main():
 			if not isTrainingMode:
 				numEnvs = 1
 
-		if loggerName is None:
+		if metricName is None:
 			if agent == eAgentType.Human:
 				exampleType = self.Parser.Get("exampleType")
-				loggerName = f"Worker_{agent.name}_Example_{exampleType}_Demo"
+				metricName = f"Worker_{agent.name}_Example_{exampleType}_Demo"
 			else:
-				loggerName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
+				metricName = f"Worker_{agent.name}_{'Explore' if isTrainingMode else 'Evaluate'}"
 
 		if platform.system() == "Linux":
 			modelStore = MsRedis.MsRedis()
@@ -157,7 +157,7 @@ class Main():
 
 
 		replayInfo = {
-			"loggerName": loggerName,
+			"metricName": metricName,
 			"Agent": agent.name,
 			"IsTrainingMode": isTrainingMode,
 			"NumEnvs": numEnvs
@@ -185,11 +185,11 @@ class Main():
 		worker = Worker.Worker(self.ConfigManager.EnvConfig, agent, envRunners, isTrainingMode)
 
 
-		self.SetupLogger(f"Worker_{agent.name}", loggerName)
+		self.SetupMetrics(f"Worker_{agent.name}", metricName)
 
 		worker.Run()
 
-		self.Logger.Finish()
+		self.Metrics.Finish()
 		print()
 		return
 #endregion
@@ -271,11 +271,11 @@ class Main():
 						self.ConfigManager.Config["MonteCarloConfig"]["MaxSecondsPerAction"] = maxTimePerAction
 						self.ConfigManager.Config["UseRealSim"] = useRealTime
 
-						loggerName = f"{agentType.name}_D_{depth}_T_{maxTimePerAction}_RT_{useRealTime}_{evalStyle}"
-						self.RunWorker(agentType, loggerName=loggerName, humanRender=humanRender)
+						metricName = f"{agentType.name}_D_{depth}_T_{maxTimePerAction}_RT_{useRealTime}_{evalStyle}"
+						self.RunWorker(agentType, metricName=metricName, humanRender=humanRender)
 
-						episodes[loggerName] = self.Logger.EpisodeIds.copy()
-						self.Logger.EpisodeIds.clear()
+						episodes[metricName] = self.Metrics.EpisodeIds.copy()
+						self.Metrics.EpisodeIds.clear()
 
 
 
