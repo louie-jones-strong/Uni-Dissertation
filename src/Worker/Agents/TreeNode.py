@@ -62,7 +62,7 @@ class TreeNode(ConfigurableClass):
 		if self.Done:
 			return None
 
-		if self.MinDepth > maxDepth:
+		if self.MinDepth >= maxDepth:
 			return None
 
 		if self.Children is None:
@@ -72,7 +72,7 @@ class TreeNode(ConfigurableClass):
 		nodeScores = []
 		for child in self.Children:
 			nodeScore = child.GetExploreValue(exploreFactor)
-			if child.MinDepth <= maxDepth:
+			if child.MinDepth < maxDepth:
 				found = True
 			nodeScores.append(nodeScore)
 
