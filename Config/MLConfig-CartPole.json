@@ -7,9 +7,8 @@
 			"MaxTreeDepth": 10
 		},
 		"RollOutConfig": {
-			"MaxRollOutCount": 4,
-			"MaxRollOutDepth": 1,
-			"ValueFinalStates": true
+			"MaxRollOutCount": 16,
+			"MaxRollOutDepth": 100
 		}
 	}
 }

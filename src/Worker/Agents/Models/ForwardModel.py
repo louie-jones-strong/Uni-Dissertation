@@ -5,12 +5,14 @@ import numpy as np
 from numpy.typing import NDArray
 import src.Worker.Agents.Models.Model as Model
 import src.Worker.Environments.BaseEnv as BaseEnv
+import src.Common.Utils.Metrics.Metrics as Metrics
 
 class ForwardModel(Model.Model):
 	def __init__(self) -> None:
 		self.StateModel = Model.Model(eModelType.Forward_NextState)
 		self.RewardModel = Model.Model(eModelType.Forward_Reward)
 		self.TerminatedModel = Model.Model(eModelType.Forward_Terminated)
+		self._Metrics = Metrics.Metrics()
 		return
 
 	def UpdateModels(self) -> None:
@@ -48,8 +50,12 @@ class ForwardModel(Model.Model):
 					terminateds.append(True)
 					continue
 
-				nextEnv = envs[i].Clone()
-				transition = nextEnv.Step(actions[i])
+
+				with self._Metrics.Time("EnvClone"):
+					nextEnv = envs[i].Clone()
+
+				with self._Metrics.Time("EnvStep"):
+					transition = nextEnv.Step(actions[i])
 
 				nextEnvs.append(nextEnv)
 				nextStates.append(transition[0])

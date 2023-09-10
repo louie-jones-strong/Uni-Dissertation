@@ -18,6 +18,7 @@
 		"argmax",
 		"backpropagation",
 		"dtype",
+		"terminateds",
 		"wandb"
 	],
 	"liveServer.settings.port": 5501,

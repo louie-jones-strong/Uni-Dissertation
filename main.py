@@ -24,10 +24,9 @@ class Main():
 		LoggingHelper.SetupLogging(logLevel)
 
 		envName = self.Parser.Get("envName")
-		envConfigPath = os.path.join(self.EnvConfigFolder, envName)
 
 		self.ConfigManager = ConfigManager.ConfigManager()
-		self.ConfigManager.Setup(envConfigPath)
+		self.ConfigManager.Setup(envName)
 
 
 		self.ConfigManager.EnvConfig["Group"] = self.Parser.Get("runGroup")

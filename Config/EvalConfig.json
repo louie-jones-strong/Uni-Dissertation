@@ -24,7 +24,7 @@
 	],
 	"PlayStyles": {
 		"HighScore": {
-			"Temperature": 0.01,
+			"Temperature": 0,
 			"MaxEpisodes": 1000,
 			"normal":  1.0,
 			"human":   0,
@@ -38,7 +38,7 @@
 			"curated": 0
 		},
 		"Curated": {
-			"Temperature": 0.01,
+			"Temperature": 0,
 			"MaxEpisodes": 100,
 			"normal":  0.5,
 			"human":   0,

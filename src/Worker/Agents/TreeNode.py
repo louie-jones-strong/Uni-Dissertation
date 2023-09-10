@@ -199,7 +199,9 @@ class TreeNode(ConfigurableClass):
 			"Counts": self.Counts,
 			"ActionIdxTaken": self.ActionIdxTaken,
 			"ValueModelValue": self.ValueModelValue,
-			"PlayStyleModelValues": self.PlayStyleModelValues
+			"PlayStyleModelValues": self.PlayStyleModelValues,
+			"MinDepth": self.MinDepth,
+			"MaxDepth": self.MaxDepth
 		}
 
 		data["Children"] = None

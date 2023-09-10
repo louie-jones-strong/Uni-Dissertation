@@ -158,6 +158,17 @@ class BaseAgent(ConfigurableClass):
 	@staticmethod
 	def _SoftMax(values:NDArray[np.float32], temperature:float) -> NDArray[np.float32]:
 
+		if temperature == 0:
+			softMax = np.zeros(len(values))
+			maxValue = np.max(values)
+			maxValues = np.where(values == maxValue)[0]
+
+			softMax[maxValues] = 1 / len(maxValues)
+			return softMax.astype(np.float32)
+
+
+
+
 		x = values.astype(np.float64)
 		x[x <= 0] = 0
 

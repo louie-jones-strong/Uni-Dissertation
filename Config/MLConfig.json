@@ -11,7 +11,7 @@
 		"MaxSecondsPerAction": 1,
 		"CacheTreeBetweenActions": true,
 		"CacheTreeBetweenEpisodes": true,
-		"ActionSelectionTemperature": 0.01,
+		"ActionSelectionTemperature": 0.0,
 		"SelectionConfig": {
 			"MaxSelectionsPerAction": 256,
 			"TrainExploreFactor": 0.5,
