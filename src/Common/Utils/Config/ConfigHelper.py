@@ -25,6 +25,7 @@ def LoadAndMergeConfig(className:str, overrideConfig:SCT.Config, allowJoining:bo
 def GetClassConfigPath(className:str) -> str:
 	configPath = os.path.join(GetRootPath(), "Config", f"{className}.json")
 
+	configPath = configPath.replace(".json.json", ".json")
 	return configPath
 
 

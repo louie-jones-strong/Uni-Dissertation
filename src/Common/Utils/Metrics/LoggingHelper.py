@@ -1,7 +1,7 @@
 import logging
 
 
-def SetupLogging(level:logging.Level) -> None:
+def SetupLogging(level) -> None:
 	"""
 	Sets up the logging system.
 	:param level: the logging level to use.
