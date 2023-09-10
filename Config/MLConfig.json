@@ -19,10 +19,18 @@
 			"MaxTreeDepth": 10
 		},
 		"RollOutConfig": {
-			"MaxRollOutCount": 32,
-			"MaxRollOutDepth": 6,
-			"ValueFinalStates": true,
-			"TimeOutAllowed": false
+			"RealSim": {
+				"MaxRollOutCount": 16,
+				"MaxRollOutDepth": 100,
+				"ValueFinalStates": true,
+				"TimeOutAllowed": false
+			},
+			"ForwardModel": {
+				"MaxRollOutCount": 2024,
+				"MaxRollOutDepth": 6,
+				"ValueFinalStates": true,
+				"TimeOutAllowed": false
+			}
 		},
 		"NodeScoreConfig": {
 			"RolloutRewardsMultiplier": 1.0,
@@ -44,7 +52,7 @@
 			"DataTable": "Policy_Trajectories",
 			"ReplayExamples": "",
 			"LearningRate": 0.001,
-			"DenseLayers": [256, 256],
+			"DenseLayers": [256],
 			"Activations": "relu",
 			"Dropout": 0.5,
 			"L1": 0.5,
@@ -56,7 +64,7 @@
 			"DataTable": "Value_Trajectories",
 			"ReplayExamples": "",
 			"LearningRate": 0.001,
-			"DenseLayers": [256, 256],
+			"DenseLayers": [256],
 			"Activations": "relu",
 			"Dropout": 0.5,
 			"L1": 0.5,
@@ -68,7 +76,7 @@
 			"DataTable": "Forward_NextState_Trajectories",
 			"ReplayExamples": "",
 			"LearningRate": 0.001,
-			"DenseLayers": [256, 256],
+			"DenseLayers": [256],
 			"Activations": "relu",
 			"Dropout": 0.5,
 			"L1": 0.5,
@@ -80,7 +88,7 @@
 			"DataTable": "Forward_Reward_Trajectories",
 			"ReplayExamples": "",
 			"LearningRate": 0.001,
-			"DenseLayers": [256, 256],
+			"DenseLayers": [256],
 			"Activations": "relu",
 			"Dropout": 0.5,
 			"L1": 0.5,
@@ -92,7 +100,7 @@
 			"DataTable": "Forward_Terminated_Trajectories",
 			"ReplayExamples": "",
 			"LearningRate": 0.001,
-			"DenseLayers": [256, 256],
+			"DenseLayers": [256],
 			"Activations": "relu",
 			"Dropout": 0.5,
 			"L1": 0.5,
@@ -104,7 +112,7 @@
 			"DataTable": "PlayStyle_Trajectories",
 			"ReplayExamples": "human",
 			"LearningRate": 0.001,
-			"DenseLayers": [256, 256],
+			"DenseLayers": [256],
 			"Activations": "relu",
 			"Dropout": 0.5,
 			"L1": 0.5,
@@ -116,7 +124,7 @@
 			"DataTable": "PlayStyle_Trajectories",
 			"ReplayExamples": "curated",
 			"LearningRate": 0.001,
-			"DenseLayers": [256, 256],
+			"DenseLayers": [256],
 			"Activations": "relu",
 			"Dropout": 0.5,
 			"L1": 0.5,

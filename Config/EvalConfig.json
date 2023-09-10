@@ -2,24 +2,31 @@
 	"Agents": [
 		{
 			"AgentType": "ML",
-			"MaxEpisodes": 1000,
-			"UseRealSims": [true, false],
+			"MaxEpisodes": 100,
+			"UseRealSims": [true],
+			"Depths": [6],
+			"MaxTimesPerAction": [1]
+		},
+		{
+			"AgentType": "ML",
+			"MaxEpisodes": 100,
+			"UseRealSims": [false],
 			"Depths": [10],
-			"MaxTimesPerAction": [10]
+			"MaxTimesPerAction": [5]
 		},
 		{
 			"AgentType": "Random",
 			"MaxEpisodes": 1000,
 			"UseRealSims": [true],
 			"Depths": [1],
-			"MaxTimesPerAction": [10]
+			"MaxTimesPerAction": [1]
 		},
 		{
 			"AgentType": "HardCoded",
 			"MaxEpisodes": 1000,
 			"UseRealSims": [true],
 			"Depths": [1],
-			"MaxTimesPerAction": [10]
+			"MaxTimesPerAction": [1]
 		}
 	],
 	"PlayStyles": {
@@ -32,14 +39,14 @@
 		},
 		"Human": {
 			"Temperature": 0.2,
-			"MaxEpisodes": 100,
+			"MaxEpisodes": 1000,
 			"normal":  0.5,
 			"human":   1.0,
 			"curated": 0
 		},
 		"Curated": {
 			"Temperature": 0,
-			"MaxEpisodes": 100,
+			"MaxEpisodes": 1000,
 			"normal":  0.5,
 			"human":   0,
 			"curated": 1.0

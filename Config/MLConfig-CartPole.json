@@ -5,10 +5,6 @@
 		"CacheTreeBetweenEpisodes": false,
 		"SelectionConfig": {
 			"MaxTreeDepth": 10
-		},
-		"RollOutConfig": {
-			"MaxRollOutCount": 16,
-			"MaxRollOutDepth": 100
 		}
 	}
 }
