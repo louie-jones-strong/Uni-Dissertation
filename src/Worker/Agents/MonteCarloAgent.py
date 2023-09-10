@@ -161,12 +161,19 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			samples = np.arange(start=0, stop=n, step=1, dtype=np.int32)
 
 			# repeat the array to get the number of actions
-			samples = np.repeat(samples, (numActions // n) + 1)
+			repeats = numActions / n
+			if repeats > 1:
+
+				# check if reapeats is an integer
+				if repeats % 1 == 0:
+					samples = np.repeat(samples, repeats)
+				else:
+					samples = np.repeat(samples, (numActions // n) + 1)
+					samples = samples[:numActions]
 
 			# randomly shuffle the array
 			np.random.shuffle(samples)
 
-			samples = samples[:numActions]
 
 			return samples
 
