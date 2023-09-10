@@ -63,8 +63,11 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		action, probabilities = BaseAgent.BaseAgent._SoftMaxSelection(actionValues, temperature)
 		actionReason["ActionProbabilities"] = probabilities
 
-		treeNode = actionReason["Tree"]
-		maxDepth = treeNode["MaxDepth"] - self.StepNum
+		maxDepth = 0
+		if "Tree" in actionReason:
+			treeNode = actionReason["Tree"]
+			maxDepth = treeNode["MaxDepth"] - self.StepNum
+
 		actionValuesStr = str(np.round(actionValues, 2))
 		probabilitiesStr = str(np.round(probabilities, 2))
 		self.Logger.debug(f"Action: {action} {actionValuesStr} {probabilitiesStr} Depth: {maxDepth}")
@@ -77,7 +80,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		monteCarloConfig = self.Config["MonteCarloConfig"]
 
 		if not self._ForwardModel.CanPredict():
-			return self.ActionSpace.sample(), "MonteCarloAgent Random Action (Can't Predict)"
+			return np.ones(self.ActionSpace.n), {"Reason": "MonteCarloAgent Random Action (Can't Predict)"}
 
 		self._StopTime = time.process_time() + monteCarloConfig["MaxSecondsPerAction"]
 
@@ -123,10 +126,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 			# 3. simulation
 			with self._Metrics.Time("RollOut"):
-				rolloutMaxDepth = self.EnvConfig["MaxSteps"] - selectedNode.EpisodeStep
-				rolloutMaxDepth = min(rolloutMaxDepth, monteCarloConfig["RollOutConfig"]["MaxRollOutDepth"])
-
-				totalRewards = self._RollOut(selectedNode.State, selectedNode.Env, rolloutMaxDepth)
+				totalRewards = self._RollOut(selectedNode)
 
 			# 4. backpropagation
 			selectedNode.BackPropRewards(totalRewards.sum(), len(totalRewards))
@@ -141,7 +141,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 			self._CachedTree = stateNode
 
 		if stateNode.Children is None:
-			return self.ActionSpace.sample(), "MonteCarloAgent Random Action (No Children)"
+			return np.ones(self.ActionSpace.n), {"Reason": "MonteCarloAgent Random Action (No Children)"}
+
+
 
 
 		actionValues = stateNode.GetActionValues()
@@ -207,58 +209,31 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 
 # region Rollouts
-	def _RollOut(self, state:SCT.State, env:BaseEnv.BaseEnv, maxDepth:int) -> SCT.Reward_List:
+	def _RollOut(self, treeNode:TreeNode.TreeNode) -> SCT.Reward_List:
+
+		valueFinalStates = False
 
 		if self.Config["UseRealSim"]:
-			isPlayingMask, totalRewards, states = self._RollOut_RealSim(env, maxDepth)
+			isPlayingMask, totalRewards, states = self._RollOut_RealSim(treeNode.Env)
+			valueFinalStates = self.Config["MonteCarloConfig"]["RollOutConfig"]["RealSim"]
 
 		else:
-			isPlayingMask, totalRewards, states = self._RollOut_ForwardModel(state, maxDepth)
+			isPlayingMask, totalRewards, states = self._RollOut_ForwardModel(treeNode.State)
+			valueFinalStates = self.Config["MonteCarloConfig"]["RollOutConfig"]["ForwardModel"]
 
 
-		rollOutConfig = self.Config["MonteCarloConfig"]["RollOutConfig"]
-		if rollOutConfig["ValueFinalStates"] and self._ValueModel.CanPredict():
+		if valueFinalStates and self._ValueModel.CanPredict():
 			with self._Metrics.Time("FinalStateValue"):
 				values = self._ValueModel.Predict(states)
 				totalRewards += values * isPlayingMask
 
 		return totalRewards
 
-	def _RollOut_ForwardModel(self, state:SCT.State, maxDepth:int):
-		rollOutConfig = self.Config["MonteCarloConfig"]["RollOutConfig"]
+	def _RollOut_RealSim(self, env:BaseEnv.BaseEnv):
+		rollOutConfig = self.Config["MonteCarloConfig"]["RollOutConfig"]["RealSim"]
 		numRollOuts = rollOutConfig["MaxRollOutCount"]
 		timeOutAllowed = rollOutConfig["TimeOutAllowed"]
-
-		with self._Metrics.Time("CloneState"):
-			states, envs = TreeNode.TreeNode.CloneState(state, None, numRollOuts, False)
-
-		isPlayingMask = np.ones(numRollOuts, dtype=np.bool_)
-		totalRewards = np.zeros(numRollOuts, dtype=np.float32)
-
-		for d in range(maxDepth):
-
-			# get the actions
-			actions = MonteCarloAgent._SampleActions(self.ActionSpace, numRollOuts)
-
-			# predict the next states and rewards
-			nextStates, envs, rewards, terminateds = self._ForwardModel.Predict(states, envs, actions)
-
-
-			totalRewards += rewards * isPlayingMask
-			isPlayingMask = np.logical_or(isPlayingMask, terminateds)
-
-			# update the states
-			states = nextStates
-
-			if timeOutAllowed and time.process_time() < self._StopTime:
-				break
-
-		return isPlayingMask, totalRewards, states
-
-	def _RollOut_RealSim(self, env:BaseEnv.BaseEnv, maxDepth:int):
-		rollOutConfig = self.Config["MonteCarloConfig"]["RollOutConfig"]
-		numRollOuts = rollOutConfig["MaxRollOutCount"]
-		timeOutAllowed = rollOutConfig["TimeOutAllowed"]
+		maxDepth = rollOutConfig["MaxRollOutDepth"]
 
 
 		with self._Metrics.Time("CloneState"):
@@ -289,5 +264,35 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		return isPlayingMask, totalRewards, states
 
+	def _RollOut_ForwardModel(self, state:SCT.State):
+		rollOutConfig = self.Config["MonteCarloConfig"]["RollOutConfig"]["ForwardModel"]
+		numRollOuts = rollOutConfig["MaxRollOutCount"]
+		timeOutAllowed = rollOutConfig["TimeOutAllowed"]
+		maxDepth = rollOutConfig["MaxRollOutDepth"]
 
+		with self._Metrics.Time("CloneState"):
+			states, envs = TreeNode.TreeNode.CloneState(state, None, numRollOuts, False)
+
+		isPlayingMask = np.ones(numRollOuts, dtype=np.bool_)
+		totalRewards = np.zeros(numRollOuts, dtype=np.float32)
+
+		for d in range(maxDepth):
+
+			# get the actions
+			actions = MonteCarloAgent._SampleActions(self.ActionSpace, numRollOuts)
+
+			# predict the next states and rewards
+			nextStates, envs, rewards, terminateds = self._ForwardModel.Predict(states, envs, actions)
+
+
+			totalRewards += rewards * isPlayingMask
+			isPlayingMask = np.logical_or(isPlayingMask, terminateds)
+
+			# update the states
+			states = nextStates
+
+			if timeOutAllowed and time.process_time() < self._StopTime:
+				break
+
+		return isPlayingMask, totalRewards, states
 # endregion
