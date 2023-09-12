@@ -59,11 +59,11 @@ class Worker:
 
 			# get actions from the agent
 			with self.Metrics.Time("GetActions"):
-				actions, actionReasons = self._GetActions(stateList, envs)
+				actions, actionValues, actionReasons = self._GetActions(stateList, envs)
 
 			# make the chosen actions in the environments
 			with self.Metrics.Time("StepEnvs"):
-				stateList, envs, finishedEpisodes = self._StepEnvs(actions, actionReasons)
+				stateList, envs, finishedEpisodes = self._StepEnvs(actions, actionValues, actionReasons)
 
 			# increment the episode count by the number of episodes that have been completed in this step
 			self.EpisodeCount += finishedEpisodes
@@ -89,18 +89,21 @@ class Worker:
 
 		actions = []
 		actionReasons = []
+		actionValues_List = []
 
 		for i in range(len(stateList)):
 			with self.Metrics.Time("GetAction"):
-				action, actionReason = self.Agent.GetAction(stateList[i], envs[i])
+				action, actionValues, actionReason = self.Agent.GetAction(stateList[i], envs[i])
 
 			actions.append(action)
 			actionReasons.append(actionReason)
+			actionValues_List.append(actionValues)
 
-		return actions, actionReasons
+		return actions, actionValues_List, actionReasons
 
 	def _StepEnvs(self,
 			actions:typing.List[SCT.Action],
+			actionValues:typing.List[SCT.ActionValues],
 			actionReasons) -> typing.Tuple[typing.List[SCT.State], typing.List[BaseEnv.BaseEnv], int]:
 		"""
 		Makes the chosen actions in the environments.
@@ -123,7 +126,7 @@ class Worker:
 		for i in range(len(self.Envs)):
 
 			state = self.Envs[i].State
-			nextState, reward, terminated, truncated = self.Envs[i].Step(actions[i], actionReason=actionReasons[i])
+			nextState, reward, terminated, truncated = self.Envs[i].Step(actions[i], actionValues[i], actionReason=actionReasons[i])
 
 			self.Agent.Remember(state, actions[i], reward, nextState, terminated, truncated)
 

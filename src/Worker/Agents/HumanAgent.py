@@ -5,6 +5,7 @@ import src.Common.Utils.SharedCoreTypes as SCT
 
 import src.Worker.Agents.BaseAgent as BaseAgent
 import src.Worker.Environments.BaseEnv as BaseEnv
+import numpy as np
 
 
 class HumanAgent(BaseAgent.BaseAgent):
@@ -23,4 +24,6 @@ class HumanAgent(BaseAgent.BaseAgent):
 					action = controls[control]
 
 		time.sleep(1.0/fps)
-		return action, "HumanAgent"
+
+		actionValues = np.zeros(self.ActionSpace.n).astype(np.float32)
+		return action, actionValues, "HumanAgent"

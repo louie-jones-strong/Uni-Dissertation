@@ -72,7 +72,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		probabilitiesStr = str(np.round(probabilities, 2))
 		self.Logger.debug(f"Action: {action} {actionValuesStr} {probabilitiesStr} Depth: {maxDepth}")
 
-		return action, actionReason
+		return action, actionValues, actionReason
 
 	def GetActionValues(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[NDArray[np.float32], str]:
 		super().GetActionValues(state, env)

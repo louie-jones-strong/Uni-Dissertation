@@ -31,7 +31,7 @@ class EnvRunner:
 	def GetState(self):
 		return self.State
 
-	def Step(self, action, actionReason=None):
+	def Step(self, action, actionValues, actionReason=None):
 
 		if self.EpisodeReplay is None:
 			nextState, reward, terminated, truncated, info = self.Env.Step(action)
@@ -53,7 +53,7 @@ class EnvRunner:
 		truncated = truncated or self.StepCount >= self.MaxSteps
 		self.StepCount += 1
 
-		self.ExperienceStore.AddTransition(self.State, nextState, action, reward, terminated, truncated)
+		self.ExperienceStore.AddTransition(self.State, nextState, action, reward, terminated, truncated, actionValues)
 
 		self.TotalReward += reward
 		self.TotalCuratedReward += info.get("CuratedReward", 0)
