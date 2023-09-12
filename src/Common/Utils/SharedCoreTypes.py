@@ -8,6 +8,7 @@ from gymnasium.spaces import Discrete, Box
 State = Union[NDArray[Any], int, typing.Tuple]
 Action = int
 Reward = Union[float, int]
+ActionValues = NDArray[Union[np.int_, np.float32]]
 Config = typing.Dict[str, Any]
 
 StateSpace = Union[Discrete, Box]

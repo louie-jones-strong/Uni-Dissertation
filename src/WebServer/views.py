@@ -367,7 +367,8 @@ def Setup(envConfig) -> None:
 			reward = step.Reward
 			terminated = step.Terminated
 			truncated = step.Truncated
-			experienceStore.AddTransition(state, action, reward, nextState, terminated, truncated)
+			actionValues = step.GetActionValues()
+			experienceStore.AddTransition(state, action, reward, nextState, terminated, truncated, actionValues)
 			state = nextState
 
 		experienceStore.EmptyTransitionBuffer()

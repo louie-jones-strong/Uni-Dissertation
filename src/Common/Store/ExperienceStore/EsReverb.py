@@ -9,6 +9,7 @@ Reward_Name = DCT.eDataColumnTypes.Reward.name
 MaxFutureRewards_Name = DCT.eDataColumnTypes.MaxFutureRewards.name
 Terminated_Name = DCT.eDataColumnTypes.Terminated.name
 Truncated_Name = DCT.eDataColumnTypes.Truncated.name
+ActionValues_Name = DCT.eDataColumnTypes.ActionValues.name
 
 class EsReverb(EsBase.EsBase):
 
@@ -46,7 +47,7 @@ class EsReverb(EsBase.EsBase):
 			for i in range(numTransitions):
 
 				transition = self.PopTransition()
-				state, nextState, action, reward, futureRewards, terminated, truncated = transition
+				state, nextState, action, reward, futureRewards, terminated, truncated, actionValues = transition
 
 
 				writer.append({
@@ -56,7 +57,8 @@ class EsReverb(EsBase.EsBase):
 					Reward_Name: reward,
 					MaxFutureRewards_Name: futureRewards,
 					Terminated_Name: terminated,
-					Truncated_Name: truncated
+					Truncated_Name: truncated,
+					ActionValues_Name: actionValues
 				})
 
 
@@ -75,6 +77,7 @@ class EsReverb(EsBase.EsBase):
 							MaxFutureRewards_Name: writer.history[MaxFutureRewards_Name][-tableLen:],
 							Terminated_Name: writer.history[Terminated_Name][-tableLen:],
 							Truncated_Name: writer.history[Truncated_Name][-tableLen:],
+							ActionValues_Name: writer.history[ActionValues_Name][-tableLen:],
 						}
 
 						trajectory = {}

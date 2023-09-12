@@ -12,7 +12,8 @@ class RandomAgent(BaseAgent):
 
 	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> Any:
 		super().GetAction(state, env)
-		return self.ActionSpace.sample(), "RandomAgent"
+		actionValues = np.zeros(self.ActionSpace.n).astype(np.float32)
+		return self.ActionSpace.sample(), actionValues, "RandomAgent"
 
 
 	def GetActionValues(self, state:SCT.State, env:BaseEnv.BaseEnv) -> NDArray[np.float32]:

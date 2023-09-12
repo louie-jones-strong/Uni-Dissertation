@@ -91,6 +91,34 @@ services:
 
     entrypoint: python main.py --subsystem Learner --model Value
 
+  learner-policy:
+    build:
+        dockerfile: ./src/Learner/Dockerfile
+    image: learner
+
+    volumes:
+      - ./Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model Policy
+
   learner-humanlike:
     image: learner
 
@@ -146,6 +174,32 @@ services:
     # tty: true
 
   # learner-forward:
+  learner-Forward:
+    image: learner
+
+    volumes:
+      - ./Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Learner --model Forward
+
   learner-Forward-NextState:
     image: learner
 
@@ -226,7 +280,26 @@ services:
 
 
 # ===== Workers =====
-  worker-explore:
+  worker-rng-explore:
+    build:
+      dockerfile: ./src/Worker/Dockerfile
+    image: worker
+
+    volumes:
+      - ./Data:/app/Data
+      - ./src:/app/src
+      - ./Config:/app/Config
+
+    working_dir: /app
+    networks:
+      - projectNetwork
+
+    env_file:
+      - secrets.env
+
+    entrypoint: python main.py --subsystem Worker --agent Random --play False --saveReplay False
+
+  worker-ml-explore:
     build:
       dockerfile: ./src/Worker/Dockerfile
     image: worker
@@ -241,7 +314,7 @@ services:
       - projectNetwork
 
     deploy:
-      replicas: ${EXPLORE_WORKERS}
+      replicas: ${EVAL_WORKERS}
       resources:
         reservations:
           devices:
@@ -252,8 +325,7 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Worker --agent Random --play False --exampleType human --saveReplay False
-
+    entrypoint: python main.py --subsystem Worker --agent ML --play False --saveReplay False
 
   worker-eval:
     build:
@@ -281,8 +353,8 @@ services:
     env_file:
       - secrets.env
 
-    entrypoint: python main.py --subsystem Evaluation --agent ML --play True --exampleType human --saveReplay True
-    # tty: true
+    # entrypoint: python main.py --subsystem Evaluation --agent ML --play True --saveReplay True
+    tty: true
 
 
 networks:

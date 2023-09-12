@@ -2,6 +2,7 @@ import src.Worker.Agents.BaseAgent as BaseAgent
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.Environments.BaseEnv as BaseEnv
 import typing
+import numpy as np
 
 
 class HardCodedAi(BaseAgent.BaseAgent):
@@ -54,4 +55,5 @@ class HardCodedAi(BaseAgent.BaseAgent):
 			"AgentType": "HardCoded"
 		}
 
-		return action, reason
+		actionValues = np.zeros(self.ActionSpace.n).astype(np.float32)
+		return action, actionValues, "HardCoded"

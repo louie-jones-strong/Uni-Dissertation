@@ -9,6 +9,7 @@ import src.Common.Utils.Metrics.Metrics as Metrics
 
 class ForwardModel(Model.Model):
 	def __init__(self) -> None:
+		self.ForwardModel = Model.Model(eModelType.Forward)
 		self.StateModel = Model.Model(eModelType.Forward_NextState)
 		self.RewardModel = Model.Model(eModelType.Forward_Reward)
 		self.TerminatedModel = Model.Model(eModelType.Forward_Terminated)
@@ -16,6 +17,7 @@ class ForwardModel(Model.Model):
 		return
 
 	def UpdateModels(self) -> None:
+		self.ForwardModel.UpdateModels()
 		self.StateModel.UpdateModels()
 		self.RewardModel.UpdateModels()
 		self.TerminatedModel.UpdateModels()
@@ -25,7 +27,7 @@ class ForwardModel(Model.Model):
 		if self.StateModel.Config["UseRealSim"]:
 			return True
 
-		return self.StateModel.CanPredict() and self.RewardModel.CanPredict() and self.TerminatedModel.CanPredict()
+		return self.ForwardModel.CanPredict() or (self.StateModel.CanPredict() and self.RewardModel.CanPredict() and self.TerminatedModel.CanPredict())
 
 	def Predict(self,
 			states:SCT.State_List,
@@ -64,8 +66,20 @@ class ForwardModel(Model.Model):
 
 
 		else:  # predict step using models
-			nextStates, rewards, terminateds = self.PredictStep(states, actions)
-			nextEnvs = [None] * len(envs)
+
+			if self.ForwardModel.CanPredict():
+				x = [states, actions]
+				y, _ = self.ForwardModel.Predict(x)
+				nextStates = y[0][0]
+				rewards = y[1][0]
+				terminateds = y[2][0]
+
+				nextEnvs = [None] * len(envs)
+
+
+			else:
+				nextStates, rewards, terminateds = self.PredictStep(states, actions)
+				nextEnvs = [None] * len(envs)
 
 
 

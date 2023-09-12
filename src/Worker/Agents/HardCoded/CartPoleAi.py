@@ -2,6 +2,7 @@ import src.Worker.Agents.BaseAgent as BaseAgent
 import src.Common.Utils.SharedCoreTypes as SCT
 import src.Worker.Environments.BaseEnv as BaseEnv
 import typing
+import numpy as np
 
 
 class HardCodedAi(BaseAgent.BaseAgent):
@@ -50,7 +51,8 @@ class HardCodedAi(BaseAgent.BaseAgent):
 		if directionWeights > 0:
 			action = 1
 
-		return action, "HardCoded"
+		actionValues = np.zeros(self.ActionSpace.n).astype(np.float32)
+		return action, actionValues, "HardCoded"
 
 
 	def CalMoveWeighting(self, state:SCT.State, offset:float):

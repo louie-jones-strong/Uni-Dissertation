@@ -26,9 +26,9 @@
 				"TimeOutAllowed": false
 			},
 			"ForwardModel": {
-				"MaxRollOutCount": 2024,
-				"MaxRollOutDepth": 6,
 				"ValueFinalStates": true,
+				"MaxRollOutCount": 256,
+				"MaxRollOutDepth": 3,
 				"TimeOutAllowed": false
 			}
 		},
@@ -62,6 +62,18 @@
 			"TrainingBatchSize": 2048,
 			"MaxDeploymentBatchSize": 2048,
 			"DataTable": "Value_Trajectories",
+			"ReplayExamples": "",
+			"LearningRate": 0.001,
+			"DenseLayers": [256],
+			"Activations": "relu",
+			"Dropout": 0.5,
+			"L1": 0.5,
+			"L2": 0.5
+		},
+		"Forward": {
+			"TrainingBatchSize": 2048,
+			"MaxDeploymentBatchSize": 2048,
+			"DataTable": "Forward_Trajectories",
 			"ReplayExamples": "",
 			"LearningRate": 0.001,
 			"DenseLayers": [256],
@@ -133,6 +145,20 @@
 	},
 	"DataTables": [
 		{
+			"TableName": "Forward_Trajectories",
+			"StepCount": 1,
+			"MinCount": 1000,
+			"MaxCount": 1000000,
+			"PriorityExponent": 0.8,
+			"Columns": [
+				"CurrentState",
+				"NextState",
+				"Action",
+				"Reward",
+				"Terminated"
+			]
+		},
+		{
 			"TableName": "Forward_NextState_Trajectories",
 			"StepCount": 1,
 			"MinCount": 1000,
@@ -183,12 +209,11 @@
 			"TableName": "Value_Trajectories",
 			"StepCount": 1,
 			"MinCount": 1000,
-			"MaxCount": 1000000,
+			"MaxCount": 10000,
 			"PriorityExponent": 0.8,
 			"Columns": [
 				"CurrentState",
 				"NextState",
-				"Action",
 				"Reward",
 				"MaxFutureRewards",
 				"Terminated",

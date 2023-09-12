@@ -16,7 +16,7 @@ class eDataColumnTypes(enum.Enum):
 
 	PlayStyleTag = 7
 
-	RollOutValues = 8
+	ActionValues = 8
 
 
 
