@@ -27,7 +27,7 @@ class Worker:
 		self.LastReward = 0
 		self.TotalRewards = 0
 		self.TotalCuratedReward = 0
-		self.StartTime = 0
+		self.StartTime = 0.0
 
 		self.Agent = BaseAgent.GetAgent(eAgentType, envConfig, isTrainingMode)
 
@@ -72,10 +72,10 @@ class Worker:
 				avgRewards = self.TotalRewards / self.EpisodeCount
 				avgTime = (time.time() - self.StartTime) / self.EpisodeCount
 
-				avgCuratedReward = self.TotalCuratedReward / self.EpisodeCount
+				avgCurated = self.TotalCuratedReward / self.EpisodeCount
 
 				progressStr = f"{self.EpisodeCount} / {maxEpisodes}"
-				logging.info(f"{progressStr}    avg:{avgRewards:.3f} avgCurated:{avgCuratedReward:.3f} avgTime:{avgTime:.3f}")
+				logging.info(f"{progressStr}  avg:{avgRewards:.3f} avgCurated:{avgCurated:.3f} avgTime:{avgTime:.3f}")
 
 			# If in evaluate mode then we only check for updates after an episode.
 			# This is to ensure that the agent is consistent for the whole episode.
@@ -85,7 +85,8 @@ class Worker:
 
 	def _GetActions(self,
 			stateList:typing.List[SCT.State],
-			envs:typing.List[BaseEnv.BaseEnv]) -> typing.Tuple[typing.List[SCT.Action], typing.List[str]]:
+			envs:typing.List[BaseEnv.BaseEnv]) -> \
+				typing.Tuple[typing.List[SCT.Action], typing.List[SCT.ActionValues], typing.List[SCT.ActionReason]]:
 
 		actions = []
 		actionReasons = []
@@ -126,7 +127,7 @@ class Worker:
 		for i in range(len(self.Envs)):
 
 			state = self.Envs[i].State
-			nextState, reward, terminated, truncated = self.Envs[i].Step(actions[i], actionValues[i], actionReason=actionReasons[i])
+			nextState, reward, terminated, truncated = self.Envs[i].Step(actions[i], actionValues[i], actionReasons[i])
 
 			self.Agent.Remember(state, actions[i], reward, nextState, terminated, truncated)
 

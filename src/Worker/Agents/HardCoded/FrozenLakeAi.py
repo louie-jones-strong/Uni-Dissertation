@@ -36,7 +36,8 @@ class HardCodedAi(BaseAgent.BaseAgent):
 		super().Reset()
 		return
 
-	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action, str]:
+	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> \
+			typing.Tuple[SCT.Action, SCT.ActionValues, SCT.ActionReason]:
 		super().GetAction(state, env)
 
 		playStyleWeights = self.Config["HardcodedConfig"]["PlayStyleWeights"]
@@ -56,4 +57,4 @@ class HardCodedAi(BaseAgent.BaseAgent):
 		}
 
 		actionValues = np.zeros(self.ActionSpace.n).astype(np.float32)
-		return action, actionValues, "HardCoded"
+		return action, actionValues, reason

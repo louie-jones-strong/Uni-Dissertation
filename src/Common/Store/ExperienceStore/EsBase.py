@@ -25,7 +25,7 @@ class EsBase(ConfigurableClass):
 
 		return
 
-	def PopTransition(self)-> typing.Tuple[
+	def PopTransition(self) -> typing.Tuple[
 			SCT.State, SCT.State, SCT.Action, SCT.Reward, SCT.Reward, bool, bool, SCT.ActionValues]:
 
 		if len(self._TransitionBuffer) == 0:
