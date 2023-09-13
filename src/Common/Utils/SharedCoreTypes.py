@@ -4,12 +4,14 @@ from numpy.typing import NDArray
 import numpy as np
 from gymnasium.spaces import Discrete, Box
 
+Config = typing.Dict[str, Any]
+
 # single step
 State = Union[NDArray[Any], int, typing.Tuple]
 Action = int
-Reward = Union[float, int]
 ActionValues = NDArray[Union[np.int_, np.float32]]
-Config = typing.Dict[str, Any]
+ActionReason = Config
+Reward = Union[float, int]
 
 StateSpace = Union[Discrete, Box]
 ActionSpace = Discrete

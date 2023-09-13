@@ -81,7 +81,7 @@ class BaseAgent(ConfigurableClass):
 		self.Mode = ePlayMode.Train if isTrainingMode else ePlayMode.Play
 
 		self.ObservationSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ObservationSpace"])
-		self.ActionSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ActionSpace"])
+		self.ActionSpace:SCT.ActionSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ActionSpace"])
 		self.StepRewardRange = self.EnvConfig["StepRewardRange"]
 		self.EpisodeRewardRange = self.EnvConfig["EpisodeRewardRange"]
 		self.IsDeterministic = self.EnvConfig["IsDeterministic"]
@@ -132,13 +132,17 @@ class BaseAgent(ConfigurableClass):
 		return
 
 
-	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action, str]:
+	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> \
+			typing.Tuple[SCT.Action, SCT.ActionValues, SCT.ActionReason]:
+
 		self.StepNum += 1
 		self.TotalStepNum += 1
 
 		return 0, "BaseAgent"
 
-	def GetActionValues(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[NDArray[np.float32], str]:
+	def GetActionValues(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[
+			NDArray[np.float32], SCT.ActionReason]:
+
 		shape = SCT.JoinTuples(self.ActionSpace.shape, None)
 		return np.ones(shape, dtype=np.float32), "BaseAgent"
 

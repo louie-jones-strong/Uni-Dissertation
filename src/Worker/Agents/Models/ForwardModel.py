@@ -27,7 +27,12 @@ class ForwardModel(Model.Model):
 		if self.StateModel.Config["UseRealSim"]:
 			return True
 
-		return self.ForwardModel.CanPredict() or (self.StateModel.CanPredict() and self.RewardModel.CanPredict() and self.TerminatedModel.CanPredict())
+		combinedModel = self.ForwardModel.CanPredict()
+		splitModel = self.StateModel.CanPredict() and \
+			self.RewardModel.CanPredict() and \
+			self.TerminatedModel.CanPredict()
+
+		return combinedModel or splitModel
 
 	def Predict(self,
 			states:SCT.State_List,

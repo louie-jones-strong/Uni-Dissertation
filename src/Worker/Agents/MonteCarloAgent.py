@@ -54,7 +54,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		return
 
-	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action, str]:
+	def GetAction(self, state:SCT.State, env:BaseEnv.BaseEnv) -> \
+			typing.Tuple[SCT.Action, SCT.ActionValues, SCT.ActionReason]:
+
 		super().GetAction(state, env)
 		actionValues, actionReason = self.GetActionValues(state, env)
 
@@ -74,7 +76,9 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		return action, actionValues, actionReason
 
-	def GetActionValues(self, state:SCT.State, env:BaseEnv.BaseEnv) -> typing.Tuple[NDArray[np.float32], str]:
+	def GetActionValues(self, state:SCT.State, env:BaseEnv.BaseEnv) -> \
+			typing.Tuple[NDArray[np.float32], SCT.ActionReason]:
+
 		super().GetActionValues(state, env)
 
 		monteCarloConfig = self.Config["MonteCarloConfig"]
@@ -229,7 +233,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 
 		return totalRewards
 
-	def _RollOut_RealSim(self, env:BaseEnv.BaseEnv):
+	def _RollOut_RealSim(self, env:BaseEnv.BaseEnv) -> typing.Tuple[SCT.Action_List, SCT.Reward_List, SCT.State_List]:
 		rollOutConfig = self.Config["MonteCarloConfig"]["RollOutConfig"]["RealSim"]
 		numRollOuts = rollOutConfig["MaxRollOutCount"]
 		timeOutAllowed = rollOutConfig["TimeOutAllowed"]

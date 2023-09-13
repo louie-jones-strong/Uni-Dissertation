@@ -377,8 +377,6 @@ def Setup(envConfig) -> None:
 
 	@views.route("/renderAssets/<behaviour>")
 	def RenderAssets(behaviour) -> str:
-		data = GetCommonData()
-
 		if behaviour not in ReplaysToReview:
 			return "behaviour Not found"
 
