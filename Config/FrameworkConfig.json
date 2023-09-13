@@ -3,5 +3,5 @@
 	"envName": "CartPole.json",
 	"load": false,
 	"wandb": true,
-	"runGroup": "16"
+	"runGroup": "20"
 }
