@@ -374,6 +374,41 @@ def Setup(envConfig) -> None:
 		experienceStore.EmptyTransitionBuffer()
 		return f"added to {behaviour} behaviour examples"
 
+
+	@views.route("/renderAssets/<behaviour>")
+	def RenderAssets(behaviour) -> str:
+		data = GetCommonData()
+
+		if behaviour not in ReplaysToReview:
+			return "behaviour Not found"
+
+
+		# loop through all replays and get the ones that need reviewing
+		for i in range(len(ReplaysToReview[behaviour])):
+			replayToReview = ReplaysToReview[behaviour][i]
+
+			folder = replayToReview["AgentType"]
+
+			replayIdx = 0
+			while f"Replay_{replayIdx}" in replayToReview:
+
+				episode = replayToReview[f"Replay_{replayIdx}"]
+
+				if episode is None:
+					continue
+
+				replayPath = os.path.join(ReplaysFolder, folder, episode)
+				replay = ER.EpisodeReplay.LoadFromFolder(replayPath)
+
+				# make video for replay
+				AssetCreator.CreateVideo(replay, folder=folder)
+
+				replayIdx += 1
+
+		return "Created assets"
+
+
+
 # endregion endpoints
 
 	@views.route("/api/saveTrajectories", methods=["POST"])

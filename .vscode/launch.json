@@ -42,10 +42,10 @@
 			"args": [
 				"--wandb", "False",
 				"--load", "False",
-				"--runGroup", "dev",
+				// "--runGroup", "dev",
 				"--subsystem", "Worker",
 				"--agent", "Random",
-				"--saveReplay", "False"
+				// "--saveReplay", "False"
 			]
 		},
 		{

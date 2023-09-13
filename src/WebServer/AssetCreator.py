@@ -1,6 +1,7 @@
 import os
 import src.Common.EpisodeReplay.EpisodeReplay as ER
 import cv2 as cv
+import src.Common.Utils.PathHelper as PathHelper
 
 def CleanUpAssets() -> None:
 	assetsFolder = os.path.join("src", "WebServer", "static", "assets")
@@ -12,9 +13,15 @@ def CleanUpAssets() -> None:
 
 	return
 
-def CreateVideo(replay:ER.EpisodeReplay) -> None:
+def CreateVideo(replay:ER.EpisodeReplay, folder=None) -> None:
 
-	outputPath = os.path.join("src", "WebServer", "static", "assets", f"{replay.EpisodeId}.mp4")
+	outputPath = os.path.join("src", "WebServer", "static", "assets")
+	if folder is not None:
+		outputPath = os.path.join(outputPath, folder)
+
+	outputPath = os.path.join(outputPath, f"{replay.EpisodeId}.mp4")
+
+	PathHelper.EnsurePathExists(outputPath)
 
 	if os.path.exists(outputPath):
 		return
