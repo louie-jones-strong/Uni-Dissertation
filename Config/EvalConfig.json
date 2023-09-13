@@ -4,8 +4,8 @@
 			"AgentType": "ML",
 			"MaxEpisodes": 100,
 			"UseRealSims": [true],
-			"Depths": [6],
-			"MaxTimesPerAction": [1]
+			"Depths": [10],
+			"MaxTimesPerAction": [10]
 		},
 		{
 			"AgentType": "Random",
