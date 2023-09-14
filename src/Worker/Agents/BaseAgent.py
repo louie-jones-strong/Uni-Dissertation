@@ -22,16 +22,16 @@ import logging
 
 
 def GetAgent(eAgentType:eAgentType,
-		overrideConfig:SCT.Config,
+		envConfig:SCT.Config,
 		isTrainingMode:bool) -> 'BaseAgent':
 
 	if eAgentType == eAgentType.Random:
 		from . import RandomAgent
-		return RandomAgent.RandomAgent(overrideConfig, isTrainingMode)
+		return RandomAgent.RandomAgent(isTrainingMode)
 
 	elif eAgentType == eAgentType.Human:
 		from . import HumanAgent
-		return HumanAgent.HumanAgent(overrideConfig, isTrainingMode)
+		return HumanAgent.HumanAgent(isTrainingMode)
 
 	elif eAgentType == eAgentType.ML:
 		from . import MonteCarloAgent
@@ -47,7 +47,7 @@ def GetAgent(eAgentType:eAgentType,
 			"Curated": playStyleModel
 		}
 
-		return MonteCarloAgent.MonteCarloAgent(overrideConfig, isTrainingMode, forwardModel, valueModel, playStyleModels)
+		return MonteCarloAgent.MonteCarloAgent(isTrainingMode, forwardModel, valueModel, playStyleModels)
 
 	elif eAgentType == eAgentType.HardCoded:
 		import importlib.util
@@ -58,12 +58,12 @@ def GetAgent(eAgentType:eAgentType,
 			spec.loader.exec_module(module)
 			return module
 
-		fileName = overrideConfig["Name"] + "Ai.py"
+		fileName = envConfig["Name"] + "Ai.py"
 		agentPath = os.path.join(GetRootPath(), "src", "Worker", "Agents", "HardCoded", fileName)
 
 		agent = ImportPath("HardCodedAgent", agentPath)
 
-		return agent.HardCodedAi(overrideConfig, isTrainingMode)
+		return agent.HardCodedAi(isTrainingMode)
 
 
 
@@ -71,13 +71,11 @@ def GetAgent(eAgentType:eAgentType,
 	return
 
 class BaseAgent(ConfigurableClass):
-	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
-		self.LoadConfig()
+	def __init__(self, isTrainingMode:bool):
+		super().__init__()
 
 		self.Logger = logging.getLogger(self.__class__.__name__)
 
-
-		self.EnvConfig = envConfig
 		self.Mode = ePlayMode.Train if isTrainingMode else ePlayMode.Play
 
 		self.ObservationSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ObservationSpace"])

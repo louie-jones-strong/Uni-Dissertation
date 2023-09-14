@@ -11,7 +11,7 @@ import logging
 
 class ExperienceStoreServer(ConfigurableClass):
 	def __init__(self):
-		self.LoadConfig()
+		super().__init__()
 
 		self.ObservationSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ObservationSpace"])
 		self.ActionSpace = ConfigHelper.ConfigToSpace(self.EnvConfig["ActionSpace"])

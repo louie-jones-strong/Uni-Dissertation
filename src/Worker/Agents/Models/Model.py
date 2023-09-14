@@ -8,7 +8,7 @@ import logging
 class Model(ConfigurableClass):
 
 	def __init__(self, modelType:eModelType):
-		self.LoadConfig()
+		super().__init__()
 		self.ModelConfig = self.Config["ModelConfigs"][modelType.name]
 
 		self._ModelType = modelType

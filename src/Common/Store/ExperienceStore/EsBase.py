@@ -6,7 +6,7 @@ from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
 class EsBase(ConfigurableClass):
 	def __init__(self) -> None:
-		self.LoadConfig()
+		super().__init__()
 
 		self._TransitionBuffer = deque()
 		self._TotalReward = 0

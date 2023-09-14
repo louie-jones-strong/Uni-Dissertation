@@ -7,8 +7,8 @@ import numpy as np
 
 class HardCodedAi(BaseAgent.BaseAgent):
 
-	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool):
-		super().__init__(envConfig, isTrainingMode)
+	def __init__(self, isTrainingMode:bool):
+		super().__init__(isTrainingMode)
 
 		self.BehaviorsLookups = {
 			"Normal": [
