@@ -22,7 +22,7 @@ def AreStatesEqual(state1:SCT.State, state2:SCT.State) -> bool:
 
 class MonteCarloAgent(BaseAgent.BaseAgent):
 
-	def __init__(self, envConfig:SCT.Config, isTrainingMode:bool,
+	def __init__(self, isTrainingMode:bool,
 				forwardModel:ForwardModel.ForwardModel,
 				valueModel:ValueModel.ValueModel,
 				playStyleModels:typing.Dict[str, PlayStyleModel.PlayStyleModel]):
@@ -31,7 +31,7 @@ class MonteCarloAgent(BaseAgent.BaseAgent):
 		self._ValueModel = valueModel
 		self._PlayStyleModels = playStyleModels
 
-		super().__init__(envConfig, isTrainingMode)
+		super().__init__(isTrainingMode)
 
 		self._CachedTree = None
 		self._StopTime = 0

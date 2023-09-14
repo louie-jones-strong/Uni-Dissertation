@@ -16,7 +16,7 @@ import logging
 class Learner(ConfigurableClass):
 
 	def __init__(self, modelType:eModelType, loadModel:bool, envDataPath:str):
-		self.LoadConfig()
+		super().__init__()
 		self.ModelType = modelType
 		self.EnvDataPath = envDataPath
 

@@ -23,7 +23,7 @@ class TreeNode(ConfigurableClass):
 			parent:Optional['TreeNode'] = None,
 			actionIdxTaken:Optional[int] = None):
 
-		self.LoadConfig()
+		super().__init__()
 
 		self.State = state
 		self.Env = env
@@ -255,8 +255,6 @@ class TreeNode(ConfigurableClass):
 
 		nodeValue = self.GetPredictedRewardValue()
 		nodeValue += self.GetPlayStyleValue()
-
-
 
 		return nodeValue
 
