@@ -44,7 +44,7 @@ class Test_Envs(unittest.TestCase):
 			experienceStore = EsBase.EsBase()
 			runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore)
 			envRunners.append(runner)
-			worker = Worker.Worker(envConfig, self.AgentType, envRunners, True)
+			worker = Worker.Worker(self.AgentType, envRunners, True)
 
 			worker.Run()
 

@@ -7,19 +7,19 @@ import src.Common.Utils.Metrics.Metrics as Metrics
 import typing
 import time
 import logging
+from src.Common.Utils.Config.ConfigurableClass import ConfigurableClass
 
 
-class Worker:
+class Worker(ConfigurableClass):
 	"""
 	Worker is responsible for collecting trajectories to fill the experience store.
 	"""
 
-	def __init__(self, envConfig:SCT.Config,
-		eAgentType:eAgentType,
-		envRunners:typing.List[EnvRunner.EnvRunner],
-		isTrainingMode:bool) -> None:
+	def __init__(self, eAgentType:eAgentType,
+			envRunners:typing.List[EnvRunner.EnvRunner],
+			isTrainingMode:bool) -> None:
+		super().__init__()
 
-		self.Config = envConfig
 		self.IsEvaluating = not isTrainingMode
 
 		self.Envs = envRunners
@@ -28,10 +28,11 @@ class Worker:
 		self.TotalRewards = 0
 		self.TotalCuratedReward = 0
 		self.StartTime = 0.0
+		self.TimeTook = 0.0
 
-		self.Agent = BaseAgent.GetAgent(eAgentType, envConfig, isTrainingMode)
+		self.Agent = BaseAgent.GetAgent(eAgentType, self.EnvConfig, isTrainingMode)
 
-		self._ModelUpdateTime = time.time() + self.Config["SecsPerModelFetch"]
+		self._ModelUpdateTime = time.time() + self.EnvConfig["SecsPerModelFetch"]
 
 		self.Metrics = Metrics.Metrics()
 		return
@@ -52,7 +53,7 @@ class Worker:
 		stateList = [env.GetState() for env in self.Envs]
 		envs = [env.Env for env in self.Envs]
 
-		maxEpisodes = self.Config["MaxEpisodes"]
+		maxEpisodes = self.EnvConfig["MaxEpisodes"]
 
 		# run the environments
 		while self.EpisodeCount < maxEpisodes:
@@ -81,6 +82,8 @@ class Worker:
 			# This is to ensure that the agent is consistent for the whole episode.
 			if not self.IsEvaluating or finishedEpisodes > 0:
 				self.CheckForUpdates()
+
+		self.TimeTook = time.time() - self.StartTime
 		return
 
 	def _GetActions(self,
@@ -159,5 +162,15 @@ class Worker:
 		if time.time() >= self._ModelUpdateTime:
 			self.Agent.UpdateModels()
 
-			self._ModelUpdateTime = time.time() + self.Config["SecsPerModelFetch"]
+			self._ModelUpdateTime = time.time() + self.EnvConfig["SecsPerModelFetch"]
+		return
+
+
+	def Clear(self) -> None:
+		self.EpisodeCount = 0
+		self.LastReward = 0
+		self.TotalRewards = 0
+		self.TotalCuratedReward = 0
+		self.StartTime = 0.0
+		self.TimeTook = 0.0
 		return
