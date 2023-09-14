@@ -7,3 +7,4 @@ class eSubSystemType(enum.Enum):
 	ExperienceStore = 3
 	ModelStore = 4
 	Evaluation = 5
+	LatentSpaceHeatmap = 6

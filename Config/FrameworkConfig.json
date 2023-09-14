@@ -1,6 +1,6 @@
 {
 	"logLevel": "DEBUG",
-	"envName": "CartPole.json",
+	"envName": "FrozenLake.json",
 	"load": false,
 	"wandb": true,
 	"runGroup": "20"

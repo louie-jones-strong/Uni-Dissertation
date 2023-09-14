@@ -12,6 +12,7 @@ import platform
 import logging
 import time
 import src.Common.Utils.Metrics.LoggingHelper as LoggingHelper
+import numpy as np
 
 
 class Main():
@@ -187,15 +188,13 @@ class Main():
 
 			envRunners.append(runner)
 
-		worker = Worker.Worker(self.ConfigManager.EnvConfig, agent, envRunners, isTrainingMode)
+		worker = Worker.Worker(agent, envRunners, isTrainingMode)
 
 
 		self.SetupMetrics(f"Worker_{agent.name}", metricName)
 
-		worker.Run()
 
-		self.Metrics.Finish()
-		return
+		return worker
 #endregion
 
 
@@ -211,7 +210,9 @@ class Main():
 
 		elif subSystem == eSubSystemType.Worker:
 			agent = self.Parser.Get("agent")
-			self.RunWorker(agent)
+			worker = self.RunWorker(agent)
+			worker.Run()
+			self.Metrics.Finish()
 			return
 
 		elif subSystem == eSubSystemType.Webserver:
@@ -221,6 +222,14 @@ class Main():
 		elif subSystem == eSubSystemType.ExperienceStore:
 			import src.ExperienceStore.ExperienceStoreServer as ExperienceStoreServer
 			subSystem = ExperienceStoreServer.ExperienceStoreServer()
+
+		elif subSystem == eSubSystemType.LatentSpaceHeatmap:
+			self.CreateLatentSpaceHeatMap()
+			return
+
+		else:
+			logging.error(f"Unknown sub system {subSystem.name}")
+
 
 		# run the subsystem
 		subSystem.Run()
@@ -240,6 +249,67 @@ class Main():
 			self.SetPlayStyleConfig(config["normal"], config["human"], config["curated"], config["Temperature"])
 			self.EvalStyle(agentsConfig, playStyle, maxEpisodesOverride, humanRender=True)
 		return
+
+
+
+	def CreateLatentSpaceHeatMap(self) -> None:
+		# create a worker to run the env
+		agentType = self.Parser.Get("agent")
+		metricName = f"{agentType.name}_LatentSpaceHeatMap"
+		worker = self.RunWorker(agentType, metricName=metricName, humanRender=False)
+
+		# run the worker so the agent fully explores the env
+		self.ConfigManager.Config["MonteCarloConfig"]["ActionSelectionTemperature"] = 0.0
+		self.ConfigManager.Config["MonteCarloConfig"]["TestExploreFactor"] = 1000
+		self.ConfigManager.Config["MonteCarloConfig"]["MaxSecondsPerAction"] = 1
+		self.SetPlayStyleConfig(0, 0, 0, 0)
+		worker.Run()
+		self.Metrics.Finish()
+		self.Metrics.EpisodeIds.clear()
+
+
+		self.ConfigManager.Config["MonteCarloConfig"]["MaxSecondsPerAction"] = 5
+
+		# create matrix of values to try
+		minWeight = 0
+		maxWeight = 1
+		steps = 10
+
+		results = []
+
+		for i in range(0, steps + 1):
+			for j in range(0, steps + 1):
+				for k in range(0, steps + 1):
+					normalWeight = minWeight + (maxWeight - minWeight) * (i / steps)
+					humanWeight  = minWeight + (maxWeight - minWeight) * (j / steps)
+					curateWeight = minWeight + (maxWeight - minWeight) * (k / steps)
+
+
+					self.ConfigManager.EnvConfig["MaxEpisodes"] = 1
+					self.SetPlayStyleConfig(normalWeight, humanWeight, curateWeight, 0.0)
+
+					worker.Clear()
+					print(f"Running {normalWeight:.2f} {humanWeight:.2f} {curateWeight:.2f}")
+					worker.Run()
+
+					results.append({
+						"Normal": normalWeight,
+						"Human": humanWeight,
+						"Curate": curateWeight,
+						"Rewards": worker.TotalRewards,
+						"CuratedRewards": worker.TotalCuratedReward,
+						"Time": worker.TimeTook,
+						"Episodes": self.Metrics.EpisodeIds.copy()
+					})
+					self.Metrics.EpisodeIds.clear()
+
+
+
+		resultsPath = os.path.join(self.RunPath, f"{agentType.name}_LatentSpaceHeatMap.json")
+		ConfigHelper.SaveConfig(results, resultsPath)
+		return
+
+
 
 	def SetPlayStyleConfig(self, normalWeight, humanWeight, curateWeight, temperature):
 
@@ -276,7 +346,9 @@ class Main():
 						self.ConfigManager.Config["UseRealSim"] = useRealTime
 
 						metricName = f"{agentType.name}_D_{depth}_T_{maxTimePerAction}_RT_{useRealTime}_{evalStyle}"
-						self.RunWorker(agentType, metricName=metricName, humanRender=humanRender)
+						worker = self.RunWorker(agentType, metricName=metricName, humanRender=humanRender)
+						worker.Run()
+						self.Metrics.Finish()
 
 						episodes[metricName] = self.Metrics.EpisodeIds.copy()
 						self.Metrics.EpisodeIds.clear()

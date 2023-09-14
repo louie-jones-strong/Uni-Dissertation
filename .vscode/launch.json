@@ -96,6 +96,22 @@
 				"--play", "True",
 				"--saveReplay", "True"
 			]
+		},
+		{
+			"name": "HeatMap",
+			"type": "python",
+			"request": "launch",
+			"program": "main.py",
+			"console": "integratedTerminal",
+			"justMyCode": true,
+			"args": [
+				"--wandb", "False",
+				"--runGroup", "dev",
+				"--subsystem", "LatentSpaceHeatmap",
+				"--play", "True",
+				"--saveReplay", "False",
+				"--agent", "ML",
+			]
 		}
 	]
 }
