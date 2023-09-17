@@ -2,7 +2,6 @@ import unittest
 import os
 import src.Worker.Worker as Worker
 import src.Common.Store.ExperienceStore.EsBase as EsBase
-import src.Common.Utils.Config.ConfigHelper as ConfigHelper
 from src.Common.Enums.eAgentType import eAgentType
 import src.Common.Utils.ModelHelper as ModelHelper
 import src.Common.Store.ModelStore.MsBase as MsBase
@@ -55,25 +54,23 @@ class Test_Agents(unittest.TestCase):
 			# check is a json file
 			self.assertTrue(config.endswith('.json'), 'Config is not a json file')
 
-			envConfig = ConfigHelper.LoadConfig(configPath)
-
 			# modify the config to use a smaller number of episodes and steps
-			envConfig["MaxEpisodes"] = self.MaxEpisodesOverride
-			envConfig["MaxSteps"] = self.MaxStepsOverride
-			envConfig["NumEnvsPerWorker"] = self.MaxWorkersOverride
+			configManager.EnvConfig["MaxEpisodes"] = self.MaxEpisodesOverride
+			configManager.EnvConfig["MaxSteps"] = self.MaxStepsOverride
+			configManager.EnvConfig["NumEnvsPerWorker"] = self.MaxWorkersOverride
 
 
 			modelStore = MsBase.MsBase()
 
 			modelHelper = ModelHelper.ModelHelper()
-			modelHelper.Setup(envConfig, modelStore)
+			modelHelper.Setup(configManager.EnvConfig, modelStore)
 
 
 			envRunners = []
 
-			env = BaseEnv.GetEnv(envConfig, render=False)
+			env = BaseEnv.GetEnv(configManager.EnvConfig, render=False)
 			experienceStore = EsBase.EsBase()
-			runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore)
+			runner = EnvRunner.EnvRunner(env, configManager.EnvConfig["MaxSteps"], experienceStore)
 			envRunners.append(runner)
 
 			worker = Worker.Worker(agentType, envRunners, True)
