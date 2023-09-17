@@ -61,8 +61,8 @@ def WrapGym(
 
 
 class GymEnv(BaseEnv.BaseEnv):
-	def __init__(self, envConfig:SCT.Config, gymEnv:Optional[gym.Env] = None):
-		super().__init__(envConfig)
+	def __init__(self, envConfig:SCT.Config, gymEnv:Optional[gym.Env] = None, render:bool = True):
+		super().__init__(envConfig, render)
 
 		self._RgbRenderCopy = None
 		self._HumanRenderCopy = None
@@ -78,26 +78,31 @@ class GymEnv(BaseEnv.BaseEnv):
 
 			self._GymEnv = gym.make(gymId, **kargs)
 
-			# create a copy of the environment for rendering
-			# this is because you cannot copy the env if it has been rendered
-			self._RgbRenderCopy = gym.make(gymId, render_mode="rgb_array", **kargs)
-			self._HumanRenderCopy = gym.make(gymId, render_mode="human", **kargs)
+			if render:
+				# create a copy of the environment for rendering
+				# this is because you cannot copy the env if it has been rendered
+				self._RgbRenderCopy = gym.make(gymId, render_mode="rgb_array", **kargs)
+				self._HumanRenderCopy = gym.make(gymId, render_mode="human", **kargs)
 
 			# wrap the environments
 			envs = WrapGym(envName, wrappers, self._GymEnv, self._RgbRenderCopy, self._HumanRenderCopy)
 			self._GymEnv, self._RgbRenderCopy, self._HumanRenderCopy = envs
 
 
-			# make sure both environments are seeded the same
+			# make sure all environments are seeded the same
 			seed = random.randint(0, 100000)
 			self._GymEnv.reset(seed=seed)
-			self._RgbRenderCopy.reset(seed=seed)
-			self._HumanRenderCopy.reset(seed=seed)
+
+			if render:
+				self._RgbRenderCopy.reset(seed=seed)
+				self._HumanRenderCopy.reset(seed=seed)
 
 			# set the render fps to a high number so that it renders as fast as possible
 			self._GymEnv.metadata["render_fps"] = 100_000
-			self._RgbRenderCopy.metadata["render_fps"] = 100_000
-			self._HumanRenderCopy.metadata["render_fps"] = 100_000
+
+			if render:
+				self._RgbRenderCopy.metadata["render_fps"] = 100_000
+				self._HumanRenderCopy.metadata["render_fps"] = 100_000
 
 		else:
 			self._GymEnv = gymEnv
