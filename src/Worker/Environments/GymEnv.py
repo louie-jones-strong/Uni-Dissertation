@@ -19,8 +19,11 @@ def WrapGym(
 		) -> typing.Tuple[gym.Env, gym.Env]:
 
 	gymEnv = CuratedRewards.CuratedRewards(gymEnv, envName)
-	rgbRenderEnv = CuratedRewards.CuratedRewards(rgbRenderEnv, envName)
-	humanRenderEnv = CuratedRewards.CuratedRewards(humanRenderEnv, envName)
+	if rgbRenderEnv is not None:
+		rgbRenderEnv = CuratedRewards.CuratedRewards(rgbRenderEnv, envName)
+
+	if humanRenderEnv is not None:
+		humanRenderEnv = CuratedRewards.CuratedRewards(humanRenderEnv, envName)
 
 
 	if wrappers is None:
@@ -30,8 +33,11 @@ def WrapGym(
 
 		if "FireResetEnv" in wrapper:
 			gymEnv = FireResetEnv.FireResetEnv(gymEnv)
-			rgbRenderEnv = FireResetEnv.FireResetEnv(rgbRenderEnv)
-			humanRenderEnv = FireResetEnv.FireResetEnv(humanRenderEnv)
+
+			if rgbRenderEnv is not None:
+				rgbRenderEnv = FireResetEnv.FireResetEnv(rgbRenderEnv)
+			if humanRenderEnv is not None:
+				humanRenderEnv = FireResetEnv.FireResetEnv(humanRenderEnv)
 
 		elif "Atari" in wrapper:
 
@@ -49,8 +55,11 @@ def WrapGym(
 
 		elif "ActionDup" in wrapper:
 			gymEnv = ActionDup.ActionDup(gymEnv, 2)
-			rgbRenderEnv = ActionDup.ActionDup(rgbRenderEnv, 2)
-			humanRenderEnv = ActionDup.ActionDup(humanRenderEnv, 2)
+
+			if rgbRenderEnv is not None:
+				rgbRenderEnv = ActionDup.ActionDup(rgbRenderEnv, 2)
+			if humanRenderEnv is not None:
+				humanRenderEnv = ActionDup.ActionDup(humanRenderEnv, 2)
 
 		else:
 			raise Exception(f"Unknown wrapper: {wrapper}")
@@ -178,9 +187,12 @@ class GymEnv(BaseEnv.BaseEnv):
 	def Render(self) -> Optional[Any]:
 		super().Render()
 
-		if self._RgbRenderCopy is None:
-			return None
+		if self._HumanRenderCopy is not None:
+			self._HumanRenderCopy.render()
 
-		self._HumanRenderCopy.render()
-		rendered:Any = self._RgbRenderCopy.render()
+
+		rendered = None
+		if self._RgbRenderCopy is not None:
+			rendered:Any = self._RgbRenderCopy.render()
+
 		return rendered
