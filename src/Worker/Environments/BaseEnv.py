@@ -5,13 +5,13 @@ import numpy as np
 from copy import deepcopy
 import typing
 
-def GetEnv(envConfig:SCT.Config) -> 'BaseEnv':
+def GetEnv(envConfig:SCT.Config, render:bool = True) -> 'BaseEnv':
 	envType = envConfig["EnvType"]
 
 	if envType == "Gym":
 
 		import src.Worker.Environments.GymEnv as GymEnv
-		return GymEnv.GymEnv(envConfig)
+		return GymEnv.GymEnv(envConfig, render=render)
 
 	raise Exception(f"EnvType \"{envType}\" not found")
 	return
@@ -20,7 +20,7 @@ def GetEnv(envConfig:SCT.Config) -> 'BaseEnv':
 
 
 class BaseEnv:
-	def __init__(self, envConfig:SCT.Config):
+	def __init__(self, envConfig:SCT.Config, render:bool = True):
 		self._Config = envConfig
 
 		self.ObservationSpace:SCT.StateSpace = gym.spaces.Box(low=0, high=1, shape=(1, 2), dtype=np.uint8)

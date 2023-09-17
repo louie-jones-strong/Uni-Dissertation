@@ -71,7 +71,7 @@ class Test_Agents(unittest.TestCase):
 
 			envRunners = []
 
-			env = BaseEnv.GetEnv(envConfig)
+			env = BaseEnv.GetEnv(envConfig, render=False)
 			experienceStore = EsBase.EsBase()
 			runner = EnvRunner.EnvRunner(env, envConfig["MaxSteps"], experienceStore)
 			envRunners.append(runner)
