@@ -2,9 +2,9 @@
 
 ## Status
 ![Unit Tests](https://github.com/louie-jones-strong/DECAF/actions/workflows/UnitTests.yml/badge.svg)
-<!-- ![Type Hint Checks](https://github.com/louie-jones-strong/DECAF/actions/workflows/TypeHintChecks.yml/badge.svg) -->
 ![Lint Checks](https://github.com/louie-jones-strong/DECAF/actions/workflows/LintChecks.yml/badge.svg)
 ![Docs Build](https://github.com/louie-jones-strong/DECAF/actions/workflows/DocsCreation.yml/badge.svg)
+<!-- ![Type Hint Checks](https://github.com/louie-jones-strong/DECAF/actions/workflows/TypeHintChecks.yml/badge.svg) -->
 
 
 ## About
